@@ -12,7 +12,7 @@
 
 CXX = c++
 FLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
-FILES = ./src/main.cpp ./src/Client.cpp #./src/Channel.cpp ./src/Message.cpp ./src/Server.cpp
+FILES = ./src/main.cpp ./src/Client.cpp ./src/Server.cpp #./src/Channel.cpp ./src/Message.cpp 
 OBJS = $(FILES:.cpp=.o)
 NAME = ft_irc 
 SRC_FOLDER = ./src/

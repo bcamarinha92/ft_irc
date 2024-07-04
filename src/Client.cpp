@@ -8,13 +8,20 @@ Client::Client()
 {
 }
 
-Client::Client(int socket) : _socket(socket)
+Client::Client(int socket)
 {
+    _clientAddrLen = sizeof(_clientAddr);
+    _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
+    if (_clientSocket < 0)
+        throw std::invalid_argument("accept");
+    setNonBlocking(_clientSocket);
+    clientPollfd.fd = _clientSocket;
+    clientPollfd.events = POLLIN;
 }
 
 Client::Client( const Client & src )
 {
-	this->_socket = src._socket;
+	this->_clientSocket = src._clientSocket;
 	this->_nickname = src._nickname;
 	this->_username = src._username;
 }
@@ -57,12 +64,22 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 
     int Client::getSocket() const 
 	{
-        return (this->_socket);
+        return (this->_clientSocket);
     }
 
     std::string Client::getNickname() const 
 	{
         return (this->_nickname);
+    }
+
+    sockaddr_in Client::getclientAddr() const
+    {
+        return(this->_clientAddr);
+    }
+
+    socklen_t   Client::getclientAddrLen() const
+    {
+        return(this->_clientAddrLen);
     }
 
     std::string Client::getUsername() const 
@@ -72,7 +89,7 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 
     void Client::setSocket(int socket) 
 	{
-        _socket = socket;
+        _clientSocket = socket;
     }
 
     void Client::setNickname(const std::string& nickname) 
