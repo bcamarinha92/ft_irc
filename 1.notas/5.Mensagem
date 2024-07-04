@@ -1,5 +1,5 @@
 <prefixo (opcional)> <comando> <parametros (max 15)>
-separador de mensagem CR LF
+separador de mensagem CR LF (\r \n)
 mensagens vazias sao ignoradas
 mensagem nao pode exceder 512 chars, incluido o separador de mensagem
 
