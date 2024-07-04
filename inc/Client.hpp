@@ -16,13 +16,18 @@ class Client
 		int 			getSocket() const;
 		std::string 	getNickname() const;
 		std::string 	getUsername() const;
+		sockaddr_in		getclientAddr() const;
+		socklen_t		getclientAddrLen() const;
 		void 			setSocket(int socket);
 		void 			setNickname(const std::string& nickname);
 		void 			setUsername(const std::string& username);
+		pollfd 			clientPollfd;
 	private:
-		int 			_socket;
-    	std::string		_nickname;
+		std::string		_nickname;
     	std::string 	_username;
+		sockaddr_in		_clientAddr;
+		socklen_t 		_clientAddrLen;
+		int 			_clientSocket;
 };
 
 std::ostream &			operator<<( std::ostream & o, Client const & i );

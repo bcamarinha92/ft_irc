@@ -2,6 +2,7 @@
 # define FT_IRC_HPP
 
 # pragma once
+
 # include <iostream>
 # include <cstring>
 # include <vector>
@@ -16,8 +17,12 @@
 # include <cstdio> 
 # include "Client.hpp"
 # include "Message.hpp"
+# include "Server.hpp"
+# include <exception>
 
-# define MAX_CLIENTS 100
-# define BUFFER_SIZE 10
+#define MAX_CLIENTS 100
+#define BUFFER_SIZE 512
+
+void setNonBlocking(int socket);
 
 #endif
