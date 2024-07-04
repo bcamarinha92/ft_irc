@@ -1,6 +1,6 @@
-#include "../inc/Client.hpp"
+#include "../inc/ft_irc.hpp"
 
-const int MAX_CLIENTS = 100;
+
 
 void setNonBlocking(int socket) {
     int flags = fcntl(socket, F_GETFL, 0);
@@ -80,8 +80,9 @@ int main(int argc, char *argv[]) {
                 } else {
                     // Dados recebidos de um cliente
                     int clientSocket = pollfds[i].fd;
-                    char buffer[512];
+                    char buffer[10];
                     int bytesRead = read(clientSocket, buffer, sizeof(buffer));
+                    std::cout << bytesRead <<std::endl;
                     if (bytesRead <= 0) {
                         if (bytesRead < 0) perror("read");
                         close(clientSocket);

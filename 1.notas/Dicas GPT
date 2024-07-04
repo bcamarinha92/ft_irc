@@ -1,0 +1,79 @@
+Dividir um projeto de servidor IRC entre três pessoas pode ser feito de forma eficiente, atribuindo a cada membro da equipe responsabilidades distintas mas interdependentes. Isso permite que cada pessoa trabalhe de forma independente enquanto mantém uma colaboração eficaz. Aqui está uma sugestão de como dividir as tarefas:
+Divisão de Tarefas
+1. Gerenciamento de Conexões e Redes:
+
+    Responsável: Colega 1
+    Tarefas:
+        Implementar a aceitação de conexões de clientes.
+        Gerenciar a comunicação com os clientes (recepção e envio de mensagens).
+        Implementar o protocolo PING/PONG para manter as conexões ativas.
+        Lidar com desconexões e timeouts.
+
+2. Processamento de Comandos e Lógica do Servidor:
+
+    Responsável: Colega 2
+    Tarefas:
+        Implementar o registro de usuários (comandos NICK e USER).
+        Implementar os comandos básicos (JOIN, PART, PRIVMSG, NOTICE, QUIT).
+        Gerenciar o roteamento de mensagens entre clientes e canais.
+        Implementar o gerenciamento de modos de usuários e canais (comando MODE).
+
+3. Gerenciamento de Estado e Dados:
+
+    Responsável: Colega 3
+    Tarefas:
+        Implementar a estrutura de dados para armazenar informações sobre usuários e canais.
+        Gerenciar a persistência e a integridade dos dados do servidor.
+        Implementar as respostas numéricas e mensagens de erro conforme definido no RFC.
+        Manter e atualizar informações de estado (por exemplo, lista de usuários em um canal).
+
+Detalhamento das Tarefas
+Gerenciamento de Conexões e Redes (Colega 1):
+
+    Configuração de Sockets:
+        Configurar o socket do servidor para aceitar conexões.
+        Implementar a aceitação de conexões de clientes e criar threads para cada conexão.
+
+    Comunicação com Clientes:
+        Ler dados recebidos dos clientes.
+        Enviar respostas aos clientes.
+        Implementar um sistema de ping/pong para verificar a conectividade.
+
+    Desconexões e Timeouts:
+        Detectar quando um cliente desconecta e liberar recursos.
+        Implementar timeout para desconexões inativas.
+
+Processamento de Comandos e Lógica do Servidor (Colega 2):
+
+    Registro de Usuários:
+        Implementar a lógica para registrar usuários usando NICK e USER.
+
+    Comandos IRC:
+        JOIN e PART: Gerenciar a entrada e saída de usuários em canais.
+        PRIVMSG e NOTICE: Enviar mensagens privadas entre usuários e em canais.
+        QUIT: Gerenciar a saída de usuários do servidor.
+
+    Modos de Usuário e Canal:
+        Implementar o comando MODE para definir modos de usuário e canal (ex.: operador de canal).
+
+Gerenciamento de Estado e Dados (Colega 3):
+
+    Estrutura de Dados:
+        Criar classes e estruturas para armazenar informações sobre usuários e canais.
+        Gerenciar a lista de usuários conectados e os canais existentes.
+
+    Persistência e Integridade:
+        Garantir que os dados do servidor sejam consistentes e persistentes.
+        Implementar mecanismos para recuperar o estado em caso de reinicialização.
+
+    Respostas e Mensagens de Erro:
+        Implementar códigos de resposta e mensagens de erro conforme especificado no RFC 2812.
+
+    Informações de Estado:
+        Manter atualizadas as informações de estado, como a lista de usuários em cada canal.
+
+Comunicação e Integração
+
+    Reuniões Semanais: Realizar reuniões semanais para discutir o progresso e resolver bloqueios.
+    Sistema de Controle de Versão: Utilizar um sistema de controle de versão (como Git) para facilitar a integração do trabalho de todos.
+    Documentação e Comentários: Cada membro deve documentar seu código e adicionar comentários para facilitar a integração e a manutenção.
