@@ -14,8 +14,18 @@ entre os dois pontos e o prefixo.
 O prefixo e usado pelo servidor para saber qual a origem da mensagem. Caso o prefixo 
 nao seja identificado pelo servidor, a ligacao deve ser terminada
 
-
-Comandos a implementar:
-	-USER
-	-NICK
-	-PASS
+Comandos para implementar:
+	- KICK
+	- INVITE
+	- TOPIC
+	- MODE
+	- JOIN
+	- PART
+	- TOPIC
+	- PRIVMSG
+	- QUIT
+	- WHO
+	- LIST
+	- USER
+	- NICK
+	- PASS
