@@ -15,3 +15,7 @@ O prefixo e usado pelo servidor para saber qual a origem da mensagem. Caso o pre
 nao seja identificado pelo servidor, a ligacao deve ser terminada
 
 
+Comandos a implementar:
+	-USER
+	-NICK
+	-PASS

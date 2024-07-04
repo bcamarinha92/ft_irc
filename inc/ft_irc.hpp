@@ -15,7 +15,9 @@
 # include <cstdlib>
 # include <cstdio> 
 # include "Client.hpp"
+# include "Message.hpp"
 
-const int MAX_CLIENTS = 100;
+# define MAX_CLIENTS 100
+# define BUFFER_SIZE 10
 
 #endif

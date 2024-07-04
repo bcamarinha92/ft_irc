@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
                 } else {
                     // Dados recebidos de um cliente
                     int clientSocket = pollfds[i].fd;
-                    char buffer[10];
+                    char buffer[BUFFER_SIZE];
                     int bytesRead = read(clientSocket, buffer, sizeof(buffer));
                     std::cout << bytesRead <<std::endl;
                     if (bytesRead <= 0) {
@@ -92,7 +92,8 @@ int main(int argc, char *argv[]) {
                         std::cout << "Client disconnected" << std::endl;
                     } else {
                         buffer[bytesRead] = '\0';
-                        std::cout << "Received message: " << buffer << std::endl;
+						Message new_message(buffer);
+						std::cout << "Received message: " << new_message << std::endl;
                     }
                 }
             }
