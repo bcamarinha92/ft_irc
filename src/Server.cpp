@@ -109,6 +109,19 @@ void					Server::setServerSocket(int skt)
 	this->_serverSocket = skt;
 }
 
+void					Server::addClient(Client &user)
+{
+	this->pollfds.push_back(user.clientPollfd);
+	this->clients[user.getSocket()] = user;
+}
+
+void					Server::rmClient(int clientSocket, int i)
+{
+	close(clientSocket);
+	this->pollfds.erase(this->pollfds.begin() + i);
+	this->clients.erase(clientSocket);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
