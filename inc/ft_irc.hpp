@@ -19,9 +19,12 @@
 # include "Message.hpp"
 # include "Server.hpp"
 # include <exception>
+# include <csignal>
 
 #define MAX_CLIENTS 100
 #define BUFFER_SIZE 512
+
+static bool running;
 
 void setNonBlocking(int socket);
 
