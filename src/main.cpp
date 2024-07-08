@@ -7,6 +7,19 @@ void sigHandler(int signal)
         running = false;
 }
 
+std::string extractNickFromInput(const std::string& input) 
+{
+    std::istringstream iss(input);
+    std::string line;
+    
+    while (std::getline(iss, line)) 
+    {
+        if (line.substr(0, 5) == "NICK ")
+            return line.substr(5);
+    }
+    return "";
+}
+
 void setNonBlocking(int socket) 
 {
     int flags = fcntl(socket, F_GETFL, 0);
@@ -20,10 +33,16 @@ void logConsole(char *buffer)
 
 void broadcast(Server &irc, char *buffer, int sender)
 {
+    if (!strncmp(buffer, "CAP", 3))
+    {
+        irc.setNickByFd(sender, extractNickFromInput(buffer));
+        std::cout << "nick " << irc.getNickByFd(sender) <<std::endl;
+    }
     //dei hardcode ao join para poder testar 
     if (!strncmp(buffer, "JOIN", 4))
     {
-        std::string join = ":bde-sous JOIN #batatinhas\n";
+        std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+        std::cout << join << std::endl;
         write (sender, join.c_str(), join.length());
     }
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
@@ -41,7 +60,6 @@ void closeFDs(Server &irc)
         if (irc.pollfds[i].fd != irc.getServerSocket())
             irc.rmClient(irc.pollfds[i].fd, i);
     } 
-
 }
 
 void loopPool(Server &irc)

@@ -122,6 +122,26 @@ void					Server::rmClient(int clientSocket, int i)
 	this->clients.erase(clientSocket);
 }
 
+std::string Server::getNickByFd(int fd) const 
+{
+    std::map<int, Client>::const_iterator it;
+
+	it = this->clients.find(fd);
+    if (it != this->clients.end()) 
+	    return (*it).second.getNickname();   
+    return ""; 
+}
+
+void					Server::setNickByFd(int fd, std::string nickname) 
+{
+	std::map<int, Client>::iterator it;
+	
+	it = this->clients.find(fd);
+	if (it != this->clients.end())
+    	(*it).second.setNickname(nickname);
+}
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

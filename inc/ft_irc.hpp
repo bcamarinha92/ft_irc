@@ -19,6 +19,7 @@
 # include "Server.hpp"
 # include <exception>
 # include <csignal>
+# include <sstream>
 
 #define MAX_CLIENTS 100
 #define BUFFER_SIZE 512
