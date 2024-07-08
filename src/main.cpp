@@ -49,7 +49,8 @@ void broadcast(Server &irc, char *buffer, int sender)
     {
         if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
             continue;
-        write(irc.pollfds[i].fd, buffer, strlen(buffer));
+        std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+        write(irc.pollfds[i].fd, join.c_str(), join.size());
     }
 }
 
