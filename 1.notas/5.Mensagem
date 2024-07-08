@@ -21,7 +21,6 @@ Comandos para implementar:
 	- MODE
 	- JOIN
 	- PART
-	- TOPIC
 	- PRIVMSG
 	- QUIT
 	- WHO
