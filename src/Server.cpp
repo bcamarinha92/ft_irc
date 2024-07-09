@@ -19,7 +19,7 @@ Server::Server(int port, std::string password): _port(port), _password(password)
         close(_serverSocket);
         throw std::invalid_argument("bind");
     }
-    if (listen(_serverSocket, MAX_CLIENTS) < 0) 
+    if (listen(_serverSocket, MAX_FD) < 0) 
 	{
         close(_serverSocket);
         throw std::invalid_argument("socket");
