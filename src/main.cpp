@@ -26,14 +26,14 @@ void setNonBlocking(int socket)
     fcntl(socket, F_SETFL, flags | O_NONBLOCK);
 }
 
-void logConsole(char *buffer)
+void logConsole(std::string buffer)
 {
     std::cout << buffer << std::endl;
 }
 
 void broadcast(Server &irc, char *buffer, int sender)
 {
-    if (!strncmp(buffer, "CAP", 3))
+    if (!strncmp(buffer, "NICK", 4))
     {
         irc.setNickByFd(sender, extractNickFromInput(buffer));
         std::cout << "nick " << irc.getNickByFd(sender) <<std::endl;
@@ -42,15 +42,15 @@ void broadcast(Server &irc, char *buffer, int sender)
     if (!strncmp(buffer, "JOIN", 4))
     {
         std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
-        std::cout << join << std::endl;
-        write (sender, join.c_str(), join.length());
+        logConsole(join);
+        send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
     }
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
         if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
             continue;
         std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
-        write(irc.pollfds[i].fd, join.c_str(), join.size());
+        send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
     }
 }
 
@@ -65,7 +65,7 @@ void closeFDs(Server &irc)
 
 void loopPool(Server &irc)
 {
-    char buffer[BUFFER_SIZE];
+    char *buffer = 0;
     int bytesRead;
     int clientSocket;
 
@@ -86,7 +86,8 @@ void loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                bytesRead = read(clientSocket, buffer, sizeof(buffer));
+                //bytesRead = recv(clientSocket, buffer, sizeof(buffer),0);
+                bytesRead = get_next_line(clientSocket, &buffer);
                 if (bytesRead <= 0) 
                 {   
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
@@ -99,9 +100,8 @@ void loopPool(Server &irc)
                 {
                     //leitura com sucesso, temos que inserir aqui o parsing e criar uma instancia da class Message.
                     //como ainda nao existe, simplesmente dou broadcast para todos os clientes ligados
-                    buffer[bytesRead] = '\0';
                     broadcast(irc, buffer, clientSocket);
-                    logConsole(buffer);
+                    logConsole(std::string(buffer));
                 }
             }
         }
