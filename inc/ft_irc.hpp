@@ -23,10 +23,18 @@
 # include <sstream>
 # include "./gnl/get_next_line_bonus.h"
 
-#define MAX_CLIENTS 100
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 10
+# endif
+# ifndef MAX_FD
+#  define MAX_FD 2048
+# endif
+
 
 static bool running;
 
 void setNonBlocking(int socket);
+std::string getNickFromBuffer(const std::string& input);
+std::string getChannelFromBuffer(const std::string& input); 
 
 #endif

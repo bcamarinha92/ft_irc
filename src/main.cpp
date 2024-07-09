@@ -7,19 +7,6 @@ void sigHandler(int signal)
         running = false;
 }
 
-std::string extractNickFromInput(const std::string& input) 
-{
-    std::istringstream iss(input);
-    std::string line;
-    
-    while (std::getline(iss, line)) 
-    {
-        if (line.substr(0, 5) == "NICK ")
-            return line.substr(5);
-    }
-    return "";
-}
-
 void setNonBlocking(int socket) 
 {
     int flags = fcntl(socket, F_GETFL, 0);
@@ -35,7 +22,7 @@ void broadcast(Server &irc, char *buffer, int sender)
 {
     if (!strncmp(buffer, "NICK", 4))
     {
-        irc.setNickByFd(sender, extractNickFromInput(buffer));
+        irc.setNickByFd(sender, getNickFromBuffer(buffer));
         std::cout << "nick " << irc.getNickByFd(sender) <<std::endl;
     }
     //dei hardcode ao join para poder testar 
@@ -49,7 +36,7 @@ void broadcast(Server &irc, char *buffer, int sender)
     {
         if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
             continue;
-        std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+        std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
         send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
     }
 }
