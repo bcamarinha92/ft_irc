@@ -21,9 +21,9 @@
 # include <exception>
 # include <csignal>
 # include <sstream>
+# include "./gnl/get_next_line_bonus.h"
 
 #define MAX_CLIENTS 100
-#define BUFFER_SIZE 512
 
 static bool running;
 
