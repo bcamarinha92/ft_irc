@@ -7,7 +7,7 @@
 Server::Server(int port, std::string password): _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_serverSocket < 0) 
+	if (_serverSocket < 0)
 		throw std::invalid_argument("socket");
 	std::memset(&_serverAddr, 0, sizeof(_serverAddr));
     _serverAddr.sin_family = AF_INET;
@@ -15,11 +15,11 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     _serverAddr.sin_port = htons(_port);
 
 	if (bind(_serverSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)) < 0)
-	{    
+	{
         close(_serverSocket);
         throw std::invalid_argument("bind");
     }
-    if (listen(_serverSocket, MAX_CLIENTS) < 0) 
+    if (listen(_serverSocket, MAX_CLIENTS) < 0)
 	{
         close(_serverSocket);
         throw std::invalid_argument("socket");
@@ -75,7 +75,7 @@ int						Server::getPort() const
 	return (this->_port);
 }
 
-std::string				Server::getPAssword() const
+std::string				Server::getPassword() const
 {
 	return (this->_password);
 }
@@ -122,25 +122,54 @@ void					Server::rmClient(int clientSocket, int i)
 	this->clients.erase(clientSocket);
 }
 
-std::string Server::getNickByFd(int fd) const 
+void					Server::addChannel(Channel &channel)
+{
+	this->channels[channel.getName()] = channel;
+}
+
+void					Server::rmChannel(std::string channelName)
+{
+	this->channels.erase(channelName);
+}
+
+std::string				Server::getNickByFd(int fd) const
 {
     std::map<int, Client>::const_iterator it;
 
 	it = this->clients.find(fd);
-    if (it != this->clients.end()) 
-	    return (*it).second.getNickname();   
-    return ""; 
+    if (it != this->clients.end())
+	    return (*it).second.getNickname();
+    return "";
 }
 
-void					Server::setNickByFd(int fd, std::string nickname) 
+void					Server::setNickByFd(int fd, std::string nickname)
 {
 	std::map<int, Client>::iterator it;
-	
+
 	it = this->clients.find(fd);
 	if (it != this->clients.end())
     	(*it).second.setNickname(nickname);
 }
 
+const Client&			Server::getClientByFd(int socket) const
+{
+	std::map<int, Client>::const_iterator it = clients.find(socket);
+    if (it != clients.end())
+        return it->second;
+    else
+        throw std::runtime_error("Client not found");
+}
+
+void					Server::printChannelModes(int sender, std::string channel)
+{
+	std::map<std::string, Channel>::iterator	it = this->channels.find(channel);
+	if (it != this->channels.end())
+	{
+		//Channel&	channel = it->second;
+		std::map<int, Client>::iterator	it2 = (it->second).getChannelClients(false).begin();
+
+	}
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

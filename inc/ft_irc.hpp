@@ -14,12 +14,15 @@
 # include <poll.h>
 # include <fcntl.h>
 # include <cstdlib>
-# include <cstdio> 
+# include <cstdio>
 # include "Client.hpp"
+# include "Channel.hpp"
 # include "Server.hpp"
 # include <exception>
 # include <csignal>
 # include <sstream>
+# include <utility>
+# include <algorithm>
 
 #define MAX_CLIENTS 100
 #define BUFFER_SIZE 512
