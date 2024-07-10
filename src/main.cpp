@@ -26,18 +26,21 @@ void broadcast(Server &irc, char *buffer, int sender)
         std::cout << "nick " << irc.getNickByFd(sender) <<std::endl;
     }
     //dei hardcode ao join para poder testar 
-    if (!strncmp(buffer, "JOIN", 4))
+    else if (!strncmp(buffer, "JOIN", 4))
     {
-        std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+        std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
         logConsole(join);
         send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
     }
-    for (size_t i = 0; i < irc.pollfds.size(); ++i)
+    else
     {
-        if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
-            continue;
-        std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
-        send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
+        for (size_t i = 0; i < irc.pollfds.size(); ++i)
+        {
+            if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
+                continue;
+            std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+            send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
+        }
     }
 }
 
