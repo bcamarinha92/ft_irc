@@ -44,6 +44,18 @@ void broadcast(Server &irc, char *buffer, int sender)
     }
 }
 
+void handle_msg(Server &irc, Message message, int sender) {
+	std::string command;
+	
+	command = message.get_command();
+	if (command == "NICK") {
+		irc.setNickByFd(sender, getNickFromBuffer(message.get_buffer()));
+		std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
+	} else if (command == "PASS") {
+		
+	}
+}
+
 void closeFDs(Server &irc)
 {
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
@@ -63,7 +75,7 @@ void loopPool(Server &irc)
     clientSocket = 0;
     for (size_t i = 0; i < irc.pollfds.size(); ++i) 
     {
-        if (irc.pollfds[i].revents & POLLIN) 
+        if (irc.pollfds[i].revents & POLLIN) // Se detetar alguma mudanca
         {
             if (irc.pollfds[i].fd == irc.getServerSocket()) 
             {
@@ -89,9 +101,12 @@ void loopPool(Server &irc)
                 else 
                 {
                     //leitura com sucesso, temos que inserir aqui o parsing e criar uma instancia da class Message.
+					Message new_message(buffer);
+					std::cout << new_message << std::endl;
+					handle_msg(irc, new_message, clientSocket);
                     //como ainda nao existe, simplesmente dou broadcast para todos os clientes ligados
-                    broadcast(irc, buffer, clientSocket);
-                    logConsole(std::string(buffer));
+                    // broadcast(irc, buffer, clientSocket);
+                    // logConsole(std::string(buffer));
                 }
             }
         }

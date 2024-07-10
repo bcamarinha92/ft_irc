@@ -16,6 +16,8 @@ Message::Message( const Message & src )
 Message::Message( char *buffer)
 {
 	this->_buffer = buffer;
+	this->_command = get_buffer_command(buffer);
+	this->_parameters = get_buffer_parameters(buffer);
 }
 
 /*
@@ -42,7 +44,16 @@ Message &				Message::operator=( Message const & rhs )
 
 std::ostream &			operator<<( std::ostream & o, Message const & i )
 {
-	o << i.get_buffer();
+	o << "Buffer: " << i.get_buffer();
+	o << "Command: " << i.get_command() << std::endl;
+	o << "Parameters: ";
+
+	std::vector<std::string> param = i.get_parameters();
+	int length = param.size();
+
+	for(int i = 0; i < length; i++) {
+		std::cout << param[i] << ',' << std::endl;
+	}
 	return o;
 }
 
@@ -59,6 +70,21 @@ std::string Message::get_buffer() const
 void Message::set_buffer(std::string buffer)
 {
 	this->_buffer = buffer;
+}
+
+std::string Message::get_command() const
+{
+	return (_command);
+}
+
+void Message::set_command(std::string command)
+{
+	this->_command = command;
+}
+
+std::vector<std::string> Message::get_parameters() const
+{
+	return (_parameters);
 }
 
 /*
