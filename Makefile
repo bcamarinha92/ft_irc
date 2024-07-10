@@ -16,7 +16,7 @@ FILES = ./src/main.cpp ./src/Client.cpp ./src/Server.cpp ./src/Channel.cpp \
 		./src/gnl/get_next_line_utils_bonus.cpp ./src/gnl/get_next_line_bonus.cpp \
 		./src/basicParsing.cpp #./src/Message.cpp 
 OBJS = $(FILES:.cpp=.o)
-NAME = ft_irc 
+NAME = ircserv 
 SRC_FOLDER = ./src/
 
 all : $(NAME)

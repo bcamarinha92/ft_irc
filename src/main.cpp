@@ -5,12 +5,15 @@ void sigHandler(int signal)
 {
     if (signal == SIGINT) 
         running = false;
+    std::cout << running << std::endl;
+    
 }
 
 void setNonBlocking(int socket) 
 {
-    int flags = fcntl(socket, F_GETFL, 0);
-    fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+    // int flags = fcntl(socket, F_GETFL, 0);
+    // fcntl(socket, F_SETFL, flags | O_NONBLOCK);
+    fcntl(socket, F_SETFL, O_NONBLOCK);
 }
 
 void logConsole(std::string buffer)
@@ -23,13 +26,13 @@ void broadcast(Server &irc, char *buffer, int sender)
     if (!strncmp(buffer, "NICK", 4))
     {
         irc.setNickByFd(sender, getNickFromBuffer(buffer));
-        std::cout << "nick " << irc.getNickByFd(sender) <<std::endl;
+        //send(sender, "RPL_WELCOME(bde-sous, bde-sous, localhost)", strlen("RPL_WELCOME(bde-sous, bde-sous, localhost)"),0);
     }
     //dei hardcode ao join para poder testar 
     else if (!strncmp(buffer, "JOIN", 4))
     {
         std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
-        logConsole(join);
+        //std::string join = JOIN(irc.getNickByFd(sender),getChannelFromBuffer(buffer));
         send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
     }
     else
@@ -46,11 +49,14 @@ void broadcast(Server &irc, char *buffer, int sender)
 
 void closeFDs(Server &irc)
 {
+    std::cout << "closing fd" << std::endl;
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
         if (irc.pollfds[i].fd != irc.getServerSocket())
             irc.rmClient(irc.pollfds[i].fd, i);
     } 
+    std::cout << irc.pollfds.size() << std::endl;
+    close(irc.getServerSocket());
 }
 
 void loopPool(Server &irc)
@@ -119,7 +125,6 @@ int main(int argc, char *argv[])
             loopPool(irc);    
         }
         closeFDs(irc);
-        close(irc.getServerSocket());
     }
     catch(const std::exception& e)
     {
