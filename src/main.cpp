@@ -1,5 +1,6 @@
 #include "../inc/ft_irc.hpp"
 
+bool running;
 
 void sigHandler(int signal) 
 {

@@ -30,13 +30,10 @@
 #  define MAX_FD 2048
 # endif
 
-
-static bool running;
-
 void setNonBlocking(int socket);
 std::string 				getNickFromBuffer(const std::string& input);
 std::string 				getChannelFromBuffer(const std::string& input); 
 std::string 				get_buffer_command(const std::string buffer);
-std::vector<std::string>	get_buffer_parameters(const std::string buffer);
+std::vector<std::string>    get_buffer_parameters(const std::string& buffer);
 
 #endif
