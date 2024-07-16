@@ -14,7 +14,7 @@ class Channel
 		Channel(Channel const& src);
 		~Channel();
 		//overloads
-		Channel &		operator=( Channel const & rhs );
+		Channel&				operator=(Channel const& rhs);
 
 		//methods
 		std::string				getName() const;
@@ -26,20 +26,21 @@ class Channel
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);
 		void					prepareModes();
-		void					activateMode(char mode, int sender, int join);
-		void					deactivateMode(char mode, int sender);
+		bool					activateMode(char mode, int sender, bool join);
+		bool					deactivateMode(char mode, int sender);
 		bool					checkOperatorRole(int fd);
 		std::string				printChannelModes();
 		std::map<int, Client>	getChannelClients(bool op);
+		void					sendMsgToChannelClients(std::string msg);
 		//attributes
 
 	private:
 		//attributes
-		std::string							_name;
-		std::string							_topic;
-		std::map<char, bool>				_modes;
-		std::map<int, Client>				_members;
-		std::map<int, Client>				_operators;
+		std::string					_name;
+		std::string					_topic;
+		std::map<char, bool>		_modes;
+		std::map<int, Client>		_members;
+		std::map<int, Client>		_operators;
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

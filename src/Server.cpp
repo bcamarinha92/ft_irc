@@ -13,13 +13,17 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
-
+	int enable = 1;
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+		close(_serverSocket);
+		throw std::runtime_error("setsockopt");
+	}
 	if (bind(_serverSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)) < 0)
 	{
         close(_serverSocket);
         throw std::invalid_argument("bind");
     }
-    if (listen(_serverSocket, MAX_CLIENTS) < 0)
+    if (listen(_serverSocket, MAX_FD) < 0)
 	{
         close(_serverSocket);
         throw std::invalid_argument("socket");
@@ -70,7 +74,7 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-int						Server::getPort() const
+int					Server::getPort() const
 {
 	return (this->_port);
 }
@@ -84,7 +88,7 @@ sockaddr_in				Server::getServerAddr() const
 	return (this->_serverAddr);
 }
 
-int						Server::getServerSocket() const
+int					Server::getServerSocket() const
 {
 	return (this->_serverSocket);
 }
@@ -160,13 +164,34 @@ const Client&			Server::getClientByFd(int socket) const
         throw std::runtime_error("Client not found");
 }
 
+void					Server::activateChannelMode(std::string const& chn, char mode, int sender, bool join)
+{
+	if (this->channels[chn].activateMode(mode, sender, join))
+	{
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode) + "\n";
+		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
+			std::cerr << "Error occurred while using MODE\n";
+	}
+}
+
+void					Server::deactivateChannelMode(std::string const& chn, char mode, int sender)
+{
+	if (this->channels[chn].deactivateMode(mode, sender))
+	{
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode) + "\n";
+		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
+			std::cerr << "Error occurred while using MODE\n";
+	}
+}
+
 void					Server::printChannelModes(int sender, std::string channel)
 {
 	std::map<std::string, Channel>::iterator	it = this->channels.find(channel);
 	if (it != this->channels.end())
 	{
+		(void)sender;
 		//Channel&	channel = it->second;
-		std::map<int, Client>::iterator	it2 = (it->second).getChannelClients(false).begin();
+		//std::map<int, Client>::iterator	it2 = (it->second).getChannelClients(false).begin();
 
 	}
 }

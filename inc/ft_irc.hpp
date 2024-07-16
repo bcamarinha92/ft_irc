@@ -14,7 +14,7 @@
 # include <poll.h>
 # include <fcntl.h>
 # include <cstdlib>
-# include <cstdio>
+# include <cstdio> 
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "Server.hpp"
@@ -23,12 +23,26 @@
 # include <sstream>
 # include <utility>
 # include <algorithm>
+# include "./gnl/get_next_line_bonus.h"
 
-#define MAX_CLIENTS 100
-#define BUFFER_SIZE 512
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 10
+# endif
+# ifndef MAX_FD
+#  define MAX_FD 2048
+# endif
 
+// exemplos de defines para as mensagens enviadas para o cliete 
+# define JOIN(nick, channel) \
+    (":" + nick + " JOIN " + channel)
+
+# define RLP_WELCOME() \
+    ("localhost 001 bde-sous :Welcome to the Internet Relay Network \r\n")
+ 
 static bool running;
 
 void setNonBlocking(int socket);
+std::string getNickFromBuffer(const std::string& input);
+std::string getChannelFromBuffer(const std::string& input); 
 
 #endif

@@ -15,7 +15,7 @@ Channel::Channel(std::string name)
 	this->prepareModes();
 }
 
-Channel::Channel(const Channel& src)
+Channel::Channel( const Channel & src )
 {
 	(void)src;
 }
@@ -56,22 +56,22 @@ std::ostream &			operator<<( std::ostream & o, Channel const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-std::string			Channel::getName() const
+std::string		Channel::getName() const
 {
 	return(this->_name);
 }
 
-std::string			Channel::getTopic() const
+std::string		Channel::getTopic() const
 {
 	return(this->_topic);
 }
 
-void				Channel::setName(std::string name)
+void			Channel::setName(std::string name)
 {
 	this->_name=name;
 }
 
-void				Channel::setTopic(std::string topic)
+void			Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;
 }
@@ -107,21 +107,29 @@ bool				Channel::checkOperatorRole(int fd)
 	return this->_operators.find(fd) != this->_operators.end();
 }
 
-void				Channel::activateMode(char mode, int sender, int join)
+bool					Channel::activateMode(char mode, int sender, bool join)
 {
 	if (this->checkOperatorRole(sender) || join)
+	{
 		this->_modes[mode] = true;
+		return true;
+	}
+	return false;
 }
 
-void				Channel::deactivateMode(char mode, int sender)
+bool					Channel::deactivateMode(char mode, int sender)
 {
 	if (this->checkOperatorRole(sender))
+	{
 		this->_modes[mode] = false;
+		return true;
+	}
+	return false;
 }
 
 std::string			Channel::printChannelModes()
 {
-	std::stringstream					ss;
+	std::stringstream	ss;
 	ss << "+";
     for (std::map<char, bool>::iterator it = this->_modes.begin(); it != this->_modes.end(); ++it)
     {
@@ -136,6 +144,11 @@ std::map<int, Client>	Channel::getChannelClients(bool op)
 	if (op)
 		return this->_operators;
 	return this->_members;
+}
+
+void					Channel::sendMsgToChannelClients(std::string msg)
+{
+	(void)msg;
 }
 
 /*
