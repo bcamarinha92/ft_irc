@@ -1,3 +1,4 @@
 src/*.o
 ft_irc
+ircserv
 .vscode

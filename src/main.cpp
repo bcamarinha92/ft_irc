@@ -28,7 +28,6 @@ void broadcast(Server &irc, char *buffer, int sender)
         irc.setNickByFd(sender, getNickFromBuffer(buffer));
         //send(sender, "RPL_WELCOME(bde-sous, bde-sous, localhost)", strlen("RPL_WELCOME(bde-sous, bde-sous, localhost)"),0);
     }
-    //dei hardcode ao join para poder testar 
     else if (!strncmp(buffer, "JOIN", 4))
     {
         std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
@@ -45,18 +44,25 @@ void broadcast(Server &irc, char *buffer, int sender)
             send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
         }
     }
+    if (!strncmp(buffer, "QUIT", 4))
+    {
+        running = false;
+    }
 }
 
 void closeFDs(Server &irc)
 {
-    std::cout << "closing fd" << std::endl;
-    for (size_t i = 0; i < irc.pollfds.size(); ++i)
+    size_t  i;
+
+    i = 0;
+    while (i < irc.pollfds.size())
     {
         if (irc.pollfds[i].fd != irc.getServerSocket())
             irc.rmClient(irc.pollfds[i].fd, i);
-    } 
-    std::cout << irc.pollfds.size() << std::endl;
+        i++;
+    }
     close(irc.getServerSocket());
+    irc.pollfds.erase(irc.pollfds.begin());
 }
 
 void loopPool(Server &irc)
@@ -82,7 +88,6 @@ void loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                //bytesRead = recv(clientSocket, buffer, sizeof(buffer),0);
                 bytesRead = get_next_line(clientSocket, &buffer);
                 if (bytesRead <= 0) 
                 {   
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
         while (running) 
         {
             pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), -1);
-            if (pollCount < 0) 
+            if (pollCount < 0 && running) 
                 throw std::invalid_argument("poll");
             loopPool(irc);    
         }

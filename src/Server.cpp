@@ -14,6 +14,11 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
 
+	int enable = 1;
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+		close(_serverSocket);
+		throw std::runtime_error("setsockopt");
+	}
 	if (bind(_serverSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)) < 0)
 	{    
         close(_serverSocket);
