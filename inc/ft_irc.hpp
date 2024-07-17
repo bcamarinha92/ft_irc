@@ -14,12 +14,13 @@
 # include <poll.h>
 # include <fcntl.h>
 # include <cstdlib>
-# include <cstdio> 
-# include "Client.hpp"
-# include "Server.hpp"
+# include <netdb.h>
 # include <exception>
 # include <csignal>
 # include <sstream>
+# include <cstdio> 
+# include "Client.hpp"
+# include "Server.hpp"
 # include "./gnl/get_next_line_bonus.h"
 
 # ifndef BUFFER_SIZE
@@ -32,7 +33,7 @@
 // exemplos de defines para as mensagens enviadas para o cliete 
 
 # define JOIN(nick, channel) \
-    (":" + nick + " JOIN " + channel)
+    (":" + nick + " JOIN " + channel + "\r\n")
 
 # define RLP_WELCOME() \
     ("localhost 001 bde-sous :Welcome to the Internet Relay Network \r\n")

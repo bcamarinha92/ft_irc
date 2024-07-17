@@ -14,6 +14,7 @@ Client::Client(int socket)
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
     if (_clientSocket < 0)
         throw std::invalid_argument("accept");
+    _client_ip = inet_ntoa(_clientAddr.sin_addr);
     setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;

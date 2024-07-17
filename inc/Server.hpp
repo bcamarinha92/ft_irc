@@ -40,6 +40,7 @@ class Server
 		std::string				_password;
 		sockaddr_in 			_serverAddr;
 		int						_serverSocket;
+		struct hostent			*_hostname;
 
 };
 

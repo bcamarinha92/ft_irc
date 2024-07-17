@@ -33,20 +33,20 @@ void broadcast(Server &irc, char *buffer, int sender)
         std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\n";
         //std::string join = JOIN(irc.getNickByFd(sender),getChannelFromBuffer(buffer));
         send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
+        //send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
+        std::string who = ":localhost 353 "+ irc.getNickByFd(sender) + " = " + getChannelFromBuffer(buffer) + " :@"+ irc.getNickByFd(sender) + "\n";
+        send(sender, who.c_str(), who.length(),MSG_DONTWAIT);
     }
     else
     {
+        std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
         for (size_t i = 0; i < irc.pollfds.size(); ++i)
         {
             if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
                 continue;
-            std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
+            //std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
             send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
         }
-    }
-    if (!strncmp(buffer, "QUIT", 4))
-    {
-        running = false;
     }
 }
 

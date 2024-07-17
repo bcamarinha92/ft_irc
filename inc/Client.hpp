@@ -28,6 +28,7 @@ class Client
 		sockaddr_in		_clientAddr;
 		socklen_t 		_clientAddrLen;
 		int 			_clientSocket;
+		char 			*_client_ip;		
 };
 
 std::ostream &			operator<<( std::ostream & o, Client const & i );
