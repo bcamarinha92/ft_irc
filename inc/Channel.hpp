@@ -33,14 +33,14 @@ class Channel
 		std::map<int, Client>	getChannelClients(bool op);
 		void					sendMsgToChannelClients(std::string msg);
 		//attributes
+		std::map<int, Client>	members;
+		std::map<int, Client>	operators;
 
 	private:
 		//attributes
 		std::string					_name;
 		std::string					_topic;
 		std::map<char, bool>		_modes;
-		std::map<int, Client>		_members;
-		std::map<int, Client>		_operators;
 };
 
 std::ostream &			operator<<( std::ostream & o, Channel const & i );

@@ -29,14 +29,21 @@ void	sendMessage(int fd, const std::string& msg)
     send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
-void	who(int sender, Server &irc, std::string const& chn)
+void	who(int sender, Server &irc, std::string const& chn, bool op)
 {
-	std::string const	msg;
-	std::string			clients;
-
-	for (std::map<int, Client>::iterator it = irc.channels[chn].)
-	msg = ":hostcarol "+ irc.getNickByFd(sender) + " = " + chn + " :" +  + "\r\n";
+	std::string	msg;
+	std::string	clients;
+	std::map<int, Client>	clientsMap = irc.channels[chn].getChannelClients(false);
+	std::map<int, Client>::iterator it = clientsMap.begin();
+	clients = irc.getNickByFd(it->first);
+	//++it;
+	//for (; it != clientsMap.end(); ++it)
+	//	clients += " " + irc.getNickByFd(it->first);;
+	logConsole("clientes: " + clients);
+	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :@csilva-f\r\n";
 	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
+	//std::string	msg2 = ":" + irc.getNickByFd(sender) + " " + chn + " :End of /NAMES list.\r\n";
+	//send(sender, msg2.c_str(), msg2.size(), MSG_DONTWAIT);
 }
 
 void broadcast(Server &irc, char *buffer, int sender)
@@ -50,7 +57,6 @@ void broadcast(Server &irc, char *buffer, int sender)
     else if (!strncmp(buffer, "JOIN", 4))
     {
         std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\r\n";
-        //std::string join = JOIN(irc.getNickByFd(sender),getChannelFromBuffer(buffer));
         send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
 		if (irc.channels.find(getChannelFromBuffer(buffer)) == irc.channels.end())
 		{
@@ -59,6 +65,7 @@ void broadcast(Server &irc, char *buffer, int sender)
 			irc.activateChannelMode(getChannelFromBuffer(buffer), 'n', sender, true);
 			irc.activateChannelMode(getChannelFromBuffer(buffer), 't', sender, true);
 			irc.channels[getChannelFromBuffer(buffer)].addClient(irc.getClientByFd(sender));
+			who(sender, irc, channel.getName(), true);
 			irc.channels[getChannelFromBuffer(buffer)].addOperator(irc.getClientByFd(sender));
 		}
 		else

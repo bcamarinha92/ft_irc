@@ -139,13 +139,6 @@ std::string			Channel::printChannelModes()
 	return ss.str();
 }
 
-std::map<int, Client>	Channel::getChannelClients(bool op)
-{
-	if (op)
-		return this->_operators;
-	return this->_members;
-}
-
 void					Channel::sendMsgToChannelClients(std::string msg)
 {
 	(void)msg;

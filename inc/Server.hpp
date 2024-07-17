@@ -41,8 +41,8 @@ class Server
 
 		//atributos
 		std::vector<pollfd> 			pollfds;
-   		std::map<int, Client> 			clients;
-   		std::map<std::string, Channel>	channels;
+		std::map<int, Client> 			clients;
+		std::map<std::string, Channel>	channels;
 		pollfd 							serverPollfd;
 	private:
 		//atributos

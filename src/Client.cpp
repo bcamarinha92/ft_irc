@@ -62,12 +62,12 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-    int Client::getSocket() const 
+    int Client::getSocket() const
 	{
         return (this->_clientSocket);
     }
 
-    std::string Client::getNickname() const 
+    std::string Client::getNickname() const
 	{
         return (this->_nickname);
     }
@@ -82,22 +82,22 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
         return(this->_clientAddrLen);
     }
 
-    std::string Client::getUsername() const 
+    std::string Client::getUsername() const
 	{
         return (this->_username);
     }
 
-    void Client::setSocket(int socket) 
+    void Client::setSocket(int socket)
 	{
         _clientSocket = socket;
     }
 
-    void Client::setNickname(const std::string& nickname) 
+    void Client::setNickname(const std::string& nickname)
 	{
         _nickname = nickname;
     }
 
-    void Client::setUsername(const std::string& username) 
+    void Client::setUsername(const std::string& username)
 	{
         _username = username;
     }

@@ -196,6 +196,8 @@ void					Server::printChannelModes(int sender, std::string channel)
 	}
 }
 
+void
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
