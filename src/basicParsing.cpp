@@ -77,7 +77,11 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 			i++;
 		}
 		param.push_back(buffer.substr(start, i - start));
-		if (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
+		if (buffer[i] == ':' || buffer[i] == '\n' || buffer[i] == '\r')
+		{
+			break;
+		}
+		else
 		{
 			i++;
 		}

@@ -4,37 +4,36 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(int port, std::string password): _port(port), _password(password)
+Server::Server(int port, std::string password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_serverSocket < 0) 
+	if (_serverSocket < 0)
 		throw std::invalid_argument("socket");
 	std::memset(&_serverAddr, 0, sizeof(_serverAddr));
-    _serverAddr.sin_family = AF_INET;
-    _serverAddr.sin_addr.s_addr = INADDR_ANY;
-    _serverAddr.sin_port = htons(_port);
+	_serverAddr.sin_family = AF_INET;
+	_serverAddr.sin_addr.s_addr = INADDR_ANY;
+	_serverAddr.sin_port = htons(_port);
 
-	if (bind(_serverSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)) < 0)
-	{    
-        close(_serverSocket);
-        throw std::invalid_argument("bind");
-    }
-    if (listen(_serverSocket, MAX_FD) < 0) 
+	if (bind(_serverSocket, (sockaddr *)&_serverAddr, sizeof(_serverAddr)) < 0)
 	{
-        close(_serverSocket);
-        throw std::invalid_argument("socket");
-    }
+		close(_serverSocket);
+		throw std::invalid_argument("bind");
+	}
+	if (listen(_serverSocket, MAX_FD) < 0)
+	{
+		close(_serverSocket);
+		throw std::invalid_argument("socket");
+	}
 	setNonBlocking(_serverSocket);
 	serverPollfd.fd = _serverSocket;
-    serverPollfd.events = POLLIN;
-    pollfds.push_back(serverPollfd);
+	serverPollfd.events = POLLIN;
+	pollfds.push_back(serverPollfd);
 }
 
-Server::Server( const Server & src )
+Server::Server(const Server &src)
 {
 	(void)src;
 }
-
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
@@ -44,107 +43,103 @@ Server::~Server()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Server &				Server::operator=( Server const & rhs )
+Server &Server::operator=(Server const &rhs)
 {
-	//if ( this != &rhs )
+	// if ( this != &rhs )
 	//{
-		//this->_value = rhs.getValue();
+	// this->_value = rhs.getValue();
 	//}
 	(void)rhs;
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Server const & i )
+std::ostream &operator<<(std::ostream &o, Server const &i)
 {
-	//o << "Value = " << i.getValue();
+	// o << "Value = " << i.getValue();
 	(void)i;
 	return o;
 }
 
-
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-int						Server::getPort() const
+int Server::getPort() const
 {
 	return (this->_port);
 }
 
-std::string				Server::getPAssword() const
+std::string Server::getPassword() const
 {
 	return (this->_password);
 }
-sockaddr_in				Server::getServerAddr() const
+sockaddr_in Server::getServerAddr() const
 {
 	return (this->_serverAddr);
 }
 
-int						Server::getServerSocket() const
+int Server::getServerSocket() const
 {
 	return (this->_serverSocket);
 }
 
-void					Server::setPort(int port)
+void Server::setPort(int port)
 {
-	this->_port=port;
+	this->_port = port;
 }
 
-void					Server::setPassword(std::string	password)
+void Server::setPassword(std::string password)
 {
 	this->_password = password;
 }
 
-void					Server::setServerAddr(sockaddr_in addr)
+void Server::setServerAddr(sockaddr_in addr)
 {
 	this->_serverAddr = addr;
 }
 
-void					Server::setServerSocket(int skt)
+void Server::setServerSocket(int skt)
 {
 	this->_serverSocket = skt;
 }
 
-void					Server::addClient(Client &user)
+void Server::addClient(Client &user)
 {
 	this->pollfds.push_back(user.clientPollfd);
 	this->clients[user.getSocket()] = user;
 }
 
-void					Server::rmClient(int clientSocket, int i)
+void Server::rmClient(int clientSocket, int i)
 {
 	close(clientSocket);
 	this->pollfds.erase(this->pollfds.begin() + i);
 	this->clients.erase(clientSocket);
 }
 
-std::string Server::getNickByFd(int fd) const 
+std::string Server::getNickByFd(int fd) const
 {
-    std::map<int, Client>::const_iterator it;
+	std::map<int, Client>::const_iterator it;
 
-	it = this->clients.find(fd);
-    if (it != this->clients.end()) 
-	    return (*it).second.getNickname();   
-    return ""; 
-}
-
-void					Server::setNickByFd(int fd, std::string nickname) 
-{
-	std::map<int, Client>::iterator it;
-	
 	it = this->clients.find(fd);
 	if (it != this->clients.end())
-    	(*it).second.setNickname(nickname);
+		return (*it).second.getNickname();
+	return "";
 }
 
+void Server::setNickByFd(int fd, std::string nickname)
+{
+	std::map<int, Client>::iterator it;
+
+	it = this->clients.find(fd);
+	if (it != this->clients.end())
+		(*it).second.setNickname(nickname);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 /* ************************************************************************** */
