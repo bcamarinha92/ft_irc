@@ -7,7 +7,7 @@
 Server::Server(int port, std::string password): _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (_serverSocket < 0) 
+	if (_serverSocket < 0)
 		throw std::invalid_argument("socket");
 	std::memset(&_serverAddr, 0, sizeof(_serverAddr));
     _serverAddr.sin_family = AF_INET;
@@ -21,11 +21,11 @@ Server::Server(int port, std::string password): _port(port), _password(password)
 		throw std::runtime_error("setsockopt");
 	}
 	if (bind(_serverSocket, (sockaddr*)&_serverAddr, sizeof(_serverAddr)) < 0)
-	{    
+	{
         close(_serverSocket);
         throw std::invalid_argument("bind");
     }
-    if (listen(_serverSocket, MAX_FD) < 0) 
+    if (listen(_serverSocket, MAX_FD) < 0)
 	{
         close(_serverSocket);
         throw std::invalid_argument("socket");
@@ -76,12 +76,12 @@ std::ostream &			operator<<( std::ostream & o, Server const & i )
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-int						Server::getPort() const
+int					Server::getPort() const
 {
 	return (this->_port);
 }
 
-std::string				Server::getPAssword() const
+std::string				Server::getPassword() const
 {
 	return (this->_password);
 }
@@ -90,7 +90,7 @@ sockaddr_in				Server::getServerAddr() const
 	return (this->_serverAddr);
 }
 
-int						Server::getServerSocket() const
+int					Server::getServerSocket() const
 {
 	return (this->_serverSocket);
 }
@@ -128,24 +128,76 @@ void					Server::rmClient(int clientSocket, int i)
 	this->clients.erase(clientSocket);
 }
 
-std::string Server::getNickByFd(int fd) const 
+void					Server::addChannel(Channel &channel)
+{
+	this->channels[channel.getName()] = channel;
+}
+
+void					Server::rmChannel(std::string channelName)
+{
+	this->channels.erase(channelName);
+}
+
+std::string				Server::getNickByFd(int fd) const
 {
     std::map<int, Client>::const_iterator it;
 
 	it = this->clients.find(fd);
-    if (it != this->clients.end()) 
-	    return (*it).second.getNickname();   
-    return ""; 
+    if (it != this->clients.end())
+	    return (*it).second.getNickname();
+    return "";
 }
 
-void					Server::setNickByFd(int fd, std::string nickname) 
+void					Server::setNickByFd(int fd, std::string nickname)
 {
 	std::map<int, Client>::iterator it;
-	
+
 	it = this->clients.find(fd);
 	if (it != this->clients.end())
     	(*it).second.setNickname(nickname);
 }
+
+const Client&			Server::getClientByFd(int socket) const
+{
+	std::map<int, Client>::const_iterator it = clients.find(socket);
+    if (it != clients.end())
+        return it->second;
+    else
+        throw std::runtime_error("Client not found");
+}
+
+void					Server::activateChannelMode(std::string const& chn, char mode, int sender, bool join)
+{
+	if (this->channels[chn].activateMode(mode, sender, join))
+	{
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode) + "\n";
+		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
+			std::cerr << "Error occurred while using MODE\n";
+	}
+}
+
+void					Server::deactivateChannelMode(std::string const& chn, char mode, int sender)
+{
+	if (this->channels[chn].deactivateMode(mode, sender))
+	{
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode) + "\n";
+		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
+			std::cerr << "Error occurred while using MODE\n";
+	}
+}
+
+void					Server::printChannelModes(int sender, std::string channel)
+{
+	std::map<std::string, Channel>::iterator	it = this->channels.find(channel);
+	if (it != this->channels.end())
+	{
+		(void)sender;
+		//Channel&	channel = it->second;
+		//std::map<int, Client>::iterator	it2 = (it->second).getChannelClients(false).begin();
+
+	}
+}
+
 
 
 /*

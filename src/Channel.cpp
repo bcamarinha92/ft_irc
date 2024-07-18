@@ -6,6 +6,13 @@
 
 Channel::Channel()
 {
+	this->prepareModes();
+}
+
+Channel::Channel(std::string name)
+{
+	this->_name = name;
+	this->prepareModes();
 }
 
 Channel::Channel( const Channel & src )
@@ -67,7 +74,82 @@ void			Channel::setName(std::string name)
 void			Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;
-}		
+}
+
+void				Channel::addClient(const Client& client)
+{
+	this->members[client.getSocket()] = client;
+}
+
+void				Channel::rmClient(int clientSocket)
+{
+	this->members.erase(clientSocket);
+}
+
+void				Channel::addOperator(const Client& client)
+{
+	this->operators[client.getSocket()] = client;
+}
+
+void				Channel::rmOperator(int clientSocket)
+{
+	this->operators.erase(clientSocket);
+}
+
+void				Channel::prepareModes()
+{
+	for (char i = 'a'; i < 'z' + 1; i++)
+		this->_modes[i] = false;
+}
+
+bool				Channel::checkOperatorRole(int fd)
+{
+	return this->operators.find(fd) != this->operators.end();
+}
+
+bool					Channel::activateMode(char mode, int sender, bool join)
+{
+	if (this->checkOperatorRole(sender) || join)
+	{
+		this->_modes[mode] = true;
+		return true;
+	}
+	return false;
+}
+
+bool					Channel::deactivateMode(char mode, int sender)
+{
+	if (this->checkOperatorRole(sender))
+	{
+		this->_modes[mode] = false;
+		return true;
+	}
+	return false;
+}
+
+std::map<int, Client>	Channel::getChannelClients(bool op)
+{
+    if (op)
+        return this->operators;
+    return this->members;
+}
+
+std::string			Channel::printChannelModes()
+{
+	std::stringstream	ss;
+	ss << "+";
+    for (std::map<char, bool>::iterator it = this->_modes.begin(); it != this->_modes.end(); ++it)
+    {
+		if (it->second == true)
+			ss << it->first;
+	}
+	return ss.str();
+}
+
+void					Channel::sendMsgToChannelClients(std::string msg)
+{
+	(void)msg;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

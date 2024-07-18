@@ -10,9 +10,9 @@ class Client
 
 		Client();
 		Client(int socket);
-		Client( Client const & src );
+		Client(Client const& src);
 		~Client();
-		Client &		operator=( Client const & rhs );
+		Client&			operator=(Client const& rhs);
 		int 			getSocket() const;
 		std::string 	getNickname() const;
 		std::string 	getUsername() const;
@@ -22,6 +22,7 @@ class Client
 		void 			setNickname(const std::string& nickname);
 		void 			setUsername(const std::string& username);
 		pollfd 			clientPollfd;
+
 	private:
 		std::string		_nickname;
     	std::string 	_username;

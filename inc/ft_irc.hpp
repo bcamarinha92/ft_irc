@@ -18,9 +18,12 @@
 # include <exception>
 # include <csignal>
 # include <sstream>
-# include <cstdio> 
 # include "Client.hpp"
 # include "Server.hpp"
+# include <cstdio>
+# include "Channel.hpp"
+# include <utility>
+# include <algorithm>
 # include "./gnl/get_next_line_bonus.h"
 
 # ifndef BUFFER_SIZE
@@ -42,9 +45,6 @@ static bool running;
 
 void setNonBlocking(int socket);
 std::string getNickFromBuffer(const std::string& input);
-std::string getChannelFromBuffer(const std::string& input); 
-
-
-
+std::string getChannelFromBuffer(const std::string& input);
 
 #endif

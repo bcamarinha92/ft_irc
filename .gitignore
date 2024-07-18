@@ -2,3 +2,4 @@ src/*.o
 ft_irc
 ircserv
 .vscode
+ircserv.dSYM/
