@@ -43,8 +43,15 @@
  
 static bool running;
 
-void setNonBlocking(int socket);
+class Server;
+
+void    setNonBlocking(int socket);
 std::string getNickFromBuffer(const std::string& input);
 std::string getChannelFromBuffer(const std::string& input);
+void        printClientMap(const std::map<int, Client*> clientMap);
+void        cmdNick(Server &irc, char *buffer, int sender);
+void        cmdJoin(Server &irc, char *buffer, int sender);
+void        cmdWho(Server &irc, char *buffer, int sender);
+void	    who(int sender, Server &irc, std::string const& chn, bool op);
 
 #endif

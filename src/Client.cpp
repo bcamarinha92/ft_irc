@@ -51,11 +51,13 @@ Client &				Client::operator=( Client const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Client const & i )
+
+std::ostream& operator<<(std::ostream& os, const Client& client) 
 {
-	(void)i;
-	//o << "Value = " << i.getValue();
-	return o;
+    os << "Nickname: " << client.getNickname() << std::endl;
+    os << "Username: " << client.getUsername() << std::endl;
+    os << "Client Socket: " << client.getSocket() << std::endl;
+    return os;
 }
 
 

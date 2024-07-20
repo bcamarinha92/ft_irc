@@ -34,14 +34,14 @@ class Server
 		void					rmClient(int clientSocket, int i);
 		void					addChannel(Channel &channel);
 		void					rmChannel(std::string channelName);
-		const Client&			getClientByFd(int socket) const;
+		Client*					getClientByFd(int socket) const;
 		void					printChannelModes(int sender, std::string channel);
 		void					activateChannelMode(std::string const& chn, char mode, int sender, bool join);
 		void					deactivateChannelMode(std::string const& chn, char mode, int sender);
 
 		//atributos
 		std::vector<pollfd> 			pollfds;
-		std::map<int, Client> 			clients;
+		std::map<int, Client*> 			clients;
 		std::map<std::string, Channel>	channels;
 		pollfd 							serverPollfd;
 	private:

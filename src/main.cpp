@@ -11,8 +11,6 @@ void sigHandler(int signal)
 
 void setNonBlocking(int socket) 
 {
-    // int flags = fcntl(socket, F_GETFL, 0);
-    // fcntl(socket, F_SETFL, flags | O_NONBLOCK);
     fcntl(socket, F_SETFL, O_NONBLOCK);
 }
 
@@ -31,45 +29,25 @@ void	who(int sender, Server &irc, std::string const& chn, bool op)
 {
     (void)op;
 	std::string	msg;
-	std::string	clients;
+    std::string clients = "";
 	std::map<int, Client>	clientsMap = irc.channels[chn].getChannelClients(false);
 	std::map<int, Client>::iterator it = clientsMap.begin();
-	clients = irc.getNickByFd(it->first);
-	//++it;
-	//for (; it != clientsMap.end(); ++it)
-	//	clients += " " + irc.getNickByFd(it->first);;
+    //printClientMap(clientsMap);
+	for (; it != clientsMap.end(); ++it)
+		clients += " " + (it->second).getNickname();
 	logConsole("clientes: " + clients);
 	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :@csilva-f\r\n";
 	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
-	//std::string	msg2 = ":" + irc.getNickByFd(sender) + " " + chn + " :End of /NAMES list.\r\n";
-	//send(sender, msg2.c_str(), msg2.size(), MSG_DONTWAIT);
 }
 
 void broadcast(Server &irc, char *buffer, int sender)
 {
     if (!strncmp(buffer, "NICK", 4))
-    {
-        irc.setNickByFd(sender, getNickFromBuffer(buffer));
-        //send(sender, "RPL_WELCOME(bde-sous, bde-sous, localhost)", strlen("RPL_WELCOME(bde-sous, bde-sous, localhost)"),0);
-    }
-    //dei hardcode ao join para poder testar
+        cmdNick(irc, buffer, sender);
     else if (!strncmp(buffer, "JOIN", 4))
-    {
-        std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + getChannelFromBuffer(buffer) + "\r\n";
-        send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
-		if (irc.channels.find(getChannelFromBuffer(buffer)) == irc.channels.end())
-		{
-			Channel	channel(getChannelFromBuffer(buffer));
-			irc.addChannel(channel);
-			irc.activateChannelMode(getChannelFromBuffer(buffer), 'n', sender, true);
-			irc.activateChannelMode(getChannelFromBuffer(buffer), 't', sender, true);
-			irc.channels[getChannelFromBuffer(buffer)].addClient(irc.getClientByFd(sender));
-			who(sender, irc, channel.getName(), true);
-			irc.channels[getChannelFromBuffer(buffer)].addOperator(irc.getClientByFd(sender));
-		}
-		else
-    		irc.channels[getChannelFromBuffer(buffer)].addClient(irc.getClientByFd(sender));
-	}
+        cmdJoin(irc, buffer, sender);
+    else if (!strncmp(buffer, "WHO", 3))
+        cmdWho(irc,buffer,sender);
     else
     {
         for (size_t i = 0; i < irc.pollfds.size(); ++i)
