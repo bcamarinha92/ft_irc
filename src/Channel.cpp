@@ -15,7 +15,7 @@ Channel::Channel(std::string name)
 	this->prepareModes();
 }
 
-Channel::Channel( const Channel & src )
+Channel::Channel(const Channel& src)
 {
 	(void)src;
 }

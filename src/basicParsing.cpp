@@ -20,7 +20,7 @@ std::string getChannelFromBuffer(const std::string& input)
 
     while (std::getline(iss, line))
     {
-        if (line.substr(0, 5) == "JOIN ")
+        if (line.substr(0, 5) == "JOIN " || line.substr(0, 5) == "MODE ")
             return line.substr(5);
 		if (line.substr(0, 4) == "WHO ")
             return line.substr(4);
@@ -36,14 +36,15 @@ std::string	getModeFromBuffer(const std::string& input)
     {
         if (line.substr(0, 5) == "MODE ")
         {
-			if (line.substr(6, 1) == "+" || line.substr(6, 1) == "-")
+			std::string	chn = getChannelFromBuffer(input);
+			if ((line.substr(5 + chn.size(), 1) == "+" || line.substr(5 + chn.size(), 1) == "-") && line.substr(5 + chn.size()).size() > 1)
 			{
-				std::cout << line.substr(6) << std::endl;
-				return line.substr(6);
+				std::cout << line.substr(5 + chn.size()) << std::endl;
+				return line.substr(5 + chn.size());
 			}
+			else if (line.substr(0, 5 + chn.size()) == "MODE " + chn)
+				return "\n";
 		}
-		if (line.substr(0, 5) == "MODE\n")
-			return "\n";
     }
 	return "";
 }

@@ -1,12 +1,10 @@
 #include "../inc/ft_irc.hpp"
 
-
 void sigHandler(int signal)
 {
     if (signal == SIGINT)
         running = false;
     std::cout << running << std::endl;
-
 }
 
 void setNonBlocking(int socket)
@@ -24,23 +22,6 @@ void	sendMessage(int fd, const std::string& msg)
 	std::string wholeMsg = msg + "\r\n";
     send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
-
-/*void	who(int sender, Server &irc, std::string const& chn, bool op)
-{
-	std::string	msg;
-	std::string	clients;
-	std::map<int, Client>	clientsMap = irc.channels[chn].getChannelClients(false);
-	std::map<int, Client>::iterator it = clientsMap.begin();
-	clients = irc.getNickByFd(it->first);
-	//++it;
-	//for (; it != clientsMap.end(); ++it)
-	//	clients += " " + irc.getNickByFd(it->first);;
-	logConsole("clientes: " + clients);
-	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :@csilva-f\r\n";
-	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
-	//std::string	msg2 = ":" + irc.getNickByFd(sender) + " " + chn + " :End of /NAMES list.\r\n";
-	//send(sender, msg2.c_str(), msg2.size(), MSG_DONTWAIT);
-}*/
 
 void broadcast(Server &irc, char *buffer, int sender)
 {

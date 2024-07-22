@@ -93,7 +93,7 @@ int					Server::getServerSocket() const
 
 void				Server::setPort(int port)
 {
-	this->_port=port;
+	this->_port = port;
 }
 
 void				Server::setPassword(std::string	password)
@@ -114,7 +114,7 @@ void				Server::setServerSocket(int skt)
 void				Server::addClient(Client &user)
 {
 	this->pollfds.push_back(user.clientPollfd);
-	this->clients[user.getSocket()] = &user;
+	this->clients[user.getSocket()] = user;
 }
 
 void				Server::rmClient(int clientSocket, int i)
@@ -126,7 +126,7 @@ void				Server::rmClient(int clientSocket, int i)
 
 void				Server::addChannel(Channel &channel)
 {
-	this->channels[channel.getName()] = &channel;
+	this->channels[channel.getName()] = channel;
 }
 
 void				Server::rmChannel(std::string channelName)
@@ -136,35 +136,31 @@ void				Server::rmChannel(std::string channelName)
 
 std::string			Server::getNickByFd(int fd) const
 {
-    std::map<int, Client*>::const_iterator	it = this->clients.find(fd);
+    std::map<int, Client>::const_iterator	it = this->clients.find(fd);
     if (it != this->clients.end())
-	    return (*it).second->getNickname();
+	    return (*it).second.getNickname();
     return "";
 }
 
 void				Server::setNickByFd(int fd, std::string nickname)
 {
-	std::map<int, Client*>::iterator it = this->clients.find(fd);
+	std::map<int, Client>::iterator it = this->clients.find(fd);
 	if (it != this->clients.end())
-    	(*it).second->setNickname(nickname);
+    	(*it).second.setNickname(nickname);
 }
 
-Client*		Server::getClientByFd(int socket) const
+const Client&		Server::getClientByFd(int socket) const
 {
-	std::map<int, Client*>::const_iterator it = clients.find(socket);
-	printClientMap(clients);
-    if (it != clients.end())
-    {
-		std::cout << *it->second << std::endl;
+	std::map<int, Client>::const_iterator it = clients.find(socket);
+	if (it != clients.end())
 		return it->second;
-	}
-    else
+	else
         throw std::runtime_error("Client not found");
 }
 
 void				Server::activateChannelMode(std::string const& chn, char mode, int sender, bool join)
 {
-	if (this->channels[chn]->activateMode(mode, sender, join))
+	if (this->channels[chn].activateMode(mode, sender, join))
 	{
 		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode) + "\n";
 		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
@@ -174,7 +170,7 @@ void				Server::activateChannelMode(std::string const& chn, char mode, int sende
 
 void				Server::deactivateChannelMode(std::string const& chn, char mode, int sender)
 {
-	if (this->channels[chn]->deactivateMode(mode, sender))
+	if (this->channels[chn].deactivateMode(mode, sender))
 	{
 		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode) + "\n";
 		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
@@ -184,7 +180,7 @@ void				Server::deactivateChannelMode(std::string const& chn, char mode, int sen
 
 void				Server::printChannelModes(int sender, std::string channel)
 {
-	std::map<std::string, Channel*>::iterator	it = this->channels.find(channel);
+	std::map<std::string, Channel>::iterator	it = this->channels.find(channel);
 	if (it != this->channels.end())
 	{
 		(void)sender;

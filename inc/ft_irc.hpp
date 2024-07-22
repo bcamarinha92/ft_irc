@@ -40,14 +40,19 @@ class Server;
 
 static bool running;
 
-void setNonBlocking(int socket);
+// Get Strings from Buffer
 std::string getNickFromBuffer(const std::string& input);
 std::string getChannelFromBuffer(const std::string& input);
 std::string	getModeFromBuffer(const std::string& input);
-void        printClientMap(const std::map<int, Client*> clientMap);
+
+// Commands
 void        cmdNick(Server &irc, char *buffer, int sender);
 void        cmdJoin(Server &irc, char *buffer, int sender);
 void        cmdWho(Server &irc, char *buffer, int sender);
-void	    who(int sender, Server &irc, std::string const& chn, bool op);
-void 		logConsole(std::string buffer);
 void		cmdMode(Server &irc, char *buffer, int sender);
+
+// Other
+void 		setNonBlocking(int socket);
+void 		logConsole(std::string buffer);
+void        printClientMap(const std::map<int, Client*> clientMap);
+
