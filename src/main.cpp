@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <iostream>
 
 
 void sigHandler(int signal)
@@ -6,11 +7,13 @@ void sigHandler(int signal)
     if (signal == SIGINT)
         running = false;
     std::cout << running << std::endl;
-    
+
 }
 
-void setNonBlocking(int socket) 
+void setNonBlocking(int socket)
 {
+    // int flags = fcntl(socket, F_GETFL, 0);
+    // fcntl(socket, F_SETFL, flags | O_NONBLOCK);
     fcntl(socket, F_SETFL, O_NONBLOCK);
 }
 
@@ -23,21 +26,6 @@ void	sendMessage(int fd, const std::string& msg)
 {
 	std::string wholeMsg = msg + "\r\n";
     send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
-}
-
-void	who(int sender, Server &irc, std::string const& chn, bool op)
-{
-    (void)op;
-	std::string	msg;
-    std::string clients = "";
-	std::map<int, Client>	clientsMap = irc.channels[chn].getChannelClients(false);
-	std::map<int, Client>::iterator it = clientsMap.begin();
-    //printClientMap(clientsMap);
-	for (; it != clientsMap.end(); ++it)
-		clients += " " + (it->second).getNickname();
-	logConsole("clientes: " + clients);
-	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :@csilva-f\r\n";
-	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
 void broadcast(Server &irc, char *buffer, int sender)
@@ -58,6 +46,26 @@ void broadcast(Server &irc, char *buffer, int sender)
             send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
         }
     }
+}
+
+void	who(int sender, Server &irc, std::string const& chn, bool op)
+{
+    (void)op;
+	std::string	msg;
+    std::string clients = "";
+	std::map<int, Client>	clientsMap = irc.channels[chn].members;
+	std::map<int, Client>::iterator it = clientsMap.begin();
+    std::cout << chn << std::endl;
+	for (; it != clientsMap.end(); ++it)
+    {
+        if (irc.channels[chn].checkOperatorRole((it->first)))
+        	clients += " @" + (it->second).getNickname();
+        else
+            clients += " " + (it->second).getNickname();
+    }
+	logConsole("clientes: " + clients);
+	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :" + clients + "\r\n";
+	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
 void closeFDs(Server &irc)
@@ -99,8 +107,8 @@ void loopPool(Server &irc)
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
                 bytesRead = get_next_line(clientSocket, &buffer);
-                if (bytesRead <= 0) 
-                {   
+                if (bytesRead <= 0)
+                {
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
                     if (bytesRead < 0)
                         perror("read");
@@ -135,7 +143,7 @@ int main(int argc, char *argv[])
         while (running)
         {
             pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), -1);
-            if (pollCount < 0 && running) 
+            if (pollCount < 0 && running)
                 throw std::invalid_argument("poll");
             loopPool(irc);
         }

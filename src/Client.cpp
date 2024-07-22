@@ -25,6 +25,10 @@ Client::Client( const Client & src )
 	this->_clientSocket = src._clientSocket;
 	this->_nickname = src._nickname;
 	this->_username = src._username;
+	this->_clientAddr = src._clientAddr;
+	this->_clientAddrLen = src._clientAddrLen;
+	this->_client_ip = src._client_ip;
+	this->clientPollfd = src.clientPollfd;
 }
 
 
@@ -43,21 +47,25 @@ Client::~Client()
 
 Client &				Client::operator=( Client const & rhs )
 {
-	(void)rhs;
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+		this->_clientSocket = rhs._clientSocket;
+		this->_nickname = rhs._nickname;
+		this->_username = rhs._username;
+		this->_clientAddr = rhs._clientAddr;
+		this->_clientAddrLen = rhs._clientAddrLen;
+		this->_client_ip = rhs._client_ip;
+		this->clientPollfd = rhs.clientPollfd;
+
+	}
 	return *this;
 }
 
-
-std::ostream& operator<<(std::ostream& os, const Client& client) 
+std::ostream &			operator<<( std::ostream & o, Client const & i )
 {
-    os << "Nickname: " << client.getNickname() << std::endl;
-    os << "Username: " << client.getUsername() << std::endl;
-    os << "Client Socket: " << client.getSocket() << std::endl;
-    return os;
+	(void)i;
+	//o << "Value = " << i.getValue();
+	return o;
 }
 
 

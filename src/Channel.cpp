@@ -127,7 +127,7 @@ bool					Channel::deactivateMode(char mode, int sender)
 	return false;
 }
 
-std::map<int, Client>	&Channel::getChannelClients(bool op)
+std::map<int, Client>	Channel::getChannelClients(bool op)
 {
     if (op)
         return this->operators;

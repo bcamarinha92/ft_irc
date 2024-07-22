@@ -118,7 +118,7 @@ void					Server::setServerSocket(int skt)
 void					Server::addClient(Client &user)
 {
 	this->pollfds.push_back(user.clientPollfd);
-	this->clients[user.getSocket()] = &user;
+	this->clients[user.getSocket()] = user;
 }
 
 void					Server::rmClient(int clientSocket, int i)
@@ -140,32 +140,28 @@ void					Server::rmChannel(std::string channelName)
 
 std::string				Server::getNickByFd(int fd) const
 {
-    std::map<int, Client*>::const_iterator it;
+    std::map<int, Client>::const_iterator it;
 
 	it = this->clients.find(fd);
     if (it != this->clients.end())
-	    return (*it).second->getNickname();
+	    return (*it).second.getNickname();
     return "";
 }
 
 void					Server::setNickByFd(int fd, std::string nickname)
 {
-	std::map<int, Client*>::iterator it;
+	std::map<int, Client>::iterator it;
 
 	it = this->clients.find(fd);
 	if (it != this->clients.end())
-    	(*it).second->setNickname(nickname);
+    	(*it).second.setNickname(nickname);
 }
 
-Client*			Server::getClientByFd(int socket) const
+const Client&			Server::getClientByFd(int socket) const
 {
-	std::map<int, Client*>::const_iterator it = clients.find(socket);
-	printClientMap(clients);
+	std::map<int, Client>::const_iterator it = clients.find(socket);
     if (it != clients.end())
-	{
-		std::cout << *it->second << std::endl;
         return it->second;
-	}
     else
         throw std::runtime_error("Client not found");
 }
