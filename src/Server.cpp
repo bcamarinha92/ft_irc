@@ -50,28 +50,26 @@ Server::~Server()
 {
 }
 
-
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Server &				Server::operator=( Server const & rhs )
+Server &Server::operator=(Server const &rhs)
 {
-	//if ( this != &rhs )
+	// if ( this != &rhs )
 	//{
-		//this->_value = rhs.getValue();
+	// this->_value = rhs.getValue();
 	//}
 	(void)rhs;
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Server const & i )
+std::ostream &operator<<(std::ostream &o, Server const &i)
 {
 	//o << "Value = " << i.getValue();
 	(void)i;
 	return o;
 }
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -203,6 +201,5 @@ void					Server::printChannelModes(int sender, std::string channel)
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
-
 
 /* ************************************************************************** */

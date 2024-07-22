@@ -1,5 +1,5 @@
 #ifndef FT_IRC_HPP
-# define FT_IRC_HPP
+#define FT_IRC_HPP
 
 # pragma once
 

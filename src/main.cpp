@@ -1,6 +1,11 @@
 #include "../inc/ft_irc.hpp"
 #include <iostream>
 
+void sigHandler(int signal)
+{
+    if (signal == SIGINT)
+        running = false;
+}
 
 void sigHandler(int signal)
 {

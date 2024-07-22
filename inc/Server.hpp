@@ -54,6 +54,6 @@ class Server
 
 };
 
-std::ostream &			operator<<( std::ostream & o, Server const & i );
+std::ostream &operator<<(std::ostream &o, Server const &i);
 
 #endif /* ********************************************************** SERVER_H */

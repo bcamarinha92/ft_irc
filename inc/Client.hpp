@@ -7,7 +7,6 @@ class Client
 {
 
 	public:
-
 		Client();
 		Client(int socket);
 		Client(Client const& src);
@@ -22,7 +21,6 @@ class Client
 		void 			setNickname(const std::string& nickname);
 		void 			setUsername(const std::string& username);
 		pollfd 			clientPollfd;
-
 	private:
 		std::string		_nickname;
     	std::string 	_username;
