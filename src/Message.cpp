@@ -4,29 +4,21 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Message::Message()
-{
-}
+Message::Message() {}
 
-Message::Message( const Message & src )
-{
-}
-
+Message::Message(const Message& src) {}
 
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Message::~Message()
-{
-}
-
+Message::~Message() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Message &				Message::operator=( Message const & rhs )
+Message&				Message::operator=(Message const& rhs)
 {
 	//if ( this != &rhs )
 	//{
@@ -35,7 +27,7 @@ Message &				Message::operator=( Message const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Message const & i )
+std::ostream&			operator<<(std::ostream& o, Message const& i)
 {
 	//o << "Value = " << i.getValue();
 	return o;

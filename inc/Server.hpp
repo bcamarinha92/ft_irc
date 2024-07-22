@@ -9,7 +9,6 @@ class Channel;
 
 class Server
 {
-
 	public:
 		//construtores
 		Server(int port, std::string password);
@@ -34,25 +33,27 @@ class Server
 		void					rmClient(int clientSocket, int i);
 		void					addChannel(Channel &channel);
 		void					rmChannel(std::string channelName);
-		const Client&			getClientByFd(int socket) const;
+		Client*					getClientByFd(int socket) const;
 		void					printChannelModes(int sender, std::string channel);
 		void					activateChannelMode(std::string const& chn, char mode, int sender, bool join);
 		void					deactivateChannelMode(std::string const& chn, char mode, int sender);
 
 		//atributos
 		std::vector<pollfd> 			pollfds;
-		std::map<int, Client> 			clients;
-		std::map<std::string, Channel>	channels;
+		std::map<int, Client*> 			clients;
+		std::map<std::string, Channel*>	channels;
 		pollfd 							serverPollfd;
+
 	private:
 		//atributos
 		int						_port;
 		std::string				_password;
 		sockaddr_in 			_serverAddr;
 		int						_serverSocket;
-
+		//struct hostent		*_hostname;
+	//
 };
 
-std::ostream &			operator<<( std::ostream & o, Server const & i );
+std::ostream&			operator<<(std::ostream& o, Server const& i);
 
 #endif /* ********************************************************** SERVER_H */

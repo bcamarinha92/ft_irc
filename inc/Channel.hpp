@@ -30,7 +30,6 @@ class Channel
 		bool					deactivateMode(char mode, int sender);
 		bool					checkOperatorRole(int fd);
 		std::string				printChannelModes();
-		std::map<int, Client>	getChannelClients(bool op);
 		void					sendMsgToChannelClients(std::string msg);
 		//attributes
 		std::map<int, Client>	members;
@@ -38,11 +37,11 @@ class Channel
 
 	private:
 		//attributes
-		std::string					_name;
-		std::string					_topic;
-		std::map<char, bool>		_modes;
+		std::string				_name;
+		std::string				_topic;
+		std::map<char, bool>	_modes;
 };
 
-std::ostream &			operator<<( std::ostream & o, Channel const & i );
+std::ostream&			operator<<(std::ostream& o, Channel const& i);
 
 #endif /* ********************************************************* CHANNEL_H */

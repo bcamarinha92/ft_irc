@@ -1,6 +1,3 @@
-#ifndef FT_IRC_HPP
-# define FT_IRC_HPP
-
 # pragma once
 
 # include <iostream>
@@ -25,6 +22,8 @@
 # include <algorithm>
 # include "./gnl/get_next_line_bonus.h"
 
+class Server;
+
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 10
 # endif
@@ -44,5 +43,11 @@ static bool running;
 void setNonBlocking(int socket);
 std::string getNickFromBuffer(const std::string& input);
 std::string getChannelFromBuffer(const std::string& input);
-
-#endif
+std::string	getModeFromBuffer(const std::string& input);
+void        printClientMap(const std::map<int, Client*> clientMap);
+void        cmdNick(Server &irc, char *buffer, int sender);
+void        cmdJoin(Server &irc, char *buffer, int sender);
+void        cmdWho(Server &irc, char *buffer, int sender);
+void	    who(int sender, Server &irc, std::string const& chn, bool op);
+void 		logConsole(std::string buffer);
+void		cmdMode(Server &irc, char *buffer, int sender);

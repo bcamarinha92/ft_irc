@@ -20,21 +20,17 @@ Channel::Channel( const Channel & src )
 	(void)src;
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Channel::~Channel()
-{
-}
-
+Channel::~Channel() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Channel &				Channel::operator=( Channel const & rhs )
+Channel&				Channel::operator=(Channel const& rhs)
 {
 	(void) rhs;
 	//if ( this != &rhs )
@@ -44,13 +40,12 @@ Channel &				Channel::operator=( Channel const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Channel const & i )
+std::ostream&			operator<<(std::ostream& o, Channel const& i)
 {
 	(void)i;
 	//o << "Value = " << i.getValue();
 	return o;
 }
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -76,38 +71,38 @@ void			Channel::setTopic(std::string topic)
 	this->_topic = topic;
 }
 
-void				Channel::addClient(const Client& client)
+void			Channel::addClient(const Client& client)
 {
-	this->_members[client.getSocket()] = client;
+	this->members[client.getSocket()] = client;
 }
 
-void				Channel::rmClient(int clientSocket)
+void			Channel::rmClient(int clientSocket)
 {
-	this->_members.erase(clientSocket);
+	this->members.erase(clientSocket);
 }
 
-void				Channel::addOperator(const Client& client)
+void			Channel::addOperator(const Client& client)
 {
-	this->_operators[client.getSocket()] = client;
+	this->operators[client.getSocket()] = client;
 }
 
-void				Channel::rmOperator(int clientSocket)
+void			Channel::rmOperator(int clientSocket)
 {
-	this->_operators.erase(clientSocket);
+	this->operators.erase(clientSocket);
 }
 
-void				Channel::prepareModes()
+void			Channel::prepareModes()
 {
 	for (char i = 'a'; i < 'z' + 1; i++)
 		this->_modes[i] = false;
 }
 
-bool				Channel::checkOperatorRole(int fd)
+bool			Channel::checkOperatorRole(int fd)
 {
-	return this->_operators.find(fd) != this->_operators.end();
+	return this->operators.find(fd) != this->operators.end();
 }
 
-bool					Channel::activateMode(char mode, int sender, bool join)
+bool			Channel::activateMode(char mode, int sender, bool join)
 {
 	if (this->checkOperatorRole(sender) || join)
 	{
@@ -117,7 +112,7 @@ bool					Channel::activateMode(char mode, int sender, bool join)
 	return false;
 }
 
-bool					Channel::deactivateMode(char mode, int sender)
+bool			Channel::deactivateMode(char mode, int sender)
 {
 	if (this->checkOperatorRole(sender))
 	{
@@ -127,7 +122,7 @@ bool					Channel::deactivateMode(char mode, int sender)
 	return false;
 }
 
-std::string			Channel::printChannelModes()
+std::string		Channel::printChannelModes()
 {
 	std::stringstream	ss;
 	ss << "+";
@@ -139,7 +134,7 @@ std::string			Channel::printChannelModes()
 	return ss.str();
 }
 
-void					Channel::sendMsgToChannelClients(std::string msg)
+void			Channel::sendMsgToChannelClients(std::string msg)
 {
 	(void)msg;
 }
