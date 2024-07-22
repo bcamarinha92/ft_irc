@@ -13,18 +13,48 @@ std::string getNickFromBuffer(const std::string &input)
 	return "";
 }
 
-std::string getChannelFromBuffer(const std::string &input)
+std::string getChannelFromBuffer(const std::string& input)
 {
-	std::istringstream iss(input);
-	std::string line;
+	int i;
+	std::string::size_type start, end;
+	std::string comandos[4] = {
+		"PRIVMSG",
+		"JOIN",
+		"INVITE",
+		"WHO"
+	};
 
-	while (std::getline(iss, line))
+	i = 0;
+	while (i < 4)
 	{
-		if (line.substr(0, 5) == "JOIN ")
-			return line.substr(5);
+		start = input.find(comandos[i]);
+		if (start != std::string::npos)
+		{
+			start += comandos[i].length();
+			break;
+		}
+		i++;
 	}
-	return "";
+	if (start == std::string::npos) 
+        return "";
+	if (comandos[i] == "PRIVMSG")
+	{
+		end = input.find(":", start);
+		if (end == std::string::npos) 
+			return "";
+	}
+	else
+		end = input.find('\n', start);
+    std::string::size_type begin = start;
+    while (begin < end && isspace(input[begin]))
+        ++begin;
+    std::string::size_type finish = end - 1;
+    while (finish > begin && isspace(input[finish]))
+        --finish;
+    std::string result = input.substr(begin, finish - begin + 1);
+   	return result;
 }
+
 
 std::string get_buffer_command(const std::string buffer)
 {
@@ -89,32 +119,5 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 
 	return param;
 }
-#include "../inc/Server.hpp"
 
-std::string getNickFromBuffer(const std::string& input)
-{
-    std::istringstream iss(input);
-    std::string line;
 
-    while (std::getline(iss, line))
-    {
-        if (line.substr(0, 5) == "NICK ")
-            return line.substr(5);
-    }
-    return "";
-}
-
-std::string getChannelFromBuffer(const std::string& input)
-{
-    std::istringstream iss(input);
-    std::string line;
-
-    while (std::getline(iss, line))
-    {
-        if (line.substr(0, 5) == "JOIN ")
-            return line.substr(5);
-        if (line.substr(0, 4) == "WHO ")
-            return line.substr(4);
-    }
-    return "";
-}

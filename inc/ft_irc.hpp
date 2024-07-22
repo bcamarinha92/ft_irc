@@ -4,6 +4,8 @@
 # pragma once
 
 # include <iostream>
+# include <string>
+# include <cctype>
 # include <cstring>
 # include <vector>
 # include <map>
@@ -19,6 +21,7 @@
 # include <csignal>
 # include <sstream>
 # include "Client.hpp"
+# include "Message.hpp"
 # include "Server.hpp"
 # include <cstdio>
 # include "Channel.hpp"
@@ -43,14 +46,19 @@
 
 static bool running;
 class Server;
+class Message;
 
-void        setNonBlocking(int socket);
-std::string getNickFromBuffer(const std::string& input);
-std::string getChannelFromBuffer(const std::string& input);
-void        printClientMap(const std::map<int, Client*> clientMap);
-void        cmdNick(Server &irc, char *buffer, int sender);
-void        cmdJoin(Server &irc, char *buffer, int sender);
-void        cmdWho(Server &irc, char *buffer, int sender);
-void	    who(int sender, Server &irc, std::string const& chn, bool op);
+void                        setNonBlocking(int socket);
+std::string                 getNickFromBuffer(const std::string& input);
+std::string                 getChannelFromBuffer(const std::string& input);
+void                        cmdNick(Server &irc, Message *message, int sender);
+void                        cmdJoin(Server &irc, Message *message, int sender);
+void                        cmdWho(Server &irc, std::string chn, int sender);
+void                        cmdPass(Server &irc, Message *message, int sender);
+void                        cmdPrivMsg(Server &irc, Message *message, int sender);
+void	                    who(int sender, Server &irc, std::string const& chn, bool op);
+std::vector<std::string>    get_buffer_parameters(const std::string &buffer);
+std::string                 get_buffer_command(const std::string buffer);
+void                        logConsole(std::string buffer);
 
 #endif

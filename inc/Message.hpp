@@ -11,7 +11,7 @@ class Message
 		//Constructors
 		Message();
 		Message( Message const & src );
-		Message( char *buffer);
+		Message(char *buffer, int sender);
 		
 		//Destructors
 		~Message();
@@ -20,6 +20,8 @@ class Message
 		std::string 				get_buffer() const;
 		std::string 				get_command() const;
 		std::vector<std::string>	get_parameters() const;	
+		int 						get_sender();
+		std::string 				get_destination() const;
 
 		//Setters
 		void set_buffer(std::string buffer);
@@ -31,6 +33,8 @@ class Message
 		std::string 				_buffer;
 		std::string 				_command;
 		std::vector<std::string>	_parameters;
+		int							_sender;
+		std::string					_destination;
 
 };
 

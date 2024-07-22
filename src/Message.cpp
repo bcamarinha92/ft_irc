@@ -13,11 +13,12 @@ Message::Message( const Message & src )
 	*this = src;
 }
 
-Message::Message( char *buffer)
+Message::Message(char *buffer, int sender): _sender(sender)
 {
 	this->_buffer = buffer;
 	this->_command = get_buffer_command(buffer);
 	this->_parameters = get_buffer_parameters(buffer);
+	this->_destination = getChannelFromBuffer(std::string(buffer));
 }
 
 /*
@@ -65,6 +66,16 @@ std::ostream &			operator<<( std::ostream & o, Message const & i )
 std::string Message::get_buffer() const
 {
 	return (_buffer);
+}
+
+int			Message::get_sender()
+{
+	return(_sender);
+}
+
+std::string	Message::get_destination() const
+{
+	return(_destination);
 }
 
 void Message::set_buffer(std::string buffer)

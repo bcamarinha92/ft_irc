@@ -7,14 +7,6 @@ void sigHandler(int signal)
         running = false;
 }
 
-void sigHandler(int signal)
-{
-    if (signal == SIGINT)
-        running = false;
-    std::cout << running << std::endl;
-
-}
-
 void setNonBlocking(int socket)
 {
     // int flags = fcntl(socket, F_GETFL, 0);
@@ -22,9 +14,9 @@ void setNonBlocking(int socket)
     fcntl(socket, F_SETFL, O_NONBLOCK);
 }
 
-void logConsole(std::string buffer)
+void logConsole(std::string message)
 {
-    std::cout << buffer << std::endl;
+    std::cout << message << std::endl;
 }
 
 void	sendMessage(int fd, const std::string& msg)
@@ -33,24 +25,24 @@ void	sendMessage(int fd, const std::string& msg)
     send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
-void broadcast(Server &irc, char *buffer, int sender)
+void broadcast(Server &irc, Message *message, int sender)
 {
-    if (!strncmp(buffer, "NICK", 4))
-        cmdNick(irc, buffer, sender);
-    else if (!strncmp(buffer, "JOIN", 4))
-        cmdJoin(irc, buffer, sender);
-    else if (!strncmp(buffer, "WHO", 3))
-        cmdWho(irc,buffer,sender);
-    else
-    {
-        for (size_t i = 0; i < irc.pollfds.size(); ++i)
-        {
-            if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
-                continue;
-            std::string join = ":"+ irc.getNickByFd(sender) + " " + std::string(buffer) + "\n";
-            send(irc.pollfds[i].fd, join.c_str(), join.size(),MSG_DONTWAIT);
-        }
-    }
+    if (message->get_command() == "PASS")
+        cmdNick(irc, message, sender);
+    else if (message->get_command() == "NICK")
+        cmdNick(irc, message, sender);
+    else if (message->get_command() == "JOIN")
+        cmdJoin(irc, message, sender);
+    else if (message->get_command() == "WHO")
+        cmdWho(irc,message->get_destination(),sender);
+    else if (message->get_command() == "PRIVMSG")
+        cmdPrivMsg(irc,message,sender);
+    // else
+    // {
+    //     std::string join = ":server 461 :Not enough parameters\n";
+    //     logConsole(join);
+    //     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    // }
 }
 
 void	who(int sender, Server &irc, std::string const& chn, bool op)
@@ -60,7 +52,6 @@ void	who(int sender, Server &irc, std::string const& chn, bool op)
     std::string clients = "";
 	std::map<int, Client>	clientsMap = irc.channels[chn].members;
 	std::map<int, Client>::iterator it = clientsMap.begin();
-    std::cout << chn << std::endl;
 	for (; it != clientsMap.end(); ++it)
     {
         if (irc.channels[chn].checkOperatorRole((it->first)))
@@ -90,7 +81,7 @@ void closeFDs(Server &irc)
 
 void loopPool(Server &irc)
 {
-    char *buffer = 0;
+    char *message = 0;
     int bytesRead;
     int clientSocket;
 
@@ -111,7 +102,7 @@ void loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                bytesRead = get_next_line(clientSocket, &buffer);
+                bytesRead = get_next_line(clientSocket, &message);
                 if (bytesRead <= 0)
                 {
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
@@ -122,10 +113,10 @@ void loopPool(Server &irc)
                 }
                 else
                 {
-                    //leitura com sucesso, temos que inserir aqui o parsing e criar uma instancia da class Message.
-                    //como ainda nao existe, simplesmente dou broadcast para todos os clientes ligados
-                    broadcast(irc, buffer, clientSocket);
-                    logConsole(std::string(buffer));
+                    Message new_message(message, clientSocket);
+                    broadcast(irc, &new_message, clientSocket);
+                    //broadcast(irc, message, clientSocket);
+                    logConsole(std::string(message));
                 }
             }
         }
