@@ -6,6 +6,7 @@
 # include <iostream>
 # include <string>
 # include <cctype>
+# include <ctime>
 # include <cstring>
 # include <vector>
 # include <map>
@@ -56,6 +57,7 @@ void                        cmdJoin(Server &irc, Message *message, int sender);
 void                        cmdWho(Server &irc, std::string chn, int sender);
 void                        cmdPass(Server &irc, Message *message, int sender);
 void                        cmdPrivMsg(Server &irc, Message *message, int sender);
+void                        cmdCap(Server &irc, Message *message, int sender);
 void	                    who(int sender, Server &irc, std::string const& chn, bool op);
 std::vector<std::string>    get_buffer_parameters(const std::string &buffer);
 std::string                 get_buffer_command(const std::string buffer);

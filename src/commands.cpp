@@ -1,10 +1,38 @@
 #include "../inc/ft_irc.hpp"
 
+void    cmdCap(Server &irc, Message *message, int sender)
+{
+    std::string join;
+    (void)irc;
+    if (message->get_buffer().find("CAP REQ")!= std::string::npos)
+        join = ":bde-sous CAP ACK :multi-prefix\r\n";    
+    else if (message->get_buffer().find("CAP LS")!= std::string::npos)
+        join = ":bde-sous CAP * LS :multi-prefix\r\n";
+    else
+        return ;
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+}
 
 void    cmdNick(Server &irc, Message *message, int sender)
 {
     irc.setNickByFd(sender, getNickFromBuffer(message->get_buffer()));
     std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
+    std::string join = ":localhost 002 bde-sous :Your host is PauloBrificado, running version 0.01\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    time_t t = irc.getCreationDate();
+    join = ":localhost 003 bde-sous :This server was created at " + std::string(std::ctime(&t)) + "\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    join = ":localhost 004 bde-sous localhost 0.01 ao itkol\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    join = ":localhost 005 bde-sous PREFIX=(ov)@+ CHANTYPES=#& CHANMODES=beI,k,l,imnprstz CASEMAPPING=ascii NETWORK=PauloBrificado\r\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    join = ":localhost 372 bde-sous :- Welcome to the IRC Server - Enjoy your stay!\r\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }
 
 void    cmdJoin(Server &irc, Message *message, int sender)
@@ -39,7 +67,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
     {
         if (message->get_parameters()[0] == irc.getPassword())
         {
-            std::string join = ":server 001 :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
+            std::string join = ":localhost 001 bde-sous :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
@@ -49,7 +77,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
             close(sender);
-        }
+        }        
     }
     else
     {

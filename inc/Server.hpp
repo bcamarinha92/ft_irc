@@ -24,6 +24,7 @@ class Server
 		std::string				getPassword() const;
 		sockaddr_in				getServerAddr() const;
 		int						getServerSocket() const;
+		std::time_t				getCreationDate() const;
 		std::string				getNickByFd(int fd) const;
 		void					setNickByFd(int fd, std::string nickname);
 		void					setPort(int port);
@@ -50,6 +51,7 @@ class Server
 		std::string				_password;
 		sockaddr_in 			_serverAddr;
 		int						_serverSocket;
+		std::time_t				_creationTime;
 		//struct hostent			*_hostname;
 
 };

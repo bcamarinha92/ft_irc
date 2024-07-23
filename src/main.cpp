@@ -27,8 +27,10 @@ void	sendMessage(int fd, const std::string& msg)
 
 void broadcast(Server &irc, Message *message, int sender)
 {
-    if (message->get_command() == "PASS")
-        cmdNick(irc, message, sender);
+    if (message->get_command() == "CAP")
+        cmdCap(irc, message, sender);
+    else if (message->get_command() == "PASS")
+        cmdPass(irc, message, sender);
     else if (message->get_command() == "NICK")
         cmdNick(irc, message, sender);
     else if (message->get_command() == "JOIN")
@@ -134,6 +136,8 @@ int main(int argc, char *argv[])
     {
         Server irc(atoi(argv[1]), argv[2]);
         int pollCount;
+        time_t t = irc.getCreationDate();
+        std::cout << std::ctime(&t) << std::endl;
         signal(SIGINT, sigHandler);
         running = true;
         while (running)

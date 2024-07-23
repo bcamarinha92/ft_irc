@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(int port, std::string password): _port(port), _password(password)
+Server::Server(int port, std::string password): _port(port), _password(password), _creationTime(std::time(0))
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket < 0)
@@ -91,6 +91,11 @@ sockaddr_in				Server::getServerAddr() const
 int					Server::getServerSocket() const
 {
 	return (this->_serverSocket);
+}
+
+std::time_t			Server::getCreationDate() const
+{
+	return (this->_creationTime);
 }
 
 void					Server::setPort(int port)
