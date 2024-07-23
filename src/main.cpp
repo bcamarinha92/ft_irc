@@ -40,7 +40,7 @@ void broadcast(Server &irc, Message *message, int sender)
 	} else if (message->get_command() == "CAP") {
 		cmdCap(message);
 	} else if (message->get_command() == "USER") {
-		
+		cmdUser(message,&irc.getClientByFd(sender));
 	}
     // else
     // {

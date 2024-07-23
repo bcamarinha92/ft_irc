@@ -72,9 +72,14 @@ std::string Message::get_buffer() const
 	return (_buffer);
 }
 
-int			Message::get_sender()
+int			Message::get_sender() const
 {
 	return(_sender);
+}
+
+std::string	Message::get_nickname() const
+{
+	return (_nickname);
 }
 
 std::string	Message::get_destination() const

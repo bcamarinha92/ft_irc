@@ -51,12 +51,15 @@ class Message;
 void                        setNonBlocking(int socket);
 std::string                 getNickFromBuffer(const std::string& input);
 std::string                 getChannelFromBuffer(const std::string& input);
+//Commands
 void                        cmdNick(Server &irc, Message *message, int sender);
 void                        cmdJoin(Server &irc, Message *message, int sender);
 void                        cmdWho(Server &irc, std::string chn, int sender);
 void                        cmdPass(Server &irc, Message *message, int sender);
 void                        cmdPrivMsg(Server &irc, Message *message, int sender);
 void						cmdCap(Message *message);
+void						cmdUser(Message *message, Client *user);
+
 void	                    who(int sender, Server &irc, std::string const& chn, bool op);
 std::vector<std::string>    get_buffer_parameters(const std::string &buffer);
 std::string                 get_buffer_command(const std::string buffer);

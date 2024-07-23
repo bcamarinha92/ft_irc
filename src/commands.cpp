@@ -41,7 +41,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
         {
             std::string join = "Welcome to the Paulo Brificado's IRC !\n";
             logConsole(join);
-            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            //send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
         else
         {
@@ -75,6 +75,14 @@ void	cmdCap(Message *message) {
 	send(message->get_sender(), "CAP * LS :", 10, MSG_DONTWAIT);
 }
 
-void	cmdUser(Message *message, Client *user) {
+void	cmdUser(Message *message, Client *user) { //Esta a dar segfault :c
+	std::vector<std::string> parameters = message->get_parameters();
 	
+	user->setUsername(parameters[0]);
+	user->setHostname(parameters[1]);
+	user->setServername(parameters[2]);
+	user->setRealname(parameters[3]);
+
+	std::string join = ":server 001 " + message->get_nickname() + " :Welcome to Paulo Brificado's IRC network " + message->get_nickname();
+	send(message->get_sender(), &join, join.size(), MSG_DONTWAIT);
 }

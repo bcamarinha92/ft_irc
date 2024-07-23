@@ -83,6 +83,18 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
         return (this->_nickname);
     }
 
+	std::string Client::getRealname() const {
+		return (this->_realname);
+	}
+
+	std::string Client::getServername() const {
+		return (this->_servername);
+	}
+
+	std::string Client::getHostname() const {
+		return (this->_hostname);
+	}
+
     sockaddr_in Client::getclientAddr() const
     {
         return(this->_clientAddr);
@@ -113,6 +125,20 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
         _username = username;
     }
 
+	void Client::setRealname(const std::string& realname)
+	{	
+		_realname = realname;
+	}
+
+	void Client::setHostname(const std::string& hostname)
+	{
+		_hostname = hostname;
+	}
+
+	void Client::setServername(const std::string& servername)
+	{
+		_servername = servername;
+	}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

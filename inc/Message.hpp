@@ -20,7 +20,8 @@ class Message
 		std::string 				get_buffer() const;
 		std::string 				get_command() const;
 		std::vector<std::string>	get_parameters() const;	
-		int 						get_sender();
+		int 						get_sender() const;
+		std::string					get_nickname() const;
 		std::string 				get_destination() const;
 		std::string					get_prefix() const;
 		std::string					get_trailing() const;
