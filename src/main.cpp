@@ -27,41 +27,24 @@ void	sendMessage(int fd, const std::string& msg)
 
 void broadcast(Server &irc, Message *message, int sender)
 {
-    if (message->get_command() == "PASS")
-        cmdNick(irc, message, sender);
-    else if (message->get_command() == "NICK")
-        cmdNick(irc, message, sender);
-    else if (message->get_command() == "JOIN")
-        cmdJoin(irc, message, sender);
-    else if (message->get_command() == "WHO")
-        cmdWho(irc,message->get_destination(),sender);
-    else if (message->get_command() == "PRIVMSG")
-        cmdPrivMsg(irc,message,sender);
+	if (message->get_command() == "PASS")
+		cmdNick(irc, message, sender);
+	else if (message->get_command() == "NICK")
+		cmdNick(irc, message, sender);
+	else if (message->get_command() == "JOIN")
+		cmdJoin(irc, message, sender);
+	else if (message->get_command() == "WHO")
+		cmdWho(irc, message, sender);
+	else if (message->get_command() == "MODE")
+		cmdMode(irc, message, sender);
+	else if (message->get_command() == "PRIVMSG")
+		cmdPrivMsg(irc, message, sender);
     // else
     // {
     //     std::string join = ":server 461 :Not enough parameters\n";
     //     logConsole(join);
     //     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
     // }
-}
-
-void	who(int sender, Server &irc, std::string const& chn, bool op)
-{
-    (void)op;
-	std::string	msg;
-    std::string clients = "";
-	std::map<int, Client>	clientsMap = irc.channels[chn].members;
-	std::map<int, Client>::iterator it = clientsMap.begin();
-	for (; it != clientsMap.end(); ++it)
-    {
-        if (irc.channels[chn].checkOperatorRole((it->first)))
-        	clients += " @" + (it->second).getNickname();
-        else
-            clients += " " + (it->second).getNickname();
-    }
-	logConsole("clientes: " + clients);
-	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :" + clients + "\r\n";
-	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
 void closeFDs(Server &irc)
@@ -82,11 +65,9 @@ void closeFDs(Server &irc)
 void loopPool(Server &irc)
 {
     char *message = 0;
-    int bytesRead;
-    int clientSocket;
+    int bytesRead = 0;
+    int clientSocket = 0;
 
-    bytesRead = 0;
-    clientSocket = 0;
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
         if (irc.pollfds[i].revents & POLLIN)
@@ -113,7 +94,7 @@ void loopPool(Server &irc)
                 }
                 else
                 {
-                    Message new_message(message, clientSocket);
+                    Message	new_message(message, clientSocket);
                     broadcast(irc, &new_message, clientSocket);
                     //broadcast(irc, message, clientSocket);
                     logConsole(std::string(message));

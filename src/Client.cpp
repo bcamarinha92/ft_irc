@@ -4,9 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client()
-{
-}
+Client::Client() {}
 
 Client::Client(int socket)
 {
@@ -20,7 +18,7 @@ Client::Client(int socket)
     clientPollfd.events = POLLIN;
 }
 
-Client::Client( const Client & src )
+Client::Client(const Client& src)
 {
 	this->_clientSocket = src._clientSocket;
 	this->_nickname = src._nickname;
@@ -31,21 +29,17 @@ Client::Client( const Client & src )
 	this->clientPollfd = src.clientPollfd;
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Client::~Client()
-{
-}
-
+Client::~Client() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Client &				Client::operator=( Client const & rhs )
+Client&				Client::operator=(Client const& rhs)
 {
 	if ( this != &rhs )
 	{
@@ -61,7 +55,7 @@ Client &				Client::operator=( Client const & rhs )
 	return *this;
 }
 
-std::ostream &			operator<<( std::ostream & o, Client const & i )
+std::ostream&			operator<<(std::ostream& o, Client const& i)
 {
 	(void)i;
 	//o << "Value = " << i.getValue();
@@ -73,45 +67,45 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-    int Client::getSocket() const
-	{
-        return (this->_clientSocket);
-    }
+int Client::getSocket() const
+{
+	return (this->_clientSocket);
+}
 
-    std::string Client::getNickname() const
-	{
-        return (this->_nickname);
-    }
+std::string Client::getNickname() const
+{
+    return (this->_nickname);
+}
 
-    sockaddr_in Client::getclientAddr() const
-    {
-        return(this->_clientAddr);
-    }
+sockaddr_in Client::getclientAddr() const
+{
+    return(this->_clientAddr);
+}
 
-    socklen_t   Client::getclientAddrLen() const
-    {
-        return(this->_clientAddrLen);
-    }
+socklen_t   Client::getclientAddrLen() const
+{
+    return(this->_clientAddrLen);
+}
 
-    std::string Client::getUsername() const
-	{
-        return (this->_username);
-    }
+std::string Client::getUsername() const
+{
+    return (this->_username);
+}
 
-    void Client::setSocket(int socket)
-	{
-        _clientSocket = socket;
-    }
+void Client::setSocket(int socket)
+{
+    _clientSocket = socket;
+}
 
-    void Client::setNickname(const std::string& nickname)
-	{
-        _nickname = nickname;
-    }
+void Client::setNickname(const std::string& nickname)
+{
+    _nickname = nickname;
+}
 
-    void Client::setUsername(const std::string& username)
-	{
-        _username = username;
-    }
+void Client::setUsername(const std::string& username)
+{
+    _username = username;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

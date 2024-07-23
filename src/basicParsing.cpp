@@ -1,9 +1,9 @@
 #include "../inc/Server.hpp"
 
-std::string getNickFromBuffer(const std::string &input)
+std::string	getNickFromBuffer(const std::string &input)
 {
-	std::istringstream iss(input);
-	std::string line;
+	std::istringstream	iss(input);
+	std::string			line;
 
 	while (std::getline(iss, line))
 	{
@@ -13,19 +13,32 @@ std::string getNickFromBuffer(const std::string &input)
 	return "";
 }
 
-std::string getChannelFromBuffer(const std::string& input)
+std::string	cleanString(const std::string& name)
 {
-	int i;
-	std::string::size_type start, end;
-	std::string comandos[4] = {
+    std::string	cleanedStr;
+
+    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it)
+	{
+        if (std::isprint(*it))
+            cleanedStr += *it;
+    }
+    return cleanedStr;
+}
+
+std::string	getChannelFromBuffer(const std::string& input)
+{
+	int						i = 0;
+	std::string::size_type	start, end;
+	std::string				comandos[5] =
+	{
 		"PRIVMSG",
 		"JOIN",
 		"INVITE",
-		"WHO"
+		"WHO",
+		"MODE"
 	};
 
-	i = 0;
-	while (i < 4)
+	while (i < 5)
 	{
 		start = input.find(comandos[i]);
 		if (start != std::string::npos)
@@ -35,12 +48,19 @@ std::string getChannelFromBuffer(const std::string& input)
 		}
 		i++;
 	}
-	if (start == std::string::npos) 
+	if (start == std::string::npos)
         return "";
 	if (comandos[i] == "PRIVMSG")
 	{
 		end = input.find(":", start);
-		if (end == std::string::npos) 
+		if (end == std::string::npos)
+			return "";
+	}
+	else if (comandos[i] == "MODE")
+	{
+		start++;
+		end = input.find(" ", start);
+		if (end == std::string::npos)
 			return "";
 	}
 	else
@@ -52,71 +72,74 @@ std::string getChannelFromBuffer(const std::string& input)
     while (finish > begin && isspace(input[finish]))
         --finish;
     std::string result = input.substr(begin, finish - begin + 1);
-   	return result;
+   	return cleanString(result);
 }
 
-
-std::string get_buffer_command(const std::string buffer)
+std::string	getModeFromBuffer(const std::string& input)
 {
-	int i = 0;
-	int start = 0;
+	std::istringstream	iss(input);
+    std::string			line;
+
+	while (std::getline(iss, line))
+    {
+        if (line.substr(0, 5) == "MODE ")
+        {
+			std::string	chn = getChannelFromBuffer(input);
+			if ((line.substr(6 + chn.size(), 1) == "+" || line.substr(6 + chn.size(), 1) == "-") && line.substr(6 + chn.size()).size() > 1)
+				return line.substr(6 + chn.size());
+			else if (line.substr(0, 5 + chn.size()) == "MODE " + chn)
+				return "\n";
+		}
+    }
+	return "";
+}
+
+std::string	get_buffer_command(const std::string buffer)
+{
+	int	i = 0;
+	int	start = 0;
 
 	if (buffer[i] == ':')
 	{
 		while (buffer[i] != ' ')
-		{
 			i++;
-		}
 		i++;
 	}
 
 	start = i;
 	while (buffer[i] != ' ')
-	{
 		i++;
-	}
 
 	return (buffer.substr(start, i));
 }
 
 std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 {
-	std::vector<std::string> param;
-	size_t i = 0;
+	std::vector<std::string>	param;
+	size_t						i = 0;
 
 	if (buffer[i] == ':')
 	{
 		while (buffer[i] && buffer[i] != ' ')
-		{
 			i++;
-		}
 		i++;
 	}
 
 	while (buffer[i] && buffer[i] != ' ')
-	{
 		i++;
-	}
 	i++;
 
 	while (buffer[i])
 	{
 		size_t start = i;
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
-		{
 			i++;
-		}
 		param.push_back(buffer.substr(start, i - start));
 		if (buffer[i] == ':' || buffer[i] == '\n' || buffer[i] == '\r')
-		{
 			break;
-		}
 		else
-		{
 			i++;
-		}
 	}
-
 	return param;
 }
 

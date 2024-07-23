@@ -21,15 +21,16 @@ class Client
 		void 			setNickname(const std::string& nickname);
 		void 			setUsername(const std::string& username);
 		pollfd 			clientPollfd;
+
 	private:
 		std::string		_nickname;
     	std::string 	_username;
 		sockaddr_in		_clientAddr;
 		socklen_t 		_clientAddrLen;
 		int 			_clientSocket;
-		char 			*_client_ip;		
+		char 			*_client_ip;
 };
 
-std::ostream &			operator<<( std::ostream & o, Client const & i );
+std::ostream&			operator<<(std::ostream& o, Client const& i);
 
 #endif /* ********************************************************** CLIENT_H */

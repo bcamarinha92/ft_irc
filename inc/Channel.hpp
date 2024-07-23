@@ -2,6 +2,7 @@
 # define CHANNEL_HPP
 
 # include "ft_irc.hpp"
+# include <ctime>
 
 class Client;
 
@@ -13,12 +14,14 @@ class Channel
 		Channel(std::string name);
 		Channel(Channel const& src);
 		~Channel();
+
 		//overloads
 		Channel&				operator=(Channel const& rhs);
 
 		//methods
 		std::string				getName() const;
 		std::string				getTopic() const;
+		std::string				getCreatedAtTime() const;
 		void					setName(std::string name);
 		void					setTopic(std::string topic);
 		void					addClient(const Client& client);
@@ -32,6 +35,9 @@ class Channel
 		std::string				printChannelModes();
 		std::map<int, Client>	getChannelClients(bool op);
 		void					sendMsgToChannelClients(std::string msg);
+		std::string				getLocalIPAddress();
+		std::vector<int>		getChannelClientsFds();
+
 		//attributes
 		std::map<int, Client>	members;
 		std::map<int, Client>	operators;
@@ -41,8 +47,9 @@ class Channel
 		std::string					_name;
 		std::string					_topic;
 		std::map<char, bool>		_modes;
+		std::time_t					_createdAt;
 };
 
-std::ostream &			operator<<( std::ostream & o, Channel const & i );
+std::ostream&			operator<<(std::ostream& o, Channel const& i);
 
 #endif /* ********************************************************* CHANNEL_H */

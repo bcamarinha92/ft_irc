@@ -25,6 +25,7 @@ class Server
 		sockaddr_in				getServerAddr() const;
 		int						getServerSocket() const;
 		std::string				getNickByFd(int fd) const;
+		std::string				getHostname() const;
 		void					setNickByFd(int fd, std::string nickname);
 		void					setPort(int port);
 		void					setPassword(std::string password);
@@ -44,16 +45,19 @@ class Server
 		std::map<int, Client> 			clients;
 		std::map<std::string, Channel>	channels;
 		pollfd 							serverPollfd;
+
 	private:
 		//atributos
 		int						_port;
 		std::string				_password;
 		sockaddr_in 			_serverAddr;
 		int						_serverSocket;
-		//struct hostent			*_hostname;
+		struct hostent*			_host;
+		std::string				_hostIP;
+		std::string				_hostname;
 
 };
 
-std::ostream &operator<<(std::ostream &o, Server const &i);
+std::ostream				&operator<<(std::ostream &o, Server const &i);
 
 #endif /* ********************************************************** SERVER_H */

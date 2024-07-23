@@ -13,9 +13,15 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     _serverAddr.sin_family = AF_INET;
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
+	_hostIP = inet_ntoa(_serverAddr.sin_addr);
 
+	_host = gethostbyname(_hostIP.c_str());
+    if (_host == NULL) {
+        std::cerr << "gethostbyname() failed" << std::endl;
+    }
+	_hostname = _host->h_name;
 	int enable = 1;
-	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) 
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 	{
 		close(_serverSocket);
 		throw std::runtime_error("setsockopt");
@@ -41,14 +47,11 @@ Server::Server( const Server & src )
 	(void)src;
 }
 
-
 /*
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Server::~Server()
-{
-}
+Server::~Server() {}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -91,6 +94,11 @@ sockaddr_in				Server::getServerAddr() const
 int					Server::getServerSocket() const
 {
 	return (this->_serverSocket);
+}
+
+std::string			Server::getHostname() const
+{
+	return (this->_hostname);
 }
 
 void					Server::setPort(int port)
