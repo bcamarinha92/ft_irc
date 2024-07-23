@@ -56,9 +56,12 @@ void                        cmdJoin(Server &irc, Message *message, int sender);
 void                        cmdWho(Server &irc, std::string chn, int sender);
 void                        cmdPass(Server &irc, Message *message, int sender);
 void                        cmdPrivMsg(Server &irc, Message *message, int sender);
+void						cmdCap(Message *message);
 void	                    who(int sender, Server &irc, std::string const& chn, bool op);
 std::vector<std::string>    get_buffer_parameters(const std::string &buffer);
 std::string                 get_buffer_command(const std::string buffer);
+std::string					get_buffer_prefix(const std::string buffer);
+std::string 				get_buffer_trailing(const std::string buffer);
 void                        logConsole(std::string buffer);
 
 #endif

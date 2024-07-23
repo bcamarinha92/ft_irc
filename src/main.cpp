@@ -28,21 +28,27 @@ void	sendMessage(int fd, const std::string& msg)
 void broadcast(Server &irc, Message *message, int sender)
 {
     if (message->get_command() == "PASS")
-        cmdNick(irc, message, sender);
+        cmdPass(irc, message, sender);
     else if (message->get_command() == "NICK")
         cmdNick(irc, message, sender);
     else if (message->get_command() == "JOIN")
         cmdJoin(irc, message, sender);
     else if (message->get_command() == "WHO")
         cmdWho(irc,message->get_destination(),sender);
-    else if (message->get_command() == "PRIVMSG")
+    else if (message->get_command() == "PRIVMSG") {
         cmdPrivMsg(irc,message,sender);
+	} else if (message->get_command() == "CAP") {
+		cmdCap(message);
+	} else if (message->get_command() == "USER") {
+		
+	}
     // else
     // {
     //     std::string join = ":server 461 :Not enough parameters\n";
     //     logConsole(join);
     //     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
     // }
+	std::cout << *message << std::endl;
 }
 
 void	who(int sender, Server &irc, std::string const& chn, bool op)
@@ -113,7 +119,7 @@ void loopPool(Server &irc)
                 }
                 else
                 {
-                    Message new_message(message, clientSocket);
+                    Message new_message(message, clientSocket, irc.getNickByFd(clientSocket));
                     broadcast(irc, &new_message, clientSocket);
                     //broadcast(irc, message, clientSocket);
                     logConsole(std::string(message));

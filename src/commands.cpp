@@ -39,13 +39,13 @@ void    cmdPass(Server &irc, Message *message, int sender)
     {
         if (message->get_parameters()[0] == irc.getPassword())
         {
-            std::string join = ":server 001 :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
+            std::string join = "Welcome to the Paulo Brificado's IRC !\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
         else
         {
-            std::string join = ":server 403 " + irc.getNickByFd(sender) + " :Invalid password\n";
+            std::string join = "Invalid password !\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
             close(sender);
@@ -68,4 +68,13 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
             continue;
         send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
     }
+}
+
+void	cmdCap(Message *message) {
+	logConsole("CAP * LS :");
+	send(message->get_sender(), "CAP * LS :", 10, MSG_DONTWAIT);
+}
+
+void	cmdUser(Message *message, Client *user) {
+	
 }

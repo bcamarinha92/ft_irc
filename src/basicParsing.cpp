@@ -79,6 +79,17 @@ std::string get_buffer_command(const std::string buffer)
 	return (buffer.substr(start, i));
 }
 
+std::string	get_buffer_prefix(const std::string buffer) {
+	int	i = 1;
+
+	if (buffer[0] != ':')
+		return "";
+	while (buffer[i] && buffer[i] != ' ') {
+		i++;
+	}
+	return (buffer.substr(1, i - 1));
+}
+
 std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 {
 	std::vector<std::string> param;
@@ -106,7 +117,9 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 		{
 			i++;
 		}
-		param.push_back(buffer.substr(start, i - start));
+		if (i != start) {
+			param.push_back(buffer.substr(start, i - start));
+		}
 		if (buffer[i] == ':' || buffer[i] == '\n' || buffer[i] == '\r')
 		{
 			break;
@@ -120,4 +133,18 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	return param;
 }
 
+std::string get_buffer_trailing(const std::string buffer) {
+	std::size_t index;
 
+	if (buffer[0] == ':') {
+		index = buffer.substr(1, buffer.size() - 1).find(':');  
+	} else {
+		index = buffer.find(':');
+	}
+
+	if (index != std::string::npos) {
+		return buffer.substr(index + 1, buffer.size() - (index + 1));
+	} else {
+		return "";
+	}
+}

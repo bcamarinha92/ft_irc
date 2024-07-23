@@ -13,12 +13,14 @@ Message::Message( const Message & src )
 	*this = src;
 }
 
-Message::Message(char *buffer, int sender): _sender(sender)
+Message::Message(char *buffer, int sender, std::string nickname): _sender(sender), _nickname(nickname)
 {
-	this->_buffer = buffer;
-	this->_command = get_buffer_command(buffer);
-	this->_parameters = get_buffer_parameters(buffer);
-	this->_destination = getChannelFromBuffer(std::string(buffer));
+	this->_buffer 		= buffer;
+	this->_prefix		= get_buffer_prefix(buffer);
+	this->_command 		= get_buffer_command(buffer);
+	this->_parameters 	= get_buffer_parameters(buffer);
+	this->_trailing		= get_buffer_trailing(buffer);
+	this->_destination 	= getChannelFromBuffer(std::string(buffer));
 }
 
 /*
@@ -46,6 +48,7 @@ Message &				Message::operator=( Message const & rhs )
 std::ostream &			operator<<( std::ostream & o, Message const & i )
 {
 	o << "Buffer: " << i.get_buffer();
+	o << "Prefix: " << i.get_prefix() << std::endl;
 	o << "Command: " << i.get_command() << std::endl;
 	o << "Parameters: ";
 
@@ -55,6 +58,7 @@ std::ostream &			operator<<( std::ostream & o, Message const & i )
 	for(int i = 0; i < length; i++) {
 		std::cout << param[i] << ',' << std::endl;
 	}
+	o << "Trailing: " << i.get_trailing() << std::endl;
 	return o;
 }
 
@@ -86,6 +90,15 @@ void Message::set_buffer(std::string buffer)
 std::string Message::get_command() const
 {
 	return (_command);
+}
+
+std::string Message::get_prefix() const
+{
+	return (_prefix);
+}
+
+std::string Message::get_trailing() const {
+	return (_trailing);
 }
 
 void Message::set_command(std::string command)
