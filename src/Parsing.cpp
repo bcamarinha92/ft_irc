@@ -29,16 +29,17 @@ std::string	getChannelFromBuffer(const std::string& input)
 {
 	int						i = 0;
 	std::string::size_type	start, end;
-	std::string				comandos[5] =
+	std::string				comandos[6] =
 	{
 		"PRIVMSG",
 		"JOIN",
 		"INVITE",
 		"WHO",
-		"MODE"
+		"MODE",
+		"PART"
 	};
 
-	while (i < 5)
+	while (i < 6)
 	{
 		start = input.find(comandos[i]);
 		if (start != std::string::npos)
@@ -56,7 +57,7 @@ std::string	getChannelFromBuffer(const std::string& input)
 		if (end == std::string::npos)
 			return "";
 	}
-	else if (comandos[i] == "MODE")
+	else if (comandos[i] == "MODE" || comandos[i] == "PART")
 	{
 		start++;
 		end = input.find(" ", start);
@@ -115,6 +116,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 {
 	std::vector<std::string>	param;
 	size_t						i = 0;
+	std::string					cmd = get_buffer_command(buffer);
 
 	if (buffer[i] == ':')
 	{
@@ -127,12 +129,14 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	i++;
 	while (buffer[i])
 	{
+		if (buffer[i] == ':' && cmd == "PART")
+			i++;
 		size_t start = i;
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
 			i++;
 		if (start != i)
 			param.push_back(buffer.substr(start, i - start));
-		if (buffer[i] == ':' || buffer[i] == '\n' || buffer[i] == '\r')
+		if ((buffer[i] == ':' && cmd != "PART") || buffer[i] == '\n' || buffer[i] == '\r')
 			break;
 		else
 			i++;

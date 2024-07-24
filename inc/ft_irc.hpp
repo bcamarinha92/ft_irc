@@ -31,11 +31,12 @@
 # include "Channel.hpp"
 
 // Error messages
-# define ERR1 "Error: joining the channel"
+# define ERR1 "Error: joining channel"
 # define ERR2 "Error: obtaining the channel's modes list"
 # define ERR3 "Error: obtaining the channel info"
 # define ERR4 "Error: activation of channel mode"
 # define ERR5 "Error: deactivation of channel mode"
+# define ERR6 "Error: parting channel"
 
 class Server;
 class Message;
@@ -71,6 +72,7 @@ void		cmdPass(Server &irc, Message *message, int sender);
 void		cmdPrivMsg(Server &irc, Message *message, int sender);
 void		cmdMode(Server &irc, Message *message, int sender);
 void		cmdCap(Server &irc, Message *message, int sender);
+void		cmdPart(Server &irc, Message *message, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);

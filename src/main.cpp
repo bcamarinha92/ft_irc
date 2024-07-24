@@ -16,6 +16,8 @@ void broadcast(Server &irc, Message *message, int sender)
 		cmdMode(irc, message, sender);
 	else if (message->get_command() == "PRIVMSG")
 		cmdPrivMsg(irc, message, sender);
+	else if (message->get_command() == "PART")
+		cmdPart(irc, message, sender);
     // else
     // {
     //     std::string join = ":server 461 :Not enough parameters\n";

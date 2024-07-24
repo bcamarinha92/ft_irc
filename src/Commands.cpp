@@ -79,8 +79,8 @@ void    cmdWho(Server &irc, Message *message, int sender)
         	else
             	clients += (it->second).getNickname();
     	}
-		logConsole("clientes: " + clients);
-		msg = ":" + irc.getHostname() + " 353 " + irc.getNickByFd(sender) + " = " + message->get_destination() + " :" + clients + "\r\n";
+		msg = ":" + irc.getHostname() + " 353 " + irc.getNickByFd(sender) + " = " \
+			+ message->get_destination() + " :" + clients + "\r\n";
 		send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
 	}
 }
@@ -91,7 +91,8 @@ void    cmdPass(Server &irc, Message *message, int sender)
     {
         if (message->get_parameters()[0] == irc.getPassword())
         {
-            std::string msg = ":server 001 :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
+            std::string msg = ":server 001 :Welcome to the Paulo Brificado's IRC " \
+				+ irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
             logConsole(msg);
             send(sender, msg.c_str(), msg.length(), MSG_DONTWAIT);
         }
@@ -158,11 +159,21 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
 		time_t	t = irc.channels[chn].getCreatedAtTime();
-		std::string msg = ":" + irc.getHostname() + " 324 " + irc.getNickByFd(sender) + " " + chn + " :" + irc.channels[chn].getChannelModes();
+		std::string msg = ":" + irc.getHostname() + " 324 " + irc.getNickByFd(sender) \
+			+ " " + chn + " :" + irc.channels[chn].getChannelModes();
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR2, false);
-		msg = ":" + irc.getHostname() + " 329 " + irc.getNickByFd(sender) + " " + chn + " :" + std::string(ctime(&t));
+		msg = ":" + irc.getHostname() + " 329 " + irc.getNickByFd(sender) + " " \
+			+ chn + " :" + std::string(ctime(&t));
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR3, false);
 	}
 }
 
-
+void	cmdPart(Server &irc, Message *message, int sender)
+{
+	std::string chn = message->get_destination();
+	std::string	reason = message->get_parameters()[1];
+	std::cout << "Reason: " << reason << std::endl;
+	std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
+		+ "@" + irc.getHostname() + " PART " + chn + " " + reason;
+	sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR6, true);
+}
