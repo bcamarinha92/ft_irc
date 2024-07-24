@@ -31,7 +31,7 @@ Message::~Message() {}
 
 Message&				Message::operator=(Message const& rhs)
 {
-	if ( this != &rhs )
+	if (this != &rhs)
 		this->_buffer = rhs.get_buffer();
 	return *this;
 }
@@ -45,9 +45,8 @@ std::ostream&			operator<<(std::ostream& o, Message const& i)
 	std::vector<std::string>	param = i.get_parameters();
 	int							length = param.size();
 
-	for(int i = 0; i < length; i++) {
+	for(int i = 0; i < length; i++)
 		std::cout << param[i] << ',' << std::endl;
-	}
 	return o;
 }
 

@@ -63,6 +63,7 @@ void		cmdWho(Server &irc, Message *message, int sender);
 void		cmdPass(Server &irc, Message *message, int sender);
 void		cmdPrivMsg(Server &irc, Message *message, int sender);
 void		cmdMode(Server &irc, Message *message, int sender);
+void		cmdCap(Server &irc, Message *message, int sender);
 
 // Other
 void 		setNonBlocking(int socket);

@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <iostream>
 
 void sigHandler(int signal)
 {
@@ -27,7 +26,9 @@ void	sendMessage(int fd, const std::string& msg)
 
 void broadcast(Server &irc, Message *message, int sender)
 {
-	if (message->get_command() == "PASS")
+	if (message->get_command() == "CAP")
+        cmdCap(irc, message, sender);
+	else if (message->get_command() == "PASS")
 		cmdNick(irc, message, sender);
 	else if (message->get_command() == "NICK")
 		cmdNick(irc, message, sender);

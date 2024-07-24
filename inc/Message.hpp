@@ -22,10 +22,10 @@ class Message
 		std::string 				get_destination() const;
 
 		//Setters
-		void set_buffer(std::string buffer);
-		void set_command(std::string command);
+		void	set_buffer(std::string buffer);
+		void 	set_command(std::string command);
 
-		Message &		operator=(Message const& rhs);
+		Message&		operator=(Message const& rhs);
 
 	private:
 		std::string 				_buffer;

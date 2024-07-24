@@ -105,11 +105,9 @@ std::string	get_buffer_command(const std::string buffer)
 			i++;
 		i++;
 	}
-
 	start = i;
 	while (buffer[i] != ' ')
 		i++;
-
 	return (buffer.substr(start, i));
 }
 
@@ -124,11 +122,9 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 			i++;
 		i++;
 	}
-
 	while (buffer[i] && buffer[i] != ' ')
 		i++;
 	i++;
-
 	while (buffer[i])
 	{
 		size_t start = i;
@@ -142,5 +138,3 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	}
 	return param;
 }
-
-

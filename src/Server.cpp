@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(int port, std::string password): _port(port), _password(password)
+Server::Server(int port, std::string password): _port(port), _password(password), _creationTime(std::time(0))
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket < 0)
@@ -42,7 +42,7 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     pollfds.push_back(serverPollfd);
 }
 
-Server::Server( const Server & src )
+Server::Server(const Server& src)
 {
 	(void)src;
 }
@@ -57,7 +57,7 @@ Server::~Server() {}
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Server &Server::operator=(Server const &rhs)
+Server			&Server::operator=(Server const &rhs)
 {
 	// if ( this != &rhs )
 	//{
@@ -67,7 +67,7 @@ Server &Server::operator=(Server const &rhs)
 	return *this;
 }
 
-std::ostream &operator<<(std::ostream &o, Server const &i)
+std::ostream	&operator<<(std::ostream &o, Server const &i)
 {
 	//o << "Value = " << i.getValue();
 	(void)i;
@@ -77,7 +77,7 @@ std::ostream &operator<<(std::ostream &o, Server const &i)
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-int					Server::getPort() const
+int						Server::getPort() const
 {
 	return (this->_port);
 }
@@ -91,12 +91,17 @@ sockaddr_in				Server::getServerAddr() const
 	return (this->_serverAddr);
 }
 
-int					Server::getServerSocket() const
+int						Server::getServerSocket() const
 {
 	return (this->_serverSocket);
 }
 
-std::string			Server::getHostname() const
+std::time_t				Server::getCreationDate() const
+{
+	return (this->_creationTime);
+}
+
+std::string				Server::getHostname() const
 {
 	return (this->_hostname);
 }

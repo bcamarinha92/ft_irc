@@ -30,7 +30,7 @@ Channel::~Channel() {}
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Channel &				Channel::operator=( Channel const & rhs )
+Channel&				Channel::operator=(Channel const& rhs)
 {
 	(void) rhs;
 	//if ( this != &rhs )
