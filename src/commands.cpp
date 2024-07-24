@@ -9,7 +9,11 @@ void    cmdCap(Server &irc, Message *message, int sender)
     else if (message->get_buffer().find("CAP LS")!= std::string::npos)
         join = ":bde-sous CAP * LS :multi-prefix\r\n";
     else
+    {
+        sendSequenceRPL(irc, message, sender);
+        sendMOTD(irc, message, sender);
         return ;
+    }
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }
 
@@ -17,22 +21,6 @@ void    cmdNick(Server &irc, Message *message, int sender)
 {
     irc.setNickByFd(sender, getNickFromBuffer(message->get_buffer()));
     std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
-    std::string join = ":localhost 002 bde-sous :Your host is PauloBrificado, running version 0.01\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    time_t t = irc.getCreationDate();
-    join = ":localhost 003 bde-sous :This server was created at " + std::string(std::ctime(&t)) + "\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":localhost 004 bde-sous localhost 0.01 ao itkol\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":localhost 005 bde-sous PREFIX=(ov)@+ CHANTYPES=#& CHANMODES=beI,k,l,imnprstz CASEMAPPING=ascii NETWORK=PauloBrificado\r\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":localhost 372 bde-sous :- Welcome to the IRC Server - Enjoy your stay!\r\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }
 
 void    cmdJoin(Server &irc, Message *message, int sender)
@@ -65,13 +53,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
 {
     if (message->get_parameters().size() == 1)
     {
-        if (message->get_parameters()[0] == irc.getPassword())
-        {
-            std::string join = ":localhost 001 bde-sous :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
-            logConsole(join);
-            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-        }
-        else
+        if (message->get_parameters()[0] != irc.getPassword())
         {
             std::string join = ":server 403 " + irc.getNickByFd(sender) + " :Invalid password\n";
             logConsole(join);
@@ -96,4 +78,13 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
             continue;
         send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
     }
+}
+
+void    cmdPing(Message *message, int sender)
+{
+    std::string join = ":localhost ";
+    join += message->get_buffer();
+    size_t pos = join.find("PING");
+    join.replace(pos, 4, "PONG");
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }

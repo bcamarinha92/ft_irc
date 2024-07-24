@@ -9,25 +9,14 @@ void sigHandler(int signal)
 
 void setNonBlocking(int socket)
 {
-    // int flags = fcntl(socket, F_GETFL, 0);
-    // fcntl(socket, F_SETFL, flags | O_NONBLOCK);
     fcntl(socket, F_SETFL, O_NONBLOCK);
-}
-
-void logConsole(std::string message)
-{
-    std::cout << message << std::endl;
-}
-
-void	sendMessage(int fd, const std::string& msg)
-{
-	std::string wholeMsg = msg + "\r\n";
-    send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
 }
 
 void broadcast(Server &irc, Message *message, int sender)
 {
-    if (message->get_command() == "CAP")
+    if (message->get_command() == "PING")
+        cmdPing(message, sender);
+    else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
     else if (message->get_command() == "PASS")
         cmdPass(irc, message, sender);
@@ -39,12 +28,6 @@ void broadcast(Server &irc, Message *message, int sender)
         cmdWho(irc,message->get_destination(),sender);
     else if (message->get_command() == "PRIVMSG")
         cmdPrivMsg(irc,message,sender);
-    // else
-    // {
-    //     std::string join = ":server 461 :Not enough parameters\n";
-    //     logConsole(join);
-    //     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    // }
 }
 
 void	who(int sender, Server &irc, std::string const& chn, bool op)
@@ -117,11 +100,19 @@ void loopPool(Server &irc)
                 {
                     Message new_message(message, clientSocket);
                     broadcast(irc, &new_message, clientSocket);
-                    //broadcast(irc, message, clientSocket);
+                    irc.getClientByFd(clientSocket).setLastAction();
                     logConsole(std::string(message));
                 }
             }
         }
+        // else
+        // {
+        //     if (i > 0)
+        //     {
+        //         std::time_t t = irc.getClientByFd(irc.pollfds[i].fd).getLastAction();
+        //         std::cout << "FD: " << irc.pollfds[i].fd << " last action " << std::string(std::ctime(&t)) << std::endl; 
+        //     }
+        // }
     }
 }
 

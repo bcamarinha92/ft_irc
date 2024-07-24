@@ -160,9 +160,9 @@ void					Server::setNickByFd(int fd, std::string nickname)
     	(*it).second.setNickname(nickname);
 }
 
-const Client&			Server::getClientByFd(int socket) const
+Client			Server::getClientByFd(int socket)
 {
-	std::map<int, Client>::const_iterator it = clients.find(socket);
+	std::map<int, Client>::iterator it = clients.find(socket);
     if (it != clients.end())
         return it->second;
     else

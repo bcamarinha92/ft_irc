@@ -29,6 +29,7 @@ Client::Client( const Client & src )
 	this->_clientAddrLen = src._clientAddrLen;
 	this->_client_ip = src._client_ip;
 	this->clientPollfd = src.clientPollfd;
+    this->_lastAction = src._lastAction;
 }
 
 
@@ -73,45 +74,55 @@ std::ostream &			operator<<( std::ostream & o, Client const & i )
 ** --------------------------------- METHODS ----------------------------------
 */
 
-    int Client::getSocket() const
-	{
-        return (this->_clientSocket);
-    }
+int             Client::getSocket() const
+{
+    return (this->_clientSocket);
+}
 
-    std::string Client::getNickname() const
-	{
-        return (this->_nickname);
-    }
+std::string     Client::getNickname() const
+{
+    return (this->_nickname);
+}
 
-    sockaddr_in Client::getclientAddr() const
-    {
-        return(this->_clientAddr);
-    }
+sockaddr_in     Client::getclientAddr() const
+{
+    return(this->_clientAddr);
+}
 
-    socklen_t   Client::getclientAddrLen() const
-    {
-        return(this->_clientAddrLen);
-    }
+socklen_t       Client::getclientAddrLen() const
+{
+    return(this->_clientAddrLen);
+}
 
-    std::string Client::getUsername() const
-	{
-        return (this->_username);
-    }
+std::string     Client::getUsername() const
+{
+    return (this->_username);
+}
 
-    void Client::setSocket(int socket)
-	{
-        _clientSocket = socket;
-    }
+std::time_t		Client::getLastAction() const
+{
+    return (this->_lastAction);
+}
 
-    void Client::setNickname(const std::string& nickname)
-	{
-        _nickname = nickname;
-    }
+void            Client::setSocket(int socket)
+{
+    _clientSocket = socket;
+}
 
-    void Client::setUsername(const std::string& username)
-	{
-        _username = username;
-    }
+void            Client::setNickname(const std::string& nickname)
+{
+    _nickname = nickname;
+}
+
+void            Client::setUsername(const std::string& username)
+{
+    _username = username;
+}
+
+void            Client::setLastAction()
+{
+    _lastAction = std::time(0);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

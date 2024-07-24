@@ -17,9 +17,11 @@ class Client
 		std::string 	getUsername() const;
 		sockaddr_in		getclientAddr() const;
 		socklen_t		getclientAddrLen() const;
+		std::time_t		getLastAction() const;
 		void 			setSocket(int socket);
 		void 			setNickname(const std::string& nickname);
 		void 			setUsername(const std::string& username);
+		void			setLastAction();
 		pollfd 			clientPollfd;
 	private:
 		std::string		_nickname;
@@ -27,7 +29,8 @@ class Client
 		sockaddr_in		_clientAddr;
 		socklen_t 		_clientAddrLen;
 		int 			_clientSocket;
-		char 			*_client_ip;		
+		char 			*_client_ip;
+		std::time_t		_lastAction;	
 };
 
 std::ostream &			operator<<( std::ostream & o, Client const & i );
