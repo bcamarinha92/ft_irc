@@ -14,6 +14,9 @@ class Message
 		//Destructors
 		~Message();
 
+		//Overloads
+		Message&					operator=(Message const& rhs);
+
 		//Getters
 		std::string 				get_buffer() const;
 		std::string 				get_command() const;
@@ -22,12 +25,11 @@ class Message
 		std::string 				get_destination() const;
 
 		//Setters
-		void	set_buffer(std::string buffer);
-		void 	set_command(std::string command);
-
-		Message&		operator=(Message const& rhs);
+		void						set_buffer(std::string buffer);
+		void 						set_command(std::string command);
 
 	private:
+		//Attributes
 		std::string 				_buffer;
 		std::string 				_command;
 		std::vector<std::string>	_parameters;

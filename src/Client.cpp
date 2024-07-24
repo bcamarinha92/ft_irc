@@ -41,7 +41,7 @@ Client::~Client() {}
 
 Client&				Client::operator=(Client const& rhs)
 {
-	if ( this != &rhs )
+	if (this != &rhs)
 	{
 		this->_clientSocket = rhs._clientSocket;
 		this->_nickname = rhs._nickname;
@@ -67,17 +67,17 @@ std::ostream&			operator<<(std::ostream& o, Client const& i)
 ** --------------------------------- METHODS ----------------------------------
 */
 
-int Client::getSocket() const
+int 		Client::getSocket() const
 {
 	return (this->_clientSocket);
 }
 
-std::string Client::getNickname() const
+std::string	Client::getNickname() const
 {
     return (this->_nickname);
 }
 
-sockaddr_in Client::getclientAddr() const
+sockaddr_in	Client::getclientAddr() const
 {
     return(this->_clientAddr);
 }
@@ -92,19 +92,29 @@ std::string Client::getUsername() const
     return (this->_username);
 }
 
-void Client::setSocket(int socket)
+void 		Client::setSocket(int socket)
 {
     _clientSocket = socket;
 }
 
-void Client::setNickname(const std::string& nickname)
+void 		Client::setNickname(const std::string& nickname)
 {
     _nickname = nickname;
 }
 
-void Client::setUsername(const std::string& username)
+void 		Client::setUsername(const std::string& username)
 {
     _username = username;
+}
+
+void		Client::addChannel(const Channel& channel)
+{
+	this->channels[channel.getName()] = channel;
+}
+
+void		Client::rmChannel(std::string channelName)
+{
+	this->channels.erase(channelName);
 }
 
 /*

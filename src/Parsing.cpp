@@ -130,7 +130,8 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 		size_t start = i;
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
 			i++;
-		param.push_back(buffer.substr(start, i - start));
+		if (start != i)
+			param.push_back(buffer.substr(start, i - start));
 		if (buffer[i] == ':' || buffer[i] == '\n' || buffer[i] == '\r')
 			break;
 		else

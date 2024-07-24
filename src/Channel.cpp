@@ -4,20 +4,24 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Channel::Channel()
+Channel::Channel(): _launch(true)
 {
 	this->prepareModes();
 }
 
-Channel::Channel(std::string name)
+Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true)
 {
 	this->_name = name;
 	this->prepareModes();
 }
 
-Channel::Channel( const Channel & src )
+Channel::Channel(const Channel& src)
 {
-	(void)src;
+	this->_name = src._name;
+	this->_topic = src._topic;
+	this->_modes = src._modes;
+	this->_createdAt = src._createdAt;
+	this->_launch = src._launch;
 }
 
 /*
@@ -32,11 +36,14 @@ Channel::~Channel() {}
 
 Channel&				Channel::operator=(Channel const& rhs)
 {
-	(void) rhs;
-	//if ( this != &rhs )
-	//{
-		//this->_value = rhs.getValue();
-	//}
+	if ( this != &rhs )
+	{
+		this->_name = rhs._name;
+		this->_topic = rhs._topic;
+		this->_modes = rhs._modes;
+		this->_launch = rhs._launch;
+		this->_createdAt = rhs._createdAt;
+	}
 	return *this;
 }
 
@@ -61,18 +68,14 @@ std::string			Channel::getTopic() const
 	return(this->_topic);
 }
 
-std::string			Channel::getCreatedAtTime() const
+std::time_t			Channel::getCreatedAtTime() const
 {
-	/*std::ctime(&this->_createdAt);
-	std::ostringstream	oss;
-	oss << this->_createdAt;
-	return oss.str();*/
-	char buffer[26];
-	std::cout << this->_createdAt << std::endl;
-    std::tm* tm_info = std::localtime(&this->_createdAt); // Convert to local time
-    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm_info); // Format time
-	std::cout << std::string(buffer) << std::endl;
-	return std::string(buffer);
+	return (this->_createdAt);
+}
+
+bool				Channel::getLaunch() const
+{
+	return (this->_launch);
 }
 
 void				Channel::setName(std::string name)
@@ -136,7 +139,7 @@ bool				Channel::deactivateMode(char mode, int sender)
 	return false;
 }
 
-std::string			Channel::printChannelModes()
+std::string			Channel::getChannelModes()
 {
 	std::stringstream	ss;
 	ss << "+";
@@ -159,6 +162,11 @@ std::vector<int>	Channel::getChannelClientsFds()
 		i++;
 	}
 	return fds;;
+}
+
+void				Channel::switchLaunch()
+{
+	this->_launch = !this->_launch;
 }
 
 /*

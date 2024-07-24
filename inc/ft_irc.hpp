@@ -65,11 +65,14 @@ void		cmdPrivMsg(Server &irc, Message *message, int sender);
 void		cmdMode(Server &irc, Message *message, int sender);
 void		cmdCap(Server &irc, Message *message, int sender);
 
-// Other
+// Utilities
+void 		closeFDs(Server &irc);
+void 		sigHandler(int signal);
 void 		setNonBlocking(int socket);
 void 		logConsole(std::string buffer);
-void        printClientMap(const std::map<int, Client*> clientMap);
 void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
+
+// Other
 std::string	cleanString(const std::string& name);
 
 #endif
