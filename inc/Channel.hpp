@@ -26,7 +26,6 @@ class Channel
 		std::time_t				getCreatedAtTime() const;
 		bool					getLaunch() const;
 		std::string				getChannelModes();
-		std::map<int, Client>	getChannelClients(bool op);
 		std::string				getLocalIPAddress();
 		std::vector<int>		getChannelClientsFds();
 

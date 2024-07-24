@@ -41,22 +41,23 @@ void    cmdNick(Server &irc, Message *message, int sender)
 void    cmdJoin(Server &irc, Message *message, int sender)
 {
     std::string chn = message->get_destination();
-    std::string msg = ":" + irc.getNickByFd(sender) + " JOIN " + chn + "\r\n";
-    send(sender, msg.c_str(), msg.length(),MSG_DONTWAIT);
+    std::string msg = ":" + irc.getNickByFd(sender) + " JOIN " + chn;
     Channel	channel(chn);
     if (irc.channels.find(chn) == irc.channels.end())
     {
+		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR1, false);
         irc.addChannel(channel);
-        irc.activateChannelMode(chn, 'n', sender, true);
-        irc.activateChannelMode(chn, 't', sender, true);
         irc.channels[chn].addClient(irc.getClientByFd(sender));
         irc.channels[chn].addOperator(irc.getClientByFd(sender));
 		irc.clients[sender].addChannel(channel);
 		if (irc.channels[chn].getLaunch() == true)
 			irc.channels[chn].switchLaunch();
+		irc.activateChannelMode(chn, 'n', sender, true);
+        irc.activateChannelMode(chn, 't', sender, true);
     }
     else
     {
+		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR1, true);
 		irc.channels[chn].addClient(irc.getClientByFd(sender));
 		irc.clients[sender].addChannel(channel);
 	}
@@ -157,13 +158,11 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
 		time_t	t = irc.channels[chn].getCreatedAtTime();
-		std::string	t1 = getCurrentDateTime();
-		std::cout << "Time1: " << std::string(ctime(&t)) << std::endl << "Time2: " << t1 << std::endl;
-		std::string msg = ":" + irc.getHostname() + " 324 " + irc.getNickByFd(sender) + " " + chn + " :" + irc.channels[chn].getChannelModes() + "\r\n";
-		if (send(sender, msg.c_str(), msg.length(), MSG_DONTWAIT) < 0)
-			std::cout << "Erro 1\n";
-		std::string msg2 = ":" + irc.getHostname() + " 329 " + irc.getNickByFd(sender) + " " + chn + " :" + std::string(ctime(&t)) + "\r\n";
-		if (send(sender, msg2.c_str(), msg2.length(), MSG_DONTWAIT) < 0)
-			std::cout << "Erro 2\n";
+		std::string msg = ":" + irc.getHostname() + " 324 " + irc.getNickByFd(sender) + " " + chn + " :" + irc.channels[chn].getChannelModes();
+		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR2, false);
+		msg = ":" + irc.getHostname() + " 329 " + irc.getNickByFd(sender) + " " + chn + " :" + std::string(ctime(&t));
+		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR3, false);
 	}
 }
+
+

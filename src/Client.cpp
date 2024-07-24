@@ -27,6 +27,7 @@ Client::Client(const Client& src)
 	this->_clientAddrLen = src._clientAddrLen;
 	this->_client_ip = src._client_ip;
 	this->clientPollfd = src.clientPollfd;
+	this->channels = src.channels;
 }
 
 /*
@@ -50,7 +51,7 @@ Client&				Client::operator=(Client const& rhs)
 		this->_clientAddrLen = rhs._clientAddrLen;
 		this->_client_ip = rhs._client_ip;
 		this->clientPollfd = rhs.clientPollfd;
-
+		this->channels = rhs.channels;
 	}
 	return *this;
 }

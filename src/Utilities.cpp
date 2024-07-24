@@ -33,8 +33,14 @@ void logConsole(std::string message)
     std::cout << message << std::endl;
 }
 
-void	sendMessage(int fd, const std::string& msg)
+void	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all)
 {
 	std::string wholeMsg = msg + "\r\n";
-    send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
+    if(send(fd, wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
+		std::cerr << emsg << std::endl;
+	for(size_t i = 0; i < fds.size() && all; ++i)
+	{
+		if (fds[i] != fd)
+			send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT);
+	}
 }

@@ -30,6 +30,13 @@
 # include "Server.hpp"
 # include "Channel.hpp"
 
+// Error messages
+# define ERR1 "Error: joining the channel"
+# define ERR2 "Error: obtaining the channel's modes list"
+# define ERR3 "Error: obtaining the channel info"
+# define ERR4 "Error: activation of channel mode"
+# define ERR5 "Error: deactivation of channel mode"
+
 class Server;
 class Message;
 
@@ -70,7 +77,7 @@ void 		closeFDs(Server &irc);
 void 		sigHandler(int signal);
 void 		setNonBlocking(int socket);
 void 		logConsole(std::string buffer);
-void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
+void		sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
 
 // Other
 std::string	cleanString(const std::string& name);

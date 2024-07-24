@@ -44,7 +44,18 @@ Server::Server(int port, std::string password): _port(port), _password(password)
 
 Server::Server(const Server& src)
 {
-	(void)src;
+	this->_host = src._host;
+	this->_port = src._port;
+	this->_hostIP = src._hostIP;
+	this->_hostname = src._hostname;
+	this->_password = src._password;
+	this->_serverAddr = src._serverAddr;
+	this->_serverSocket = src._serverSocket;
+	this->_creationTime = src._creationTime;
+	this->pollfds = src.pollfds;
+	this->clients = src.clients;
+	this->channels = src.channels;
+	this->serverPollfd = src.serverPollfd;
 }
 
 /*
@@ -59,11 +70,21 @@ Server::~Server() {}
 
 Server			&Server::operator=(Server const &rhs)
 {
-	// if ( this != &rhs )
-	//{
-	// this->_value = rhs.getValue();
-	//}
-	(void)rhs;
+	if (this != &rhs)
+	{
+		this->_host = rhs._host;
+		this->_port = rhs._port;
+		this->_hostIP = rhs._hostIP;
+		this->_hostname = rhs._hostname;
+		this->_password = rhs._password;
+		this->_serverAddr = rhs._serverAddr;
+		this->_serverSocket = rhs._serverSocket;
+		this->_creationTime = rhs._creationTime;
+		this->pollfds = rhs.pollfds;
+		this->clients = rhs.clients;
+		this->channels = rhs.channels;
+		this->serverPollfd = rhs.serverPollfd;
+	}
 	return *this;
 }
 
@@ -77,6 +98,7 @@ std::ostream	&operator<<(std::ostream &o, Server const &i)
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
 int						Server::getPort() const
 {
 	return (this->_port);
@@ -181,9 +203,8 @@ void					Server::activateChannelMode(std::string const& chn, char mode, int send
 {
 	if (this->channels[chn].activateMode(mode, sender, join))
 	{
-		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode) + "\n";
-		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
-			std::cerr << "Error occurred while using MODE\n";
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode);
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), msg, ERR4, true);
 	}
 }
 
@@ -191,25 +212,10 @@ void					Server::deactivateChannelMode(std::string const& chn, char mode, int se
 {
 	if (this->channels[chn].deactivateMode(mode, sender))
 	{
-		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode) + "\n";
-		if (send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
-			std::cerr << "Error occurred while using MODE\n";
+		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode);
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), msg, ERR5, true);
 	}
 }
-
-void					Server::printChannelModes(int sender, std::string channel)
-{
-	std::map<std::string, Channel>::iterator	it = this->channels.find(channel);
-	if (it != this->channels.end())
-	{
-		(void)sender;
-		//Channel&	channel = it->second;
-		//std::map<int, Client>::iterator	it2 = (it->second).getChannelClients(false).begin();
-
-	}
-}
-
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

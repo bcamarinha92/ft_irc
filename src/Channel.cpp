@@ -22,6 +22,8 @@ Channel::Channel(const Channel& src)
 	this->_modes = src._modes;
 	this->_createdAt = src._createdAt;
 	this->_launch = src._launch;
+	this->members = src.members;
+	this->operators = src.operators;
 }
 
 /*
@@ -43,6 +45,8 @@ Channel&				Channel::operator=(Channel const& rhs)
 		this->_modes = rhs._modes;
 		this->_launch = rhs._launch;
 		this->_createdAt = rhs._createdAt;
+		this->members = rhs.members;
+		this->operators = rhs.operators;
 	}
 	return *this;
 }
@@ -143,7 +147,8 @@ std::string			Channel::getChannelModes()
 {
 	std::stringstream	ss;
 	ss << "+";
-    for (std::map<char, bool>::iterator it = this->_modes.begin(); it != this->_modes.end(); ++it)
+
+	for (std::map<char, bool>::iterator it = this->_modes.begin(); it != this->_modes.end(); ++it)
     {
 		if (it->second == true)
 			ss << it->first;
@@ -155,13 +160,10 @@ std::vector<int>	Channel::getChannelClientsFds()
 {
 	std::map<int, Client>::iterator	it = this->members.begin();
 	std::vector<int>				fds;
-	int	i = 0;
+
 	for (; it != this->members.end(); ++it)
-	{
-		fds[i] = it->first;
-		i++;
-	}
-	return fds;;
+		fds.push_back(it->first);
+	return fds;
 }
 
 void				Channel::switchLaunch()
