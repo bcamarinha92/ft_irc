@@ -40,6 +40,18 @@ Server::Server(int port, std::string password): _port(port), _password(password)
 	serverPollfd.fd = _serverSocket;
     serverPollfd.events = POLLIN;
     pollfds.push_back(serverPollfd);
+	this->modesParam['i'].first = 0;
+	this->modesParam['i'].second = 0;
+	this->modesParam['k'].first = 1;
+	this->modesParam['k'].second = 0;
+	this->modesParam['l'].first = 1;
+	this->modesParam['l'].second = 0;
+	this->modesParam['n'].first = 0;
+	this->modesParam['n'].second = 0;
+	this->modesParam['o'].first = 1;
+	this->modesParam['o'].second = 1;
+	this->modesParam['t'].first = 0;
+	this->modesParam['t'].second = 0;
 }
 
 Server::Server(const Server& src)
@@ -56,6 +68,7 @@ Server::Server(const Server& src)
 	this->clients = src.clients;
 	this->channels = src.channels;
 	this->serverPollfd = src.serverPollfd;
+	this->modesParam = src.modesParam;
 }
 
 /*
@@ -84,6 +97,7 @@ Server			&Server::operator=(Server const &rhs)
 		this->clients = rhs.clients;
 		this->channels = rhs.channels;
 		this->serverPollfd = rhs.serverPollfd;
+		this->modesParam = rhs.modesParam;
 	}
 	return *this;
 }
@@ -123,9 +137,38 @@ std::time_t				Server::getCreationDate() const
 	return (this->_creationTime);
 }
 
+std::string				Server::getNickByFd(int fd) const
+{
+    std::map<int, Client>::const_iterator it;
+
+	it = this->clients.find(fd);
+    if (it != this->clients.end())
+	    return (*it).second.getNickname();
+    return "";
+}
+
 std::string				Server::getHostname() const
 {
 	return (this->_hostname);
+}
+
+const Client&			Server::getClientByFd(int socket) const
+{
+	std::map<int, Client>::const_iterator it = clients.find(socket);
+    if (it != clients.end())
+        return it->second;
+    else
+        throw std::runtime_error("Client not found");
+}
+
+int						Server::getFdFromNick(std::string nickname)
+{
+	std::map<int, Client>::iterator it = this->clients.begin();
+
+	for (; it != this->clients.end(); ++it)
+		if (it->second.getNickname() == nickname)
+			return it->second.getSocket();
+	return -1;
 }
 
 void					Server::setPort(int port)
@@ -146,6 +189,15 @@ void					Server::setServerAddr(sockaddr_in addr)
 void					Server::setServerSocket(int skt)
 {
 	this->_serverSocket = skt;
+}
+
+void					Server::setNickByFd(int fd, std::string nickname)
+{
+	std::map<int, Client>::iterator it;
+
+	it = this->clients.find(fd);
+	if (it != this->clients.end())
+    	(*it).second.setNickname(nickname);
 }
 
 void					Server::addClient(Client &user)
@@ -171,50 +223,74 @@ void					Server::rmChannel(std::string channelName)
 	this->channels.erase(channelName);
 }
 
-std::string				Server::getNickByFd(int fd) const
+void					Server::activateChannelMode(std::string const& chn, char mode, int sender, bool join, std::string param)
 {
-    std::map<int, Client>::const_iterator it;
-
-	it = this->clients.find(fd);
-    if (it != this->clients.end())
-	    return (*it).second.getNickname();
-    return "";
-}
-
-void					Server::setNickByFd(int fd, std::string nickname)
-{
-	std::map<int, Client>::iterator it;
-
-	it = this->clients.find(fd);
-	if (it != this->clients.end())
-    	(*it).second.setNickname(nickname);
-}
-
-const Client&			Server::getClientByFd(int socket) const
-{
-	std::map<int, Client>::const_iterator it = clients.find(socket);
-    if (it != clients.end())
-        return it->second;
-    else
-        throw std::runtime_error("Client not found");
-}
-
-void					Server::activateChannelMode(std::string const& chn, char mode, int sender, bool join)
-{
-	if (this->channels[chn].activateMode(mode, sender, join))
+	if (mode == 'o')
 	{
-		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " +" + std::string(1, mode);
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), msg, ERR4, true);
+		int fd = getFdFromNick(param);
+		if (fd == -1)
+			throw std::runtime_error("Client not found");
+		if (this->channels[chn].checkOperatorRole(sender))
+		{
+			if (this->channels[chn].operators.find(fd) == this->channels[chn].operators.end())
+			{
+				sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+				RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR11, true);
+				this->channels[chn].addOperator(this->getClientByFd(fd));
+			}
+		}
 	}
+	else if (mode == 'l')
+	{
+		std::stringstream	ss(param);
+		size_t				limit;
+
+		ss >> limit;
+		if (ss.fail())
+			throw std::runtime_error("Error converting a string to integer");
+		this->channels[chn].setChannelUserLimit(limit);
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, param), ERR14, true);
+	}
+	else if (this->channels[chn].activateMode(mode, sender, join))
+	{
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  ACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR4, true);
+	}
+	else
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7, false);
 }
 
-void					Server::deactivateChannelMode(std::string const& chn, char mode, int sender)
+void					Server::deactivateChannelMode(std::string const& chn, char mode, int sender, std::string param)
 {
-	if (this->channels[chn].deactivateMode(mode, sender))
+	if (mode == 'o')
 	{
-		std::string const	msg = ":"+ this->getNickByFd(sender) + " MODE " + chn + " -" + std::string(1, mode);
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), msg, ERR5, true);
+		int fd = getFdFromNick(param);
+		if (fd == -1)
+			throw std::runtime_error("Client not found");
+		if (this->channels[chn].checkOperatorRole(sender))
+		{
+			if (this->channels[chn].operators.find(fd) != this->channels[chn].operators.end())
+			{
+				sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+				RPL_CHANNELMODEISDEACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR12, true);
+				this->channels[chn].rmOperator(fd);
+			}
+		}
 	}
+	else if (mode == 'l')
+	{
+		this->channels[chn].setChannelUserLimit(-1);
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR15, true);
+	}
+	else if (this->channels[chn].deactivateMode(mode, sender))
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR5, true);
+	else
+		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
+			  ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7, false);
 }
 
 /*

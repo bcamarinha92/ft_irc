@@ -7,6 +7,8 @@ class Client;
 
 class Channel;
 
+typedef std::pair<int, int>	modesPair;
+
 class Server
 {
 
@@ -30,27 +32,29 @@ class Server
 		std::string						getNickByFd(int fd) const;
 		std::string						getHostname() const;
 		const Client&					getClientByFd(int socket) const;
+		int								getFdFromNick(std::string nickname);
 
 		//Setters
-		void							setNickByFd(int fd, std::string nickname);
 		void							setPort(int port);
 		void							setPassword(std::string password);
 		void							setServerAddr(sockaddr_in addr);
 		void							setServerSocket(int skt);
+		void							setNickByFd(int fd, std::string nickname);
 
 		//Methods
 		void							addClient(Client &user);
 		void							rmClient(int clientSocket, int i);
 		void							addChannel(Channel &channel);
 		void							rmChannel(std::string channelName);
-		void							activateChannelMode(std::string const& chn, char mode, int sender, bool join);
-		void							deactivateChannelMode(std::string const& chn, char mode, int sender);
+		void							activateChannelMode(std::string const& chn, char mode, int sender, bool join, std::string param);
+		void							deactivateChannelMode(std::string const& chn, char mode, int sender, std::string param);
 
 		//Attributes
 		std::vector<pollfd> 			pollfds;
 		std::map<int, Client> 			clients;
 		std::map<std::string, Channel>	channels;
 		pollfd 							serverPollfd;
+		std::map<char, modesPair>		modesParam;
 
 	private:
 		//Attributes

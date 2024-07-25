@@ -8,7 +8,7 @@ std::string	getNickFromBuffer(const std::string &input)
 	while (std::getline(iss, line))
 	{
 		if (line.substr(0, 5) == "NICK ")
-			return line.substr(5);
+			return cleanString(line.substr(5));
 	}
 	return "";
 }
@@ -85,9 +85,10 @@ std::string	getModeFromBuffer(const std::string& input)
     {
         if (line.substr(0, 5) == "MODE ")
         {
-			std::string	chn = getChannelFromBuffer(input);
-			if ((line.substr(6 + chn.size(), 1) == "+" || line.substr(6 + chn.size(), 1) == "-") && line.substr(6 + chn.size()).size() > 1)
-				return line.substr(6 + chn.size());
+			std::string	chn = cleanString(getChannelFromBuffer(input));
+			if ((line.substr(6 + chn.size(), 1) == "+" || line.substr(6 + chn.size(), 1) == "-") \
+				&& line.substr(6 + chn.size()).size() > 1)
+				return cleanString(line.substr(6 + chn.size()));
 			else if (line.substr(0, 5 + chn.size()) == "MODE " + chn)
 				return "\n";
 		}
@@ -109,14 +110,14 @@ std::string	get_buffer_command(const std::string buffer)
 	start = i;
 	while (buffer[i] != ' ')
 		i++;
-	return (buffer.substr(start, i));
+	return cleanString((buffer.substr(start, i)));
 }
 
 std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 {
 	std::vector<std::string>	param;
 	size_t						i = 0;
-	std::string					cmd = get_buffer_command(buffer);
+	std::string					cmd = cleanString(get_buffer_command(buffer));
 
 	if (buffer[i] == ':')
 	{
@@ -135,7 +136,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
 			i++;
 		if (start != i)
-			param.push_back(buffer.substr(start, i - start));
+			param.push_back(cleanString(buffer.substr(start, i - start)));
 		if ((buffer[i] == ':' && cmd != "PART") || buffer[i] == '\n' || buffer[i] == '\r')
 			break;
 		else

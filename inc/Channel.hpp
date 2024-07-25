@@ -26,24 +26,28 @@ class Channel
 		std::time_t				getCreatedAtTime() const;
 		bool					getLaunch() const;
 		std::string				getChannelModes();
-		std::string				getLocalIPAddress();
 		std::vector<int>		getChannelClientsFds();
+		std::vector<int>		getChannelInvites() const;
+		size_t					getChannelUserLimit() const;
 
 		//Setters
 		void					setName(std::string name);
 		void					setTopic(std::string topic);
 		void					switchLaunch();
+		void					setChannelUserLimit(size_t limit);
 
 		//Methods
+		void					prepareModes();
 		void					addClient(const Client& client);
 		void					rmClient(int clientSocket);
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);
-		void					prepareModes();
 		bool					activateMode(char mode, int sender, bool join);
 		bool					deactivateMode(char mode, int sender);
 		bool					checkOperatorRole(int fd);
-		void					sendMsgToChannelClients(std::string msg);
+		bool					checkChannelMode(char mode);
+		void					addInvite(int fd);
+		void					rmInvite(int fd);
 
 		//Attributes
 		std::map<int, Client>	members;
@@ -56,6 +60,8 @@ class Channel
 		std::map<char, bool>	_modes;
 		std::time_t				_createdAt;
 		bool					_launch;
+		size_t					_ulimit;
+		std::vector<int>		_invites;
 };
 
 std::ostream&			operator<<(std::ostream& o, Channel const& i);
