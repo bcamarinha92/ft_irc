@@ -1,21 +1,5 @@
 #include "../inc/ft_irc.hpp"
 
-void    cmdCap(Server &irc, Message *message, int sender)
-{
-    std::string join;
-    (void)irc;
-    if (message->get_buffer().find("CAP REQ")!= std::string::npos)
-        join = ":bde-sous CAP ACK :multi-prefix\r\n";    
-    else if (message->get_buffer().find("CAP LS")!= std::string::npos)
-        join = ":bde-sous CAP * LS :multi-prefix\r\n";
-    else
-    {
-        sendSequenceRPL(irc, message, sender);
-        sendMOTD(irc, message, sender);
-        return ;
-    }
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-}
 
 void    cmdNick(Server &irc, Message *message, int sender)
 {
@@ -53,13 +37,19 @@ void    cmdPass(Server &irc, Message *message, int sender)
 {
     if (message->get_parameters().size() == 1)
     {
-        if (message->get_parameters()[0] != irc.getPassword())
+        if (message->get_parameters()[0] == irc.getPassword())
+        {
+            std::string join = ":server 001 :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; // Está a sempre comer a primeira palavra idk why
+            logConsole(join);
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+        else
         {
             std::string join = ":server 403 " + irc.getNickByFd(sender) + " :Invalid password\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
             close(sender);
-        }        
+        }
     }
     else
     {
@@ -78,13 +68,4 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
             continue;
         send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
     }
-}
-
-void    cmdPing(Message *message, int sender)
-{
-    std::string join = ":localhost ";
-    join += message->get_buffer();
-    size_t pos = join.find("PING");
-    join.replace(pos, 4, "PONG");
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }

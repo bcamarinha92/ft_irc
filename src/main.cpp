@@ -1,77 +1,34 @@
 #include "../inc/ft_irc.hpp"
-#include <iostream>
-
-void sigHandler(int signal)
-{
-    if (signal == SIGINT)
-        running = false;
-}
-
-void setNonBlocking(int socket)
-{
-    fcntl(socket, F_SETFL, O_NONBLOCK);
-}
 
 void broadcast(Server &irc, Message *message, int sender)
 {
     if (message->get_command() == "PING")
         cmdPing(message, sender);
-    else if (message->get_command() == "CAP")
+	else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
-    else if (message->get_command() == "PASS")
-        cmdPass(irc, message, sender);
-    else if (message->get_command() == "NICK")
-        cmdNick(irc, message, sender);
-    else if (message->get_command() == "JOIN")
-        cmdJoin(irc, message, sender);
-    else if (message->get_command() == "WHO")
-        cmdWho(irc,message->get_destination(),sender);
-    else if (message->get_command() == "PRIVMSG")
-        cmdPrivMsg(irc,message,sender);
-}
+	else if (message->get_command() == "PASS")
+		cmdNick(irc, message, sender);
+	else if (message->get_command() == "NICK")
+		cmdNick(irc, message, sender);
+	else if (message->get_command() == "JOIN")
+		cmdJoin(irc, message, sender);
+	else if (message->get_command() == "WHO")
+		cmdWho(irc, message, sender);
+	else if (message->get_command() == "MODE")
+		cmdMode(irc, message, sender);
+	else if (message->get_command() == "PRIVMSG")
+		cmdPrivMsg(irc, message, sender);
+	else if (message->get_command() == "PART")
+		cmdPart(irc, message, sender);
 
-void	who(int sender, Server &irc, std::string const& chn, bool op)
-{
-    (void)op;
-	std::string	msg;
-    std::string clients = "";
-	std::map<int, Client>	clientsMap = irc.channels[chn].members;
-	std::map<int, Client>::iterator it = clientsMap.begin();
-	for (; it != clientsMap.end(); ++it)
-    {
-        if (irc.channels[chn].checkOperatorRole((it->first)))
-        	clients += " @" + (it->second).getNickname();
-        else
-            clients += " " + (it->second).getNickname();
-    }
-	logConsole("clientes: " + clients);
-	msg = ":hostcarol 353 " + irc.getNickByFd(sender) + " = " + chn + " :" + clients + "\r\n";
-	send(sender, msg.c_str(), msg.size(), MSG_DONTWAIT);
-}
-
-void closeFDs(Server &irc)
-{
-    size_t  i;
-
-    i = 0;
-    while (i < irc.pollfds.size())
-    {
-        if (irc.pollfds[i].fd != irc.getServerSocket())
-            irc.rmClient(irc.pollfds[i].fd, i);
-        i++;
-    }
-    close(irc.getServerSocket());
-    irc.pollfds.erase(irc.pollfds.begin());
 }
 
 void loopPool(Server &irc)
 {
     char *message = 0;
-    int bytesRead;
-    int clientSocket;
+    int bytesRead = 0;
+    int clientSocket = 0;
 
-    bytesRead = 0;
-    clientSocket = 0;
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
         if (irc.pollfds[i].revents & POLLIN)
@@ -98,7 +55,7 @@ void loopPool(Server &irc)
                 }
                 else
                 {
-                    Message new_message(message, clientSocket);
+                    Message	new_message(message, clientSocket);
                     broadcast(irc, &new_message, clientSocket);
                     irc.getClientByFd(clientSocket).setLastAction();
                     logConsole(std::string(message));

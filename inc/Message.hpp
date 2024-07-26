@@ -5,31 +5,31 @@
 
 class Message
 {
-
 	public:
-
 		//Constructors
 		Message();
-		Message( Message const & src );
+		Message(Message const& src);
 		Message(char *buffer, int sender);
-		
+
 		//Destructors
 		~Message();
+
+		//Overloads
+		Message&					operator=(Message const& rhs);
 
 		//Getters
 		std::string 				get_buffer() const;
 		std::string 				get_command() const;
-		std::vector<std::string>	get_parameters() const;	
+		std::vector<std::string>	get_parameters() const;
 		int 						get_sender();
 		std::string 				get_destination() const;
 
 		//Setters
-		void set_buffer(std::string buffer);
-		void set_command(std::string command);
-
-		Message &		operator=( Message const & rhs );
+		void						set_buffer(std::string buffer);
+		void 						set_command(std::string command);
 
 	private:
+		//Attributes
 		std::string 				_buffer;
 		std::string 				_command;
 		std::vector<std::string>	_parameters;
@@ -38,6 +38,6 @@ class Message
 
 };
 
-std::ostream &			operator<<( std::ostream & o, Message const & i );
+std::ostream&			operator<<(std::ostream& o, Message const& i);
 
 #endif /* ********************************************************* MESSAGE_H */
