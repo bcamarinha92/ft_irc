@@ -25,6 +25,7 @@
 # include <utility>
 # include <algorithm>
 # include <ctime>
+# include <climits>
 # include "./gnl/get_next_line_bonus.h"
 # include "Client.hpp"
 # include "Message.hpp"
@@ -116,7 +117,8 @@ void		cmdPrivMsg(Server &irc, Message *message, int sender);
 void		cmdMode(Server &irc, Message *message, int sender);
 void		cmdCap(Server &irc, Message *message, int sender);
 void		cmdPart(Server &irc, Message *message, int sender);
-void    	cmdPing(Message *message, int sender);
+void		cmdPing(Server &irc, Message *message, int sender);
+void 		cmdPong(Server &irc, Message *message, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);
@@ -126,9 +128,9 @@ void 		logConsole(std::string buffer);
 void		sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
 void    	sendSequenceRPL(Server &irc, Message *message, int sender);
 void    	sendMOTD(Server &irc, Message *message, int sender);
-std::string	getCurrentDateTime();
 
 // Other
 std::string	cleanString(const std::string& name);
+void    	evaluatePing(Server &irc);
 
 #endif

@@ -26,14 +26,25 @@ void setNonBlocking(int socket)
     fcntl(socket, F_SETFL, O_NONBLOCK);
 }
 
-void	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all)
+void    evaluatePing(Server &irc)
 {
-	std::string wholeMsg = msg + "\r\n";
-    if(send(fd, wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
-		std::cerr << emsg << std::endl;
-	for(size_t i = 0; i < fds.size() && all; ++i)
-	{
-		if (fds[i] != fd)
-			send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT);
-	}
+    time_t  currentTime = std::time(0);
+
+    for (size_t i = 1; i < irc.pollfds.size(); ++i)
+    {
+        Client& user = irc.getClientByFd(irc.pollfds[i].fd);
+        if (currentTime - user.getLastAction() > 30)
+        {
+            user.incPingCount();
+            std::cout << "Ping Count " << user.getPingCount() << std::endl;
+            if (user.getPingCount() == 3)
+            {
+                irc.rmClient(irc.pollfds[i].fd, i);
+                //inserir aqui logica para remover o cliente dos canais em que estava
+                std::cout << "Client disconnected due to inactivity" << std::endl;
+            }
+            std::string join = ":" + irc.getHostname() + " PING " + irc.getHostname() + "\r\n";
+            send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
+        }
+    }
 }

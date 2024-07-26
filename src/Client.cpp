@@ -6,13 +6,14 @@
 
 Client::Client() {}
 
-Client::Client(int socket)
+Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0)
 {
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
     if (_clientSocket < 0)
         throw std::invalid_argument("accept");
     _client_ip = inet_ntoa(_clientAddr.sin_addr);
+	_hostname = gethostbyaddr((const void *)&_clientAddr.sin_addr, sizeof(_clientAddr.sin_addr), AF_INET);
     setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;
@@ -29,6 +30,8 @@ Client::Client(const Client& src)
 	this->clientPollfd = src.clientPollfd;
     this->_lastAction = src._lastAction;
 	this->channels = src.channels;
+	this->_hostname = src._hostname;
+	this->_pingCount = src._pingCount;
 }
 
 /*
@@ -53,6 +56,9 @@ Client&				Client::operator=(Client const& rhs)
 		this->_client_ip = rhs._client_ip;
 		this->clientPollfd = rhs.clientPollfd;
 		this->channels = rhs.channels;
+		this->_hostname = rhs._hostname;
+		this->_lastAction = rhs._lastAction;
+		this->_pingCount = rhs._pingCount;
 	}
 	return *this;
 }
@@ -74,6 +80,12 @@ int 		Client::getSocket() const
 	return (this->_clientSocket);
 }
 
+int 		Client::getPingCount() const
+{
+	return (this->_pingCount);
+}
+
+
 std::string	Client::getNickname() const
 {
     return (this->_nickname);
@@ -94,6 +106,11 @@ std::string Client::getUsername() const
     return (this->_username);
 }
 
+std::string Client::getHostname() const
+{
+    return (this->_hostname->h_name);
+}
+
 std::time_t		Client::getLastAction() const
 {
     return (this->_lastAction);
@@ -112,6 +129,16 @@ void 		Client::setNickname(const std::string& nickname)
 void 		Client::setUsername(const std::string& username)
 {
     _username = username;
+}
+
+void 		Client::incPingCount()
+{
+    _pingCount++;
+}
+
+void 		Client::resetPingCount()
+{
+    _pingCount = 0;
 }
 
 void            Client::setLastAction()

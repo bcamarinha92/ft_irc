@@ -3,7 +3,9 @@
 void broadcast(Server &irc, Message *message, int sender)
 {
     if (message->get_command() == "PING")
-        cmdPing(message, sender);
+        cmdPing(irc, message, sender);
+    else if (message->get_command() == "PONG")
+        cmdPong(irc, message, sender);
 	else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
 	else if (message->get_command() == "PASS")
@@ -38,7 +40,7 @@ void loopPool(Server &irc)
                 // Nova conexão detetada;
                 Client user(irc.getServerSocket());
                 irc.addClient(user);
-                std::cout << "New connection from " << inet_ntoa(user.getclientAddr().sin_addr) << std::endl;
+                std::cout << "New connection from " << user.getHostname() << std::endl;
             }
             else
             {
@@ -94,6 +96,7 @@ int main(int argc, char *argv[])
             if (pollCount < 0 && running)
                 throw std::invalid_argument("poll");
             loopPool(irc);
+            evaluatePing(irc);
         }
         closeFDs(irc);
     }

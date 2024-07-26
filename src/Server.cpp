@@ -14,12 +14,13 @@ Server::Server(int port, std::string password): _port(port), _password(password)
     _serverAddr.sin_addr.s_addr = INADDR_ANY;
     _serverAddr.sin_port = htons(_port);
 	_hostIP = inet_ntoa(_serverAddr.sin_addr);
-
 	_host = gethostbyname(_hostIP.c_str());
-    if (_host == NULL) {
-        std::cerr << "gethostbyname() failed" << std::endl;
-    }
-	_hostname = _host->h_name;
+	if (_host == NULL)
+		throw std::runtime_error("gethostbyname() failed");
+	char temp[256];
+	if (gethostname(temp, sizeof(temp)) != 0)
+    	throw std::runtime_error("gethostname() failed");
+	_hostname = temp;
 	int enable = 1;
 	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
 	{
