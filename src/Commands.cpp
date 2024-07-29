@@ -4,23 +4,43 @@ void    cmdCap(Server &irc, Message *message, int sender)
 {
     std::string join;
     (void)irc;
-    if (message->get_buffer().find("CAP REQ")!= std::string::npos)
-        join = ":bde-sous CAP ACK :multi-prefix\r\n";    
-    else if (message->get_buffer().find("CAP LS")!= std::string::npos)
-        join = ":bde-sous CAP * LS :multi-prefix\r\n";
-    else
-    {
-        sendSequenceRPL(irc, message, sender);
-        sendMOTD(irc, message, sender);
-        return ;
-    }
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    // if (message->get_buffer().find("CAP REQ")!= std::string::npos)
+    //     join = ":bde-sous CAP ACK :multi-prefix\r\n";    
+    // else 
+	if (message->get_buffer().find("CAP LS")!= std::string::npos)
+	{
+        join = ":bde-sous CAP * LS :\r\n";
+    	send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+	}
 }
 
 void    cmdNick(Server &irc, Message *message, int sender)
 {
     irc.setNickByFd(sender, getNickFromBuffer(message->get_buffer()));
     std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
+}
+
+void    cmdUser(Server &irc, Message *message, int sender)
+{
+	//Depois de ter parsing ok deve ser efetuado o registo do username e realname aqui. no final se tudo correr bem, sao enviados os RPL e MOTD
+	//The minimum length of <username> is 1, ie. it MUST NOT be empty. If it is empty, 
+	//the server SHOULD reject the command with ERR_NEEDMOREPARAMS (even if an empty parameter is provided); 
+	//otherwise it MUST use a default value instead.
+	Client &user = irc.getClientByFd(sender);
+	std::string a = user.getUsername();
+	if (a != "")
+	{
+		std::string join = ERR_ALREADYREGISTERED(irc.getHostname(),irc.getNickByFd(sender));
+		send(sender, join.c_str(),join.size(),MSG_DONTWAIT);
+	}
+	else
+	{
+		a = message->get_parameters()[0];
+		user.setRealname(parseRealname(message->get_buffer()));
+		user.setUsername(message->get_parameters()[0]);
+		sendSequenceRPL(irc, message, sender);
+		sendMOTD(irc, message, sender);
+	}
 }
 
 void    cmdJoin(Server &irc, Message *message, int sender)
@@ -153,12 +173,14 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
 		time_t	t = irc.channels[chn].getCreatedAtTime();
+		std::stringstream ss;
+    	ss << t;
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
 			  RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), \
 					   chn, irc.channels[chn].getChannelModes()), ERR2, false);
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
 			  RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), \
-					  chn, std::string(ctime(&t))), ERR3, false);
+					  chn, ss.str()), ERR3, false);
 	}
 }
 

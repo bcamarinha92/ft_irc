@@ -85,7 +85,7 @@ class Message;
 
 // 329: Sent to a client to inform them of the creation time of a channel
 # define RPL_CREATIONTIME(hostname, nick, chn, time) \
-	(":" + hostname + " 329 " + nick + " " + chn + " :" + time)
+	(":" + hostname + " 329 " + nick + " " + chn + " " + time)
 
 // 353: Reply to the NAMES command; lists the clients joined to a channel and their status
 # define RPL_NAMREPLY(hostname, nick, chn, clients) \
@@ -98,6 +98,10 @@ class Message;
 // 482: Error message of trying to change a channel mode without the operator role
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \
 	(":" + hostname + " 482 " + nick + " " + chn + " :You're not channel operator")
+
+// 462: Error message when already registered 
+# define ERR_ALREADYREGISTERED(hostname, nick) \
+	(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
 
 static bool running;
 
@@ -119,6 +123,7 @@ void		cmdCap(Server &irc, Message *message, int sender);
 void		cmdPart(Server &irc, Message *message, int sender);
 void		cmdPing(Server &irc, Message *message, int sender);
 void 		cmdPong(Server &irc, Message *message, int sender);
+void		cmdUser(Server &irc, Message *message, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);
@@ -132,5 +137,6 @@ void    	sendMOTD(Server &irc, Message *message, int sender);
 // Other
 std::string	cleanString(const std::string& name);
 void    	evaluatePing(Server &irc);
+std::string parseRealname(const std::string& input);
 
 #endif

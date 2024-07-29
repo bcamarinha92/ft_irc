@@ -10,6 +10,8 @@ void broadcast(Server &irc, Message *message, int sender)
         cmdCap(irc, message, sender);
 	else if (message->get_command() == "PASS")
 		cmdPass(irc, message, sender);
+    else if (message->get_command() == "USER")
+		cmdUser(irc, message, sender);
 	else if (message->get_command() == "NICK")
 		cmdNick(irc, message, sender);
 	else if (message->get_command() == "JOIN")

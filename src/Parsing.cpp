@@ -146,3 +146,12 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	}
 	return param;
 }
+
+std::string parseRealname(const std::string& input) 
+{
+    size_t colonPos = input.find(':');
+    
+    if (colonPos != std::string::npos)
+        return input.substr(colonPos + 1);
+    return "";
+}
