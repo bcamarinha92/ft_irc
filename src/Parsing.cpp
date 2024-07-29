@@ -108,7 +108,7 @@ std::string	get_buffer_command(const std::string buffer)
 		i++;
 	}
 	start = i;
-	while (buffer[i] != ' ')
+	while ((buffer[i] != ' ') && (buffer[i] != '\r') && (buffer[i] != '\n'))
 		i++;
 	return cleanString((buffer.substr(start, i)));
 }
@@ -125,8 +125,10 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 			i++;
 		i++;
 	}
-	while (buffer[i] && buffer[i] != ' ')
+	while (buffer[i] && buffer[i] != ' ' && (buffer[i] != '\r') && (buffer[i] != '\n'))
 		i++;
+	if (buffer[i] =='\r' || buffer[i] == '\n')
+		return param; 
 	i++;
 	while (buffer[i])
 	{
