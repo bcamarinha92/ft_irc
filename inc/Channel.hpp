@@ -29,12 +29,14 @@ class Channel
 		std::vector<int>		getChannelClientsFds();
 		std::vector<int>		getChannelInvites() const;
 		size_t					getChannelUserLimit() const;
+		std::string				getChannelKey() const;
 
 		//Setters
 		void					setName(std::string name);
 		void					setTopic(std::string topic);
 		void					switchLaunch();
 		void					setChannelUserLimit(size_t limit);
+		void					setChannelKey(std::string key);
 
 		//Methods
 		void					prepareModes();
@@ -61,6 +63,7 @@ class Channel
 		std::time_t				_createdAt;
 		bool					_launch;
 		ssize_t					_ulimit;
+		std::string				_key;
 		std::vector<int>		_invites;
 };
 

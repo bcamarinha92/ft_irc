@@ -48,6 +48,10 @@
 # define ERR13 "Error: sending message informing channel is full"
 # define ERR14 "Error: activation of channel's user limit"
 # define ERR15 "Error: deactivation of channel's user limit"
+# define ERR16 "Error: sending channel limit too high message"
+# define ERR17 "Error: activation of channel's key"
+# define ERR18 "Error: deactivation of channel's key"
+# define ERR19 "Error: sending message of no channel permissions (475)"
 
 class Server;
 class Message;
@@ -65,19 +69,23 @@ class Message;
 # define JOIN(nick, chn) (":" + nick + " JOIN " + chn)
 
 // Activate Channel Mode
-# define ACTMODE(nick, chn, mode) (":"+ nick + " MODE " + chn + " +" + mode)
+# define ACTMODE(nick, chn, mode) (":" + nick + " MODE " + chn + " +" + mode)
 
 // Deactivate Channel Mode
-# define DEACTMODE(nick, chn, mode) (":"+ nick + " MODE " + chn + " -" + mode)
+# define DEACTMODE(nick, chn, mode) (":" + nick + " MODE " + chn + " -" + mode)
 
-// Activate Channel Operator Mode
-# define RPL_CHANNELMODEISACT(nick, chn, mode, param) (":"+ nick + " MODE " + chn + " +" + mode + " " + param)
+// Activate Channel OperaCannot join channel (+k)tor Mode
+# define RPL_CHANNELMODEISACT(nick, chn, mode, param) (":" + nick + " MODE " + chn + " +" + mode + " " + param)
 
 // Dectivate Channel Operator Mode
-# define RPL_CHANNELMODEISDEACT(nick, chn, mode, param) (":"+ nick + " MODE " + chn + " -" + mode + " " + param)
+# define RPL_CHANNELMODEISDEACT(nick, chn, mode, param) (":" + nick + " MODE " + chn + " -" + mode + " " + param)
 
 // Sends a private message whether to a channel or another client
 # define PRIVMSG(nick, msg) (":" + nick + " " + msg)
+
+// Channel limit too high
+# define RPL_TOOHIGHLIMIT(hostname, nick, chn) \
+	(":" + hostname + " 479 " + nick + " " + chn + " :Channel limit is too high")
 
 // 324: Sent to a client to inform them of the currently-set modes of a channel
 # define RPL_CHANNELMODEIS(hostname, nick, chn, modes) \
@@ -94,6 +102,10 @@ class Message;
 // 471: indicates JOIN command failed because l mode is set and the max number of users was reached
 # define ERR_CHANNELISFULL(hostname, nick, chn) \
 	(":" + hostname + " 471 " + nick + " " + chn + " :Cannot join channel (+l)")
+
+// 475: Returned to indicate that a JOIN command failed because the channel requires
+// a key and the key was either incorrect or not supplied
+# define ERR_BADCHANNELKEY(nick, chn) (nick + " " + chn + " :Cannot join channel (+k)")
 
 // 482: Error message of trying to change a channel mode without the operator role
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \

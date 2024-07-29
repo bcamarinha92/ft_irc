@@ -4,12 +4,12 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Channel::Channel(): _launch(true), _ulimit(-1)
+Channel::Channel(): _launch(true), _ulimit(-1), _key("")
 {
 	this->prepareModes();
 }
 
-Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true), _ulimit(-1)
+Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true), _ulimit(-1), _key("")
 {
 	this->_name = name;
 	this->prepareModes();
@@ -26,6 +26,7 @@ Channel::Channel(const Channel& src)
 	this->operators = src.operators;
 	this->_invites = src._invites;
 	this->_ulimit = src._ulimit;
+	this->_key = src._key;
 }
 
 /*
@@ -51,6 +52,7 @@ Channel&				Channel::operator=(Channel const& rhs)
 		this->operators = rhs.operators;
 		this->_invites = rhs._invites;
 		this->_ulimit = rhs._ulimit;
+		this->_key = rhs._key;
 	}
 	return *this;
 }
@@ -119,6 +121,11 @@ size_t				Channel::getChannelUserLimit() const
 	return (this->_ulimit);
 }
 
+std::string			Channel::getChannelKey() const
+{
+	return (this->_key);
+}
+
 void				Channel::setName(std::string name)
 {
 	this->_name=name;
@@ -137,6 +144,11 @@ void				Channel::switchLaunch()
 void				Channel::setChannelUserLimit(size_t limit)
 {
 	this->_ulimit = limit;
+}
+
+void				Channel::setChannelKey(std::string key)
+{
+	this->_key = key;
 }
 
 void				Channel::prepareModes()

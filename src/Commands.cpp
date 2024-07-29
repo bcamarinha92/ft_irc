@@ -42,10 +42,18 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 	else if (!irc.channels[chn].checkChannelMode('l') ||
 		irc.channels[chn].members.size() < irc.channels[chn].getChannelUserLimit())
 	{
-		sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), \
-			  JOIN(irc.getNickByFd(sender), chn), ERR1);
-		irc.channels[chn].addClient(irc.getClientByFd(sender));
-		irc.clients[sender].addChannel(channel);
+		std::string	param = "";
+		if (message->get_parameters().size() > 2)
+			param = message->get_parameters()[2];
+		if (!irc.channels[chn].checkChannelMode('k') || irc.channels[chn].getChannelKey() == param)
+		{
+			sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), \
+				  JOIN(irc.getNickByFd(sender), chn), ERR1);
+			irc.channels[chn].addClient(irc.getClientByFd(sender));
+			irc.clients[sender].addChannel(channel);
+		}
+		else
+			sendMessage(sender, ERR_BADCHANNELKEY(irc.getNickByFd(sender), chn), ERR19);
 	}
 	else
 		sendMessage(sender, ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), chn), ERR13);
@@ -124,12 +132,14 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
 void	cmdModeIterator(Server &irc, Message *message, int sender, std::string mode)
 {
 	std::string chn = message->get_destination();
+	std::string	param = "";
 	for (size_t i = 1, j = 1; i < mode.size(); i++)
 	{
 		char		m = mode[i];
 		if ((irc.modesParam[m].first == 1 && mode[0] == '+') || (irc.modesParam[m].second == 1 && mode[0] == '-'))
 			j++;
-		std::string param = message->get_parameters()[j];
+		if (message->get_parameters().size() > j)
+			param = message->get_parameters()[j];
 		if (!mode.compare(0, 1, "+", 0, 1))
 			irc.activateChannelMode(chn, m, sender, false, param);
 		else
@@ -147,9 +157,13 @@ void	cmdMode(Server &irc, Message *message, int sender)
 		cmdModeIterator(irc, message, sender, mode);
 	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
-		time_t	t = irc.channels[chn].getCreatedAtTime();
-		sendMessage(sender, RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), chn, irc.channels[chn].getChannelModes()), ERR2);
-		sendMessage(sender, RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), chn, std::string(ctime(&t))), ERR3);
+		time_t  t = irc.channels[chn].getCreatedAtTime();
+        std::stringstream ss;
+        ss << t;
+        std::cout << std::string(ctime(&t)) << std::endl;
+        sendMessage(sender, RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), \
+											  chn, irc.channels[chn].getChannelModes()), ERR2);
+        sendMessage(sender, RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), chn, ss.str()), ERR3);
 	}
 }
 
