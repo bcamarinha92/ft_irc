@@ -1,18 +1,17 @@
 #include "../inc/ft_irc.hpp"
 
-
-void    cmdNick(Server &irc, Message *message, int sender)
+void cmdNick(Server &irc, Message *message, int sender)
 {
     irc.setNickByFd(sender, getNickFromBuffer(message->get_buffer()));
     std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
 }
 
-void    cmdJoin(Server &irc, Message *message, int sender)
+void cmdJoin(Server &irc, Message *message, int sender)
 {
     std::string chn = message->get_destination();
-    std::string join = ":"+ irc.getNickByFd(sender) + " JOIN " + chn + "\r\n";
-    send(sender, join.c_str(), join.length(),MSG_DONTWAIT);
-    Channel	channel(chn);
+    std::string join = ":" + irc.getNickByFd(sender) + " JOIN " + chn + "\r\n";
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    Channel channel(chn);
     if (irc.channels.find(chn) == irc.channels.end())
     {
         irc.addChannel(channel);
@@ -25,7 +24,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
         irc.channels[chn].addClient(irc.getClientByFd(sender));
 }
 
-void    cmdWho(Server &irc, std::string chn, int sender)
+void cmdWho(Server &irc, std::string chn, int sender)
 {
 
     std::cout << chn << std::endl;
@@ -33,7 +32,7 @@ void    cmdWho(Server &irc, std::string chn, int sender)
         who(sender, irc, chn, true);
 }
 
-void    cmdPass(Server &irc, Message *message, int sender)
+void cmdPass(Server &irc, Message *message, int sender)
 {
     if (message->get_parameters().size() == 1)
     {
@@ -41,7 +40,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
         {
             std::string join = "Welcome to the Paulo Brificado's IRC !\n";
             logConsole(join);
-            //send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            // send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
         else
         {
@@ -59,7 +58,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
     }
 }
 
-void    cmdPrivMsg(Server &irc, Message *message, int sender)
+void cmdPrivMsg(Server &irc, Message *message, int sender)
 {
     std::string join = ":" + irc.getNickByFd(sender) + " " + message->get_buffer() + "\n";
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
@@ -70,19 +69,21 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
     }
 }
 
-void	cmdCap(Message *message) {
-	logConsole("CAP * LS :");
-	send(message->get_sender(), "CAP * LS :", 10, MSG_DONTWAIT);
+void cmdCap(Message *message)
+{
+    logConsole("CAP * LS :");
+    send(message->get_sender(), "CAP * LS :", 10, MSG_DONTWAIT);
 }
 
-void	cmdUser(Message *message, Client *user) { //Esta a dar segfault :c
-	std::vector<std::string> parameters = message->get_parameters();
-	
-	user->setUsername(parameters[0]);
-	user->setHostname(parameters[1]);
-	user->setServername(parameters[2]);
-	user->setRealname(parameters[3]);
+void cmdUser(Message *message, Client *user)
+{
+    std::vector<std::string> parameters = message->get_parameters();
 
-	std::string join = ":server 001 " + message->get_nickname() + " :Welcome to Paulo Brificado's IRC network " + message->get_nickname();
-	send(message->get_sender(), &join, join.size(), MSG_DONTWAIT);
+    user->setUsername(parameters[0]);
+    user->setHostname(parameters[1]);
+    user->setServername(parameters[2]);
+    user->setRealname(message->get_trailing());
+
+    std::string join = ":server 001 " + message->get_nickname() + " :Welcome to Paulo Brificado's IRC network " + message->get_nickname();
+    send(message->get_sender(), &join, join.size(), MSG_DONTWAIT);
 }

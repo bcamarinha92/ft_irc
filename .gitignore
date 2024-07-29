@@ -1,4 +1,4 @@
-src/*.o
+*.o
 ft_irc
 ircserv
 .vscode
