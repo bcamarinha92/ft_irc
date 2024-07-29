@@ -124,13 +124,16 @@ void 		cmdPong(Server &irc, Message *message, int sender);
 void 		closeFDs(Server &irc);
 void 		sigHandler(int signal);
 void 		setNonBlocking(int socket);
-void 		logConsole(std::string buffer);
-void		sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
+void    	evaluatePing(Server &irc);
+
+// Send
 void    	sendSequenceRPL(Server &irc, Message *message, int sender);
 void    	sendMOTD(Server &irc, Message *message, int sender);
+void 		logConsole(std::string buffer);
+void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
+void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
 
 // Other
 std::string	cleanString(const std::string& name);
-void    	evaluatePing(Server &irc);
 
 #endif

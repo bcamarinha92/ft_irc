@@ -235,8 +235,8 @@ void					Server::activateChannelMode(std::string const& chn, char mode, int send
 		{
 			if (this->channels[chn].operators.find(fd) == this->channels[chn].operators.end())
 			{
-				sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-				RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR11, true);
+				sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+				RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR11);
 				this->channels[chn].addOperator(this->getClientByFd(fd));
 			}
 		}
@@ -250,17 +250,17 @@ void					Server::activateChannelMode(std::string const& chn, char mode, int send
 		if (ss.fail())
 			throw std::runtime_error("Error converting a string to integer");
 		this->channels[chn].setChannelUserLimit(limit);
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, param), ERR14, true);
+		this->channels[chn].activateMode(mode, sender, false);
+		sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+			  RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, param), ERR14);
 	}
 	else if (this->channels[chn].activateMode(mode, sender, join))
 	{
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  ACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR4, true);
+		sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+			  ACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR4);
 	}
 	else
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7, false);
+		sendMessage(sender, ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7);
 }
 
 void					Server::deactivateChannelMode(std::string const& chn, char mode, int sender, std::string param)
@@ -274,8 +274,8 @@ void					Server::deactivateChannelMode(std::string const& chn, char mode, int se
 		{
 			if (this->channels[chn].operators.find(fd) != this->channels[chn].operators.end())
 			{
-				sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-				RPL_CHANNELMODEISDEACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR12, true);
+				sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+				RPL_CHANNELMODEISDEACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERR12);
 				this->channels[chn].rmOperator(fd);
 			}
 		}
@@ -283,15 +283,14 @@ void					Server::deactivateChannelMode(std::string const& chn, char mode, int se
 	else if (mode == 'l')
 	{
 		this->channels[chn].setChannelUserLimit(-1);
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR15, true);
+		sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR15);
 	}
 	else if (this->channels[chn].deactivateMode(mode, sender))
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR5, true);
+		sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
+			  DEACTMODE(this->getNickByFd(sender), chn, std::string(1, mode)), ERR5);
 	else
-		sendMessage(sender, this->channels[chn].getChannelClientsFds(), \
-			  ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7, false);
+		sendMessage(sender, ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR7);
 }
 
 /*

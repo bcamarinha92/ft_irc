@@ -60,7 +60,7 @@ class Channel
 		std::map<char, bool>	_modes;
 		std::time_t				_createdAt;
 		bool					_launch;
-		size_t					_ulimit;
+		ssize_t					_ulimit;
 		std::vector<int>		_invites;
 };
 

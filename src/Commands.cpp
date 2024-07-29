@@ -5,7 +5,7 @@ void    cmdCap(Server &irc, Message *message, int sender)
     std::string join;
     (void)irc;
     if (message->get_buffer().find("CAP REQ")!= std::string::npos)
-        join = ":bde-sous CAP ACK :multi-prefix\r\n";    
+        join = ":bde-sous CAP ACK :multi-prefix\r\n";
     else if (message->get_buffer().find("CAP LS")!= std::string::npos)
         join = ":bde-sous CAP * LS :multi-prefix\r\n";
     else
@@ -29,8 +29,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
     Channel	channel(chn);
 	if (irc.channels.find(chn) == irc.channels.end())
 	{
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  JOIN(irc.getNickByFd(sender), chn), ERR1, false);
+		sendMessage(sender, JOIN(irc.getNickByFd(sender), chn), ERR1);
         irc.addChannel(channel);
         irc.channels[chn].addClient(irc.getClientByFd(sender));
         irc.channels[chn].addOperator(irc.getClientByFd(sender));
@@ -41,17 +40,15 @@ void    cmdJoin(Server &irc, Message *message, int sender)
         irc.activateChannelMode(chn, 't', sender, true, "");
     }
 	else if (!irc.channels[chn].checkChannelMode('l') ||
-		(irc.channels[chn].members.size() < irc.channels[chn].getChannelUserLimit() \
-		&& irc.channels[chn].getChannelUserLimit() > 0))
+		irc.channels[chn].members.size() < irc.channels[chn].getChannelUserLimit())
 	{
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  JOIN(irc.getNickByFd(sender), chn), ERR1, true);
+		sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), \
+			  JOIN(irc.getNickByFd(sender), chn), ERR1);
 		irc.channels[chn].addClient(irc.getClientByFd(sender));
 		irc.clients[sender].addChannel(channel);
 	}
 	else
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), chn), ERR13, false);
+		sendMessage(sender, ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), chn), ERR13);
 }
 
 void    cmdWho(Server &irc, Message *message, int sender)
@@ -71,8 +68,7 @@ void    cmdWho(Server &irc, Message *message, int sender)
         	else
             	clients += (it->second).getNickname();
     	}
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR8, false);
+		sendMessage(sender, RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR8);
 	}
 }
 
@@ -86,7 +82,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
             close(sender);
-        }        
+        }
     }
     else
     {
@@ -102,8 +98,7 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
     {
         if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
             continue;
-		sendMessage(irc.pollfds[i].fd, irc.channels[message->get_destination()].getChannelClientsFds(), \
-			  PRIVMSG(irc.getNickByFd(sender), message->get_buffer()), ERR10, false);
+		sendMessage(irc.pollfds[i].fd, PRIVMSG(irc.getNickByFd(sender), message->get_buffer()), ERR10);
     }
 }
 
@@ -153,12 +148,8 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
 		time_t	t = irc.channels[chn].getCreatedAtTime();
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), \
-					   chn, irc.channels[chn].getChannelModes()), ERR2, false);
-		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
-			  RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), \
-					  chn, std::string(ctime(&t))), ERR3, false);
+		sendMessage(sender, RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), chn, irc.channels[chn].getChannelModes()), ERR2);
+		sendMessage(sender, RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), chn, std::string(ctime(&t))), ERR3);
 	}
 }
 
@@ -168,7 +159,7 @@ void	cmdPart(Server &irc, Message *message, int sender)
 	std::string	reason = message->get_parameters()[1];
 	std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 		+ "@" + irc.getHostname() + " PART " + chn + " " + reason;
-	sendMessage(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR6, true);
+	sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), msg, ERR6);
 	irc.channels[chn].rmClient(sender);
 	if (irc.channels[chn].checkOperatorRole(sender))
 		irc.channels[chn].rmOperator(sender);
