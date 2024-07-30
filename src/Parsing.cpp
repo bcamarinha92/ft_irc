@@ -29,17 +29,18 @@ std::string	getChannelFromBuffer(const std::string& input)
 {
 	int						i = 0;
 	std::string::size_type	start, end;
-	std::string				comandos[6] =
+	std::string				comandos[7] =
 	{
 		"PRIVMSG",
 		"JOIN",
 		"INVITE",
 		"WHO",
 		"MODE",
-		"PART"
+		"PART",
+		"TOPIC"
 	};
 
-	while (i < 6)
+	while (i < 7)
 	{
 		start = input.find(comandos[i]);
 		if (start != std::string::npos)
@@ -56,6 +57,13 @@ std::string	getChannelFromBuffer(const std::string& input)
 		end = input.find(":", start);
 		if (end == std::string::npos)
 			return "";
+	}
+	else if (comandos[i] == "TOPIC")
+	{
+        if (input.find(":", start))
+            end = input.find(":", start);
+        else
+            end = input.find('\n', start);
 	}
 	else if (comandos[i] == "MODE" || comandos[i] == "PART")
 	{
@@ -128,7 +136,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	while (buffer[i] && buffer[i] != ' ' && (buffer[i] != '\r') && (buffer[i] != '\n'))
 		i++;
 	if (buffer[i] =='\r' || buffer[i] == '\n')
-		return param; 
+		return param;
 	i++;
 	while (buffer[i])
 	{
@@ -147,10 +155,10 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	return param;
 }
 
-std::string parseRealname(const std::string& input) 
+std::string parseRealname(const std::string& input)
 {
     size_t colonPos = input.find(':');
-    
+
     if (colonPos != std::string::npos)
         return input.substr(colonPos + 1);
     return "";

@@ -47,6 +47,9 @@ std::ostream&			operator<<(std::ostream& o, Message const& i)
 
 	for(int i = 0; i < length; i++)
 		std::cout << param[i] << ',' << std::endl;
+
+	o << "Sender: " << i.get_sender() << std::endl;
+	o << "Destination: " << i.get_destination() << std::endl;
 	return o;
 }
 
@@ -59,7 +62,7 @@ std::string					Message::get_buffer() const
 	return (_buffer);
 }
 
-int							Message::get_sender()
+int							Message::get_sender() const
 {
 	return(_sender);
 }

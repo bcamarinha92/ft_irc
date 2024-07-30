@@ -1,12 +1,11 @@
 #include "../inc/ft_irc.hpp"
+#include <vector>
 
 void    cmdCap(Server &irc, Message *message, int sender)
 {
     std::string join;
     (void)irc;
-    // if (message->get_buffer().find("CAP REQ")!= std::string::npos)
-    //     join = ":bde-sous CAP ACK :multi-prefix\r\n";    
-    // else 
+
 	if (message->get_buffer().find("CAP LS")!= std::string::npos)
 	{
         join = ":bde-sous CAP * LS :\r\n";
@@ -23,8 +22,8 @@ void    cmdNick(Server &irc, Message *message, int sender)
 void    cmdUser(Server &irc, Message *message, int sender)
 {
 	//Depois de ter parsing ok deve ser efetuado o registo do username e realname aqui. no final se tudo correr bem, sao enviados os RPL e MOTD
-	//The minimum length of <username> is 1, ie. it MUST NOT be empty. If it is empty, 
-	//the server SHOULD reject the command with ERR_NEEDMOREPARAMS (even if an empty parameter is provided); 
+	//The minimum length of <username> is 1, ie. it MUST NOT be empty. If it is empty,
+	//the server SHOULD reject the command with ERR_NEEDMOREPARAMS (even if an empty parameter is provided);
 	//otherwise it MUST use a default value instead.
 	Client &user = irc.getClientByFd(sender);
 	std::string a = user.getUsername();
@@ -106,7 +105,7 @@ void    cmdPass(Server &irc, Message *message, int sender)
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
             close(sender);
-        }        
+        }
     }
     else
     {
@@ -126,25 +125,6 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
 			  PRIVMSG(irc.getNickByFd(sender), message->get_buffer()), ERR10, false);
     }
 }
-
-/*std::string getCurrentDateTime()
-{
-    // Get the current time
-    std::time_t now = std::time(0);
-
-    // Convert it to local time
-    std::tm *localTime = std::localtime(&now);
-
-    // Create a buffer to store the formatted date and time
-    char buffer[100];
-
-    // Format the date and time as "YYYY-MM-DD HH:MM:SS"
-    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", localTime);
-
-    // Return the formatted date and time as a string
-	std::cout << buffer << std::endl;
-    return std::string(buffer);
-}*/
 
 void	cmdModeIterator(Server &irc, Message *message, int sender, std::string mode)
 {
@@ -226,4 +206,61 @@ void cmdPong(Server &irc, Message *message, int sender)
 		user.setLastAction();
 		user.resetPingCount();
 	}
+}
+
+void   cmdTopic(Server &irc, Message *message, int sender)
+{
+    Channel &channel = irc.channels[message->get_destination()];
+    std::string buffer = message->get_buffer();
+    std::vector<int> fds = channel.getChannelClientsFds();
+
+    std::cout << "size: " << fds.size() << std::endl;
+    if (channel.getName().empty())
+    {
+        std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :No such channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), sender) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 442 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (buffer.find(":") != std::string::npos)
+    {
+        std::string topic = buffer.substr(buffer.find(":") + 1);
+        if (channel.checkChannelMode('t') && channel.checkOperatorRole(sender))
+        {
+            channel.setTopic(topic);
+            std::string join = ":" + irc.getHostname() + " 332 " + irc.getNickByFd(sender) + " " + channel.getName() + " :" + channel.getTopic() + "\n";
+            sendMessage(sender, channel.getChannelClientsFds(), join, "a",true);
+        }
+        else
+        {
+            if (!channel.checkOperatorRole(sender))
+            {
+                std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not channel operator\n";
+                send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            }
+            else if (!channel.checkChannelMode('t'))
+            {
+                std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :Channel is not set as topic\n";
+                send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            }
+        }
+    }
+    else
+    {
+        if (channel.getTopic().size() > 0)
+        {
+            std::string join = ":" + irc.getHostname() + " 332 " + irc.getNickByFd(sender) + " " + channel.getName() + " :" + channel.getTopic() + "\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+        else
+        {
+            std::string join = ":" + irc.getHostname() + " 331 " + irc.getNickByFd(sender) + " " + channel.getName() + " :No topic is set\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+    }
 }

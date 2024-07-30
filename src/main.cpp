@@ -24,6 +24,8 @@ void broadcast(Server &irc, Message *message, int sender)
 		cmdPrivMsg(irc, message, sender);
 	else if (message->get_command() == "PART")
 		cmdPart(irc, message, sender);
+	else if (message->get_command() == "TOPIC")
+	   cmdTopic(irc, message, sender);
 
 }
 
@@ -71,7 +73,7 @@ void loopPool(Server &irc)
         //     if (i > 0)
         //     {
         //         std::time_t t = irc.getClientByFd(irc.pollfds[i].fd).getLastAction();
-        //         std::cout << "FD: " << irc.pollfds[i].fd << " last action " << std::string(std::ctime(&t)) << std::endl; 
+        //         std::cout << "FD: " << irc.pollfds[i].fd << " last action " << std::string(std::ctime(&t)) << std::endl;
         //     }
         // }
     }
