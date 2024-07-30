@@ -214,7 +214,6 @@ void   cmdTopic(Server &irc, Message *message, int sender)
     std::string buffer = message->get_buffer();
     std::vector<int> fds = channel.getChannelClientsFds();
 
-    std::cout << "size: " << fds.size() << std::endl;
     if (channel.getName().empty())
     {
         std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :No such channel\n";
