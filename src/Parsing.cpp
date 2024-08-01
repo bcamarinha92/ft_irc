@@ -1,4 +1,5 @@
 #include "../inc/Server.hpp"
+#include <iostream>
 
 std::string	getNickFromBuffer(const std::string &input)
 {
@@ -29,7 +30,7 @@ std::string	getChannelFromBuffer(const std::string& input)
 {
 	int						i = 0;
 	std::string::size_type	start, end;
-	std::string				comandos[7] =
+	std::string				comandos[8] =
 	{
 		"PRIVMSG",
 		"JOIN",
@@ -37,10 +38,11 @@ std::string	getChannelFromBuffer(const std::string& input)
 		"WHO",
 		"MODE",
 		"PART",
-		"TOPIC"
+		"TOPIC",
+		"KICK"
 	};
 
-	while (i < 7)
+	while (i < 8)
 	{
 		start = input.find(comandos[i]);
 		if (start != std::string::npos)
@@ -65,7 +67,7 @@ std::string	getChannelFromBuffer(const std::string& input)
         else
             end = input.find('\n', start);
 	}
-	else if (comandos[i] == "MODE" || comandos[i] == "PART")
+	else if (comandos[i] == "MODE" || comandos[i] == "PART" || comandos[i] == "KICK")
 	{
 		start++;
 		end = input.find(" ", start);
@@ -81,6 +83,7 @@ std::string	getChannelFromBuffer(const std::string& input)
     while (finish > begin && isspace(input[finish]))
         --finish;
     std::string result = input.substr(begin, finish - begin + 1);
+    std::cout << "Channel: " << result << std::endl;
    	return cleanString(result);
 }
 

@@ -26,6 +26,8 @@ void broadcast(Server &irc, Message *message, int sender)
 		cmdPart(irc, message, sender);
 	else if (message->get_command() == "TOPIC")
 	   cmdTopic(irc, message, sender);
+	else if (message->get_command() == "KICK")
+	   cmdKick(irc, message, sender);
 
 }
 

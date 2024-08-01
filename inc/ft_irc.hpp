@@ -125,6 +125,7 @@ void		cmdPing(Server &irc, Message *message, int sender);
 void 		cmdPong(Server &irc, Message *message, int sender);
 void		cmdUser(Server &irc, Message *message, int sender);
 void        cmdTopic(Server &irc, Message *message, int sender);
+void        cmdKick(Server &irc, Message *message, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);

@@ -263,3 +263,51 @@ void   cmdTopic(Server &irc, Message *message, int sender)
         }
     }
 }
+
+void   cmdKick(Server &irc, Message *message, int sender)
+{
+    Channel &channel = irc.channels[message->get_destination()];
+    std::string buffer = message->get_buffer();
+    std::vector<int> fds = channel.getChannelClientsFds();
+    std::string reason = "";
+    int target;
+
+    if (message->get_parameters().size() < 2)
+    {
+        std::string join = ":" + irc.getHostname() + " 461 " + irc.getNickByFd(sender) + " KICK :Not enough parameters\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    target = irc.getFdFromNick(message->get_parameters()[1]);
+    if (channel.getName().empty())
+    {
+        std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :No such channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), sender) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 441 " + irc.getNickByFd(sender) + " " + message->get_parameters()[1] + " " + channel.getName() + " :You're not on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), target) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 442 " + irc.getNickByFd(sender) + " " + channel.getName() + " :They aren't on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (buffer.find(":") != std::string::npos)
+        reason = buffer.substr(buffer.find(":") + 1);
+    if (channel.checkOperatorRole(sender))
+    {
+        std::string join = ":" + irc.getHostname() + " KICK " + channel.getName() + " " + message->get_parameters()[1] + " :" + reason + "\n";
+        sendMessage(sender, channel.getChannelClientsFds(), join, "a",true);
+        channel.rmClient(target);
+    }
+    else
+    {
+        std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not channel operator\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    }
+}

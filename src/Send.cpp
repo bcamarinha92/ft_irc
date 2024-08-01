@@ -5,7 +5,7 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
     std::string join;
 
     (void)message;
-    join = ":" + irc.getHostname() + " 001 " + irc.getNickByFd(sender) + " :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n"; 
+    join = ":" + irc.getHostname() + " 001 " + irc.getNickByFd(sender) + " :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
     join = ":" + irc.getHostname() + " 002 " + irc.getNickByFd(sender) + " :Your host is " + irc.getClientByFd(sender).getHostname() + ", running version 0.01\n";
@@ -18,7 +18,7 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
     join = ":" + irc.getHostname() + " 004 " + irc.getNickByFd(sender) + " :" + irc.getHostname() + "0.01 ao itkol\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":" + irc.getHostname() + " 005 " + irc.getNickByFd(sender) + " :PREFIX=(ov)@+ CHANTYPES=#& CHANMODES=beI,k,l,imnprstz CASEMAPPING=ascii NETWORK=PauloBrificado\r\n";
+    join = ":" + irc.getHostname() + " 005 " + irc.getNickByFd(sender) + " :PREFIX=(o)@ :CHANTYPES=# :CHANMODES=i,t,k,o,l :CASEMAPPING=ascii :TARGMAX=PART:1,NAMES:1,KICK:1,INVITE1:,WHO:1,WHOIS:1,PRIVMSG:1 :NETWORK=PauloBrificado :are supported by this server\r\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }
