@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <csignal>
 #include <vector>
 
 void    cmdCap(Server &irc, Message *message, int sender)
@@ -58,6 +59,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 			irc.channels[chn].switchLaunch();
 		irc.activateChannelMode(chn, 'n', sender, true, "");
         irc.activateChannelMode(chn, 't', sender, true, "");
+        nameReply(irc,message,sender);
     }
 	else if (!irc.channels[chn].checkChannelMode('l') ||
 		(irc.channels[chn].members.size() < irc.channels[chn].getChannelUserLimit() \
@@ -67,13 +69,14 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 			  JOIN(irc.getNickByFd(sender), chn), ERR1, true);
 		irc.channels[chn].addClient(irc.getClientByFd(sender));
 		irc.clients[sender].addChannel(channel);
+		nameReply(irc,message,sender);
 	}
 	else
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
 			  ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), chn), ERR13, false);
 }
 
-void    cmdWho(Server &irc, Message *message, int sender)
+void    nameReply(Server &irc, Message *message, int sender)
 {
 	std::string	chn = message->get_destination();
 	if (irc.channels.find(chn) != irc.channels.end())
@@ -93,6 +96,51 @@ void    cmdWho(Server &irc, Message *message, int sender)
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
 			  RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR8, false);
 	}
+}
+
+void    cmdWho(Server &irc, Message *message, int sender)
+{
+    std::string chn = message->get_destination();
+    std::string join;
+
+    if (chn.find("#") == std::string::npos)
+    {
+        int clientFd = irc.getFdFromNick(chn);
+
+        if (clientFd == -1)
+        {
+            std::string join = ":" + irc.getHostname() + " 401 " + irc.getNickByFd(sender) + " " + chn + " :No such nick/channel\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            return ;
+        }
+        Client  &client = irc.getClientByFd(clientFd);
+        join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
+            message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
+            " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    }
+    else
+    {
+        Channel &channel = irc.channels[chn];
+
+        if (channel.getName() == "")
+        {
+            std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + chn + " :No such channel\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            return ;
+        }
+        std::vector<int> clients = channel.getChannelClientsFds();
+        for (std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
+        {
+            Client  &client = irc.getClientByFd(*it);
+            join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
+                message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
+                " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+    }
+    join = ":" + irc.getHostname() + " 315 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :End of /WHO list.\r\n";
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }
 
 void    cmdPass(Server &irc, Message *message, int sender)

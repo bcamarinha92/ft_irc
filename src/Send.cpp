@@ -1,24 +1,32 @@
 #include "../inc/ft_irc.hpp"
+#include <string>
 
 void    sendSequenceRPL(Server &irc, Message *message, int sender)
 {
     std::string join;
-
-    (void)message;
-    join = ":" + irc.getHostname() + " 001 " + irc.getNickByFd(sender) + " :Welcome to the Paulo Brificado's IRC " + irc.getNickByFd(sender) + "!\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":" + irc.getHostname() + " 002 " + irc.getNickByFd(sender) + " :Your host is " + irc.getClientByFd(sender).getHostname() + ", running version 0.01\n";
-    logConsole(join);
-    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    std::string nick = irc.getNickByFd(sender);
+    std::string user = irc.getClientByFd(sender).getUsername();
+    std::string hostClient = irc.getClientByFd(sender).getHostname();
+    std::string hostServer = irc.getHostname();
+    std::string realName = irc.getClientByFd(sender).getRealname();
     time_t t = irc.getCreationDate();
-    join = ":" + irc.getHostname() + " 003 " + irc.getNickByFd(sender) + " :This server was created at " + std::string(std::ctime(&t)) + "\n";
+
+    if (join == "" || nick == "" || user == "" || hostClient == "" || hostServer == "" || realName == "")
+        return ;
+    (void)message;
+    join = ":" + hostServer + " 001 " + nick + " :Welcome to the Paulo Brificado's IRC " + nick + "!\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":" + irc.getHostname() + " 004 " + irc.getNickByFd(sender) + " :" + irc.getHostname() + "0.01 ao itkol\n";
+    join = ":" + hostServer + " 002 " + nick + " :Your host is " + hostClient + ", running version 0.01\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-    join = ":" + irc.getHostname() + " 005 " + irc.getNickByFd(sender) + " :PREFIX=(o)@ :CHANTYPES=# :CHANMODES=i,t,k,o,l :CASEMAPPING=ascii :TARGMAX=PART:1,NAMES:1,KICK:1,INVITE1:,WHO:1,WHOIS:1,PRIVMSG:1 :NETWORK=PauloBrificado :are supported by this server\r\n";
+    join = ":" + hostServer + " 003 " + nick + " :This server was created at " + std::string(std::ctime(&t)) + "\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    join = ":" + hostServer + " 004 " + nick + " :" + hostServer + " 0.01 ao itkol\n";
+    logConsole(join);
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    join = ":" + hostServer + " 005 " + nick + " :PREFIX=(o)@ :CHANTYPES=# :CHANMODES=i,t,k,o,l :CASEMAPPING=ascii :TARGMAX=PART:1,NAMES:1,KICK:1,INVITE1:,WHO:1,WHOIS:1,PRIVMSG:1 :NETWORK=PauloBrificado :are supported by this server\r\n";
     logConsole(join);
     send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 }

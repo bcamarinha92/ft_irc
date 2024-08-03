@@ -69,7 +69,9 @@ std::string	getChannelFromBuffer(const std::string& input)
 	}
 	else if (comandos[i] == "MODE" || comandos[i] == "PART" || comandos[i] == "KICK")
 	{
-		start++;
+	    start = input.find("#", start);
+	    if (start == std::string::npos)
+            return "";
 		end = input.find(" ", start);
 		if (end == std::string::npos)
 			return "";
