@@ -33,25 +33,33 @@
 # include "Channel.hpp"
 
 // Error messages
-# define ERR1 "Error: joining channel"
-# define ERR2 "Error: obtaining the channel's modes list"
-# define ERR3 "Error: obtaining the channel info"
-# define ERR4 "Error: activation of channel mode"
-# define ERR5 "Error: deactivation of channel mode"
-# define ERR6 "Error: parting channel"
-# define ERR7 "Error: sending message of no operator permissions (482)"
-# define ERR8 "Error: sending channel's clients list and roles (353)"
-# define ERR9 "Error: sending welcoming message (001)"
-# define ERR10 "Error: sending private message"
-# define ERR11 "Error: activation of channel operator mode"
-# define ERR12 "Error: deactivation of channel operator mode"
-# define ERR13 "Error: sending message informing channel is full"
-# define ERR14 "Error: activation of channel's user limit"
-# define ERR15 "Error: deactivation of channel's user limit"
-# define ERR16 "Error: sending channel limit too high message"
-# define ERR17 "Error: activation of channel's key"
-# define ERR18 "Error: deactivation of channel's key"
-# define ERR19 "Error: sending message of no channel permissions (475)"
+# define ERRAM	"Error: activation of channel mode"
+# define ERRC	"Error: obtaining the channel info"
+# define ERRDM	"Error: deactivation of channel mode"
+# define ERRJ	"Error: joining channel"
+# define ERRM	"Error: obtaining the channel's modes list"
+# define ERRP	"Error: parting channel"
+# define ERRPM	"Error: sending private message"
+# define ERRAOM	"Error: activation of channel operator mode"
+# define ERRDOM	"Error: deactivation of channel operator mode"
+# define ERRALM "Error: activation of channel's user limit"
+# define ERRDLM "Error: deactivation of channel's user limit"
+# define ERRLTH "Error: sending channel limit too high message"
+# define ERRACK "Error: activation of channel's key"
+# define ERRDCK "Error: deactivation of channel's key"
+//# define ERR001 "Error: sending welcoming message (001)"
+# define ERR353 "Error: sending channel's clients list and roles (353)"
+# define ERR401 "Error: sending message of no such nick/channel (401)"
+# define ERR403 "Error: sending message of no such channel (403)"
+# define ERR405 "Error: sending message of too many channels (405)"
+# define ERR412 "Error: sending message of no text to send (412)"
+# define ERR417	"Error: sending message of input too long (417)"
+# define ERR442	"Error: sending message of not on channel (442)"
+# define ERR461	"Error: sending message of more parameters needed (461)"
+# define ERR464 "Error: sending message of incorrect password (464)"
+# define ERR471 "Error: sending message informing channel is full (471)"
+# define ERR475 "Error: sending message of no channel permissions (475)"
+# define ERR482 "Error: sending message of no operator permissions (482)"
 
 class Server;
 class Message;
@@ -81,7 +89,7 @@ class Message;
 # define RPL_CHANNELMODEISDEACT(nick, chn, mode, param) (":" + nick + " MODE " + chn + " -" + mode + " " + param)
 
 // Sends a private message whether to a channel or another client
-# define PRIVMSG(nick, msg) (":" + nick + " " + msg)
+# define PRIVMSG(nick, nicks, msg) (":" + nick + " PRIVMSG " + nicks + " :" + msg)
 
 // Channel limit too high
 # define RPL_TOOHIGHLIMIT(hostname, nick, chn) \
@@ -98,6 +106,30 @@ class Message;
 // 353: Reply to the NAMES command; lists the clients joined to a channel and their status
 # define RPL_NAMREPLY(hostname, nick, chn, clients) \
 	(":" + hostname + " 353 " + nick + " = " + chn + " :" + clients)
+
+// 401: ndicates that no client can be found for the supplied nickname
+# define ERR_NOSUCHNICK(hostname, nick) (hostname + " " + nick + " :No such nick/channel")
+
+// 403: Indicates that no channel can be found for the supplied channel name
+# define ERR_NOSUCHCHANNEL(hostname, chn) (hostname + " " + chn + " :No such channel")
+
+// 405: Indicates that the JOIN command failed because the client has joined their maximum number of channels (10)
+# define ERR_TOOMANYCHANNELS(hostname, chn) (hostname + " " + chn + " :You have joined too many channels")
+
+// 412: Returned by the PRIVMSG command to indicate the message wasn’t delivered because there was no text to send
+# define ERR_NOTEXTTOSEND(hostname) (hostname + " :No text to send")
+
+// 417: Indicates a given line does not follow the specified size limits
+# define ERR_INPUTTOOLONG(hostname) (hostname + " :Input line was too long")
+
+// 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
+# define ERR_NOTONCHANNEL(hostname, chn) (hostname + " " + chn + " :You're not on that channel")
+
+// 461: Returned when a client command cannot be parsed because not enough parameters were supplied
+# define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters")
+
+// 464: Returned to indicate that the connection could not be registered as the password was either incorrect or not supplied
+# define ERR_PASSWDMISMATCH(hostname) (hostname + " :Password incorrect")
 
 // 471: indicates JOIN command failed because l mode is set and the max number of users was reached
 # define ERR_CHANNELISFULL(hostname, nick, chn) \
@@ -137,6 +169,8 @@ void 		closeFDs(Server &irc);
 void 		sigHandler(int signal);
 void 		setNonBlocking(int socket);
 void    	evaluatePing(Server &irc);
+std::string	toUpper(const std::string& str);
+int			aux(std::string targets);
 
 // Send
 void    	sendSequenceRPL(Server &irc, Message *message, int sender);

@@ -48,3 +48,23 @@ void    evaluatePing(Server &irc)
         }
     }
 }
+
+std::string	toUpper(const std::string& str)
+{
+	std::string	res = str;
+	for (size_t i = 0; i < res.length(); i++)
+		res[i] = toupper(res[i]);
+	return res;
+}
+
+int		aux(std::string targets)
+{
+	int	n = 1, i = 0;
+
+	while (targets.find(",", i) != std::string::npos)
+	{
+		n++;
+		i += targets.find(",", i) + 1;
+	}
+	return n;
+}
