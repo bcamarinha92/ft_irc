@@ -6,13 +6,14 @@
 
 Client::Client() {}
 
-Client::Client(int socket)
+Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0)
 {
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
-	if (_clientSocket < 0)
-		throw std::invalid_argument("accept");
-	_client_ip = inet_ntoa(_clientAddr.sin_addr);
+    if (_clientSocket < 0)
+        throw std::invalid_argument("accept");
+    _client_ip = inet_ntoa(_clientAddr.sin_addr);
+	_hostname = gethostbyaddr((const void *)&_clientAddr.sin_addr, sizeof(_clientAddr.sin_addr), AF_INET);
     setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;
@@ -27,6 +28,10 @@ Client::Client(const Client& src)
 	this->_clientAddrLen = src._clientAddrLen;
 	this->_client_ip = src._client_ip;
 	this->clientPollfd = src.clientPollfd;
+    this->_lastAction = src._lastAction;
+	this->channels = src.channels;
+	this->_hostname = src._hostname;
+	this->_pingCount = src._pingCount;
 }
 
 /*
@@ -41,7 +46,7 @@ Client::~Client() {}
 
 Client&				Client::operator=(Client const& rhs)
 {
-	if ( this != &rhs )
+	if (this != &rhs)
 	{
 		this->_clientSocket = rhs._clientSocket;
 		this->_nickname = rhs._nickname;
@@ -50,39 +55,50 @@ Client&				Client::operator=(Client const& rhs)
 		this->_clientAddrLen = rhs._clientAddrLen;
 		this->_client_ip = rhs._client_ip;
 		this->clientPollfd = rhs.clientPollfd;
-
+		this->channels = rhs.channels;
+		this->_hostname = rhs._hostname;
+		this->_lastAction = rhs._lastAction;
+		this->_pingCount = rhs._pingCount;
 	}
 	return *this;
 }
 
-std::ostream&		operator<<(std::ostream &o, Client const& i)
+std::ostream&			operator<<(std::ostream& o, Client const& i)
 {
 	(void)i;
+	//o << "Value = " << i.getValue();
 	return o;
 }
+
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
 
-int Client::getSocket() const
+int 		Client::getSocket() const
 {
-     return (this->_clientSocket);
+	return (this->_clientSocket);
 }
 
-std::string Client::getNickname() const
+int 		Client::getPingCount() const
+{
+	return (this->_pingCount);
+}
+
+
+std::string	Client::getNickname() const
 {
     return (this->_nickname);
 }
 
-sockaddr_in Client::getclientAddr() const
+sockaddr_in	Client::getclientAddr() const
 {
-    return (this->_clientAddr);
+    return(this->_clientAddr);
 }
 
 socklen_t   Client::getclientAddrLen() const
 {
-    return (this->_clientAddrLen);
+    return(this->_clientAddrLen);
 }
 
 std::string Client::getUsername() const
@@ -90,19 +106,54 @@ std::string Client::getUsername() const
     return (this->_username);
 }
 
-void Client::setSocket(int socket)
+std::string Client::getHostname() const
+{
+    return (this->_hostname->h_name);
+}
+
+std::time_t		Client::getLastAction() const
+{
+    return (this->_lastAction);
+}
+
+void            Client::setSocket(int socket)
 {
     _clientSocket = socket;
 }
 
-void Client::setNickname(const std::string& nickname)
+void 		Client::setNickname(const std::string& nickname)
 {
     _nickname = nickname;
 }
 
-void Client::setUsername(const std::string& username)
+void 		Client::setUsername(const std::string& username)
 {
     _username = username;
+}
+
+void 		Client::incPingCount()
+{
+    _pingCount++;
+}
+
+void 		Client::resetPingCount()
+{
+    _pingCount = 0;
+}
+
+void            Client::setLastAction()
+{
+    _lastAction = std::time(0);
+}
+
+void		Client::addChannel(const Channel& channel)
+{
+	this->channels[channel.getName()] = channel;
+}
+
+void		Client::rmChannel(std::string channelName)
+{
+	this->channels.erase(channelName);
 }
 
 /*

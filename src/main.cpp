@@ -1,68 +1,35 @@
 #include "../inc/ft_irc.hpp"
 
-void sigHandler(int signal)
+void	broadcast(Server &irc, Message *message, int sender)
 {
-    if (signal == SIGINT)
-        running = false;
-    std::cout << running << std::endl;
+	if (message->get_command() == "PING")
+        cmdPing(irc, message, sender);
+	else if (message->get_command() == "PONG")
+        cmdPong(irc, message, sender);
+	else if (message->get_command() == "CAP")
+        cmdCap(irc, message, sender);
+	else if (message->get_command() == "PASS")
+		cmdPass(irc, message, sender);
+	else if (message->get_command() == "NICK")
+		cmdNick(irc, message, sender);
+	else if (message->get_command() == "JOIN")
+		cmdJoin(irc, message, sender);
+	else if (message->get_command() == "WHO")
+		cmdWho(irc, message, sender);
+	else if (message->get_command() == "MODE")
+		cmdMode(irc, message, sender);
+	else if (message->get_command() == "PRIVMSG")
+		cmdPrivMsg(irc, message, sender);
+	else if (message->get_command() == "PART")
+		cmdPart(irc, message, sender);
+	else if (message->get_command() == "")
+		return (sendMessage(sender, ERR_UNKNOWNCOMMAND(irc.getHostname(), message->get_buffer()), ERR421));
+
 }
 
-void setNonBlocking(int socket)
+void	loopPool(Server &irc)
 {
-    fcntl(socket, F_SETFL, O_NONBLOCK);
-}
-
-void logConsole(std::string buffer)
-{
-    std::cout << buffer << std::endl;
-}
-
-void	sendMessage(int fd, const std::string& msg)
-{
-	std::string wholeMsg = msg + "\r\n";
-    send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT);
-}
-
-void broadcast(Server &irc, char *buffer, int sender)
-{
-	if (!strncmp(buffer, "NICK", 4))
-		cmdNick(irc, buffer, sender);
-	else if (!strncmp(buffer, "JOIN", 4))
-		cmdJoin(irc, buffer, sender);
-	else if (!strncmp(buffer, "WHO", 3))
-        cmdWho(irc, buffer, sender);
-	else if (!strncmp(buffer, "MODE", 4))
-		cmdMode(irc, buffer, sender);
-	else
-    {
-        for (size_t i = 0; i < irc.pollfds.size(); ++i)
-        {
-            if ((irc.pollfds[i].fd == sender) || (irc.pollfds[i].fd == irc.getServerSocket()))
-                continue;
-            std::string join = ":" + irc.getNickByFd(sender) + " " + std::string(buffer) + "\r\n";
-            send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
-        }
-    }
-}
-
-void closeFDs(Server &irc)
-{
-	size_t  i;
-
-    i = 0;
-    while (i < irc.pollfds.size())
-    {
-        if (irc.pollfds[i].fd != irc.getServerSocket())
-            irc.rmClient(irc.pollfds[i].fd, i);
-        i++;
-    }
-    close(irc.getServerSocket());
-    irc.pollfds.erase(irc.pollfds.begin());
-}
-
-void loopPool(Server &irc)
-{
-    char	*buffer = 0;
+    char	*message = 0;
     int		bytesRead = 0;
     int		clientSocket = 0;
 
@@ -75,14 +42,13 @@ void loopPool(Server &irc)
                 // Nova conexão detetada;
                 Client user(irc.getServerSocket());
                 irc.addClient(user);
-                std::cout << "New connection from " << inet_ntoa(user.getclientAddr().sin_addr) << std::endl;
+                std::cout << "New connection from " << user.getHostname() << std::endl;
             }
             else
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                //bytesRead = recv(clientSocket, buffer, sizeof(buffer),0);
-                bytesRead = get_next_line(clientSocket, &buffer);
+                bytesRead = get_next_line(clientSocket, &message);
                 if (bytesRead <= 0)
                 {
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
@@ -93,19 +59,28 @@ void loopPool(Server &irc)
                 }
                 else
                 {
-                    //leitura com sucesso, temos que inserir aqui o parsing e criar uma instancia da class Message.
-                    //como ainda nao existe, simplesmente dou broadcast para todos os clientes ligados
-                    broadcast(irc, buffer, clientSocket);
-                    logConsole(std::string(buffer));
+                    Message	new_message(message, clientSocket);
+                    broadcast(irc, &new_message, clientSocket);
+                    irc.getClientByFd(clientSocket).setLastAction();
+                    logConsole(std::string(message));
                 }
             }
         }
+        // else
+        // {
+        //     if (i > 0)
+        //     {
+        //         std::time_t t = irc.getClientByFd(irc.pollfds[i].fd).getLastAction();
+        //         std::cout << "FD: " << irc.pollfds[i].fd << " last action " << std::string(std::ctime(&t)) << std::endl;
+        //     }
+        // }
     }
 }
 
-int main(int argc, char *argv[])
+int	main(int argc, char *argv[])
 {
-    if (argc != 3) {
+    if (argc != 3)
+	{
         std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl;
         return 1;
     }
@@ -114,17 +89,19 @@ int main(int argc, char *argv[])
     {
         Server irc(atoi(argv[1]), argv[2]);
         int pollCount;
+        time_t t = irc.getCreationDate();
+        std::cout << std::ctime(&t) << std::endl;
         signal(SIGINT, sigHandler);
         running = true;
         while (running)
         {
             pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), -1);
-            if (pollCount < 0)
+            if (pollCount < 0 && running)
                 throw std::invalid_argument("poll");
             loopPool(irc);
+            evaluatePing(irc);
         }
         closeFDs(irc);
-		close(irc.getServerSocket());
     }
     catch(const std::exception& e)
     {
