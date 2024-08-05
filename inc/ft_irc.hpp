@@ -104,6 +104,7 @@ class Message;
 	(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
 
 static bool running;
+static char	*pos[MAX_FD];
 
 // Get Strings from Buffer
 std::string 				getNickFromBuffer(const std::string& input);

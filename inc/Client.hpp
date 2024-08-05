@@ -30,6 +30,7 @@ class Client
 		socklen_t						getclientAddrLen() const;
 		std::time_t						getLastAction() const;
 		std::string 					getHostname() const;
+		bool                            getPwdStatus() const;
 
 		//Setters
 		void 							setSocket(int socket);
@@ -37,6 +38,7 @@ class Client
 		void 							setUsername(const std::string& username);
 		void 							setRealname(const std::string& realname);
 		void            				setLastAction();
+		void            				setPwdStatus();
 		void            				incPingCount();
 		void            				resetPingCount();
 
@@ -60,6 +62,7 @@ class Client
 		hostent*						_hostname;
 		std::time_t						_lastAction;
 		id_t							_pingCount;
+		bool                            _pwdStatus;
 };
 
 std::ostream&			operator<<(std::ostream& o, Client const& i);

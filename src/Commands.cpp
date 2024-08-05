@@ -145,19 +145,26 @@ void    cmdWho(Server &irc, Message *message, int sender)
 
 void    cmdPass(Server &irc, Message *message, int sender)
 {
-    if (message->get_parameters().size() == 1)
+    char   **trash = NULL;
+    if (message->get_parameters().size())
     {
         if (message->get_parameters()[0] != irc.getPassword())
         {
-            std::string join = ":server 403 " + irc.getNickByFd(sender) + " :Invalid password\n";
+            std::string join = ":" + irc.getHostname() + " 464 : Password Mismatch\r\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-            close(sender);
+            get_next_line(sender, trash , 1);
+            irc.rmClient(sender);
+        }
+        else
+        {
+            Client& client = irc.getClientByFd(sender);
+            client.setPwdStatus();
         }
     }
     else
     {
-        std::string join = ":server 461 :Not enough parameters\n";
+        std::string join = ":" + irc.getHostname() + " 461 :Not enough parameters\n";
         logConsole(join);
         send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
     }

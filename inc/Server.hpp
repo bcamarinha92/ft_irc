@@ -44,6 +44,7 @@ class Server
 		//Methods
 		void							addClient(Client &user);
 		void							rmClient(int clientSocket, int i);
+		void							rmClient(int clientSocket);
 		void							addChannel(Channel &channel);
 		void							rmChannel(std::string channelName);
 		void							activateChannelMode(std::string const& chn, char mode, int sender, bool join, std::string param);

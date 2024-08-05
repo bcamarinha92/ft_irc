@@ -2,14 +2,28 @@
 
 void broadcast(Server &irc, Message *message, int sender)
 {
+    Client &client = irc.getClientByFd(sender);
+
+    if (client.getPwdStatus() == false)
+    {
+        if (message->get_command() == "CAP")
+            cmdCap(irc, message, sender);
+        else if (message->get_command() == "PASS")
+            cmdPass(irc, message, sender);
+        else
+        {
+            std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
+            logConsole(join);
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            return;
+        }
+    }
     if (message->get_command() == "PING")
         cmdPing(irc, message, sender);
     else if (message->get_command() == "PONG")
         cmdPong(irc, message, sender);
 	else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
-	else if (message->get_command() == "PASS")
-		cmdPass(irc, message, sender);
     else if (message->get_command() == "USER")
 		cmdUser(irc, message, sender);
 	else if (message->get_command() == "NICK")
@@ -28,7 +42,7 @@ void broadcast(Server &irc, Message *message, int sender)
 	   cmdTopic(irc, message, sender);
 	else if (message->get_command() == "KICK")
 	   cmdKick(irc, message, sender);
-
+    client.setLastAction();
 }
 
 void loopPool(Server &irc)
@@ -52,7 +66,7 @@ void loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                bytesRead = get_next_line(clientSocket, &message);
+                bytesRead = get_next_line(clientSocket, &message, 0);
                 if (bytesRead <= 0)
                 {
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
@@ -65,7 +79,6 @@ void loopPool(Server &irc)
                 {
                     Message	new_message(message, clientSocket);
                     broadcast(irc, &new_message, clientSocket);
-                    irc.getClientByFd(clientSocket).setLastAction();
                     logConsole(std::string(message));
                 }
             }

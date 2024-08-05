@@ -6,7 +6,7 @@
 
 Client::Client() {}
 
-Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0)
+Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
 {
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
@@ -35,6 +35,7 @@ Client::Client(const Client& src)
 	this->channels = src.channels;
 	this->_hostname = src._hostname;
 	this->_pingCount = src._pingCount;
+	this->_pwdStatus = src._pwdStatus;
 }
 
 /*
@@ -63,6 +64,7 @@ Client&				Client::operator=(Client const& rhs)
 		this->_hostname = rhs._hostname;
 		this->_lastAction = rhs._lastAction;
 		this->_pingCount = rhs._pingCount;
+	    this->_pwdStatus = rhs._pwdStatus;
 	}
 	return *this;
 }
@@ -87,6 +89,11 @@ int 		Client::getSocket() const
 int 		Client::getPingCount() const
 {
 	return (this->_pingCount);
+}
+
+bool 		Client::getPwdStatus() const
+{
+	return (this->_pwdStatus);
 }
 
 
@@ -133,6 +140,11 @@ void            Client::setSocket(int socket)
 void 		Client::setNickname(const std::string& nickname)
 {
     _nickname = nickname;
+}
+
+void 		Client::setPwdStatus()
+{
+    _pwdStatus = true;
 }
 
 void 		Client::setUsername(const std::string& username)

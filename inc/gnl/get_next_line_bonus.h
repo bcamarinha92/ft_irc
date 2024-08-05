@@ -22,7 +22,7 @@
 # include <string.h>
 # include "../ft_irc.hpp"
 
-int     get_next_line(int fd, char **ret);
+int	    get_next_line(int fd, char **ret, int flag);
 size_t	ft_strlen(const char *s);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 char	*ft_strjoin(char const *s1, char const *s2);

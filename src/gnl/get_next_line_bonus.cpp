@@ -99,13 +99,20 @@ char	*ft_read(char *s1, char *s2, int fd)
 	return (s1);
 }
 
-int	get_next_line(int fd, char **ret)
+
+int	get_next_line(int fd, char **ret, int flag)
 {
-	static char	*pos[MAX_FD];
+    //static char	*pos[MAX_FD];
 	char		*buffer;
 	//char		*ret;
 	char		*tmp;
 
+	if (flag)
+	{
+		free(pos[fd]);
+		pos[fd] = 0;
+		return(0);
+	}
 	buffer = 0;
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (-1);
