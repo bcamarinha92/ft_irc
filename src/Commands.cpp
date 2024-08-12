@@ -27,15 +27,11 @@ void    cmdNick(Server &irc, Message *message, int sender)
 void    cmdJoin(Server &irc, Message *message, int sender)
 {
     std::string	targets = message->get_destination();
-	int			i = 0;
-	bool		stop = false;
-
-	while (true)
+    std::vector<std::string>    destinos = split(targets, ',');
+	unsigned long      i = 0;
+	while (i < destinos.size())
 	{
-		std::cout << "i1: " << i << std::endl;
-		std::cout << "find: " << targets.find(",", i) << std::endl;
-		std::string	t = targets.substr(i, (targets.find(",", i) != std::string::npos ? targets.find(",", i) : targets.length()) - i);
-		std::cout << "t: " << t << std::endl;
+		std::string	t = destinos[i];
 		if (t == "")
 			if (message->get_parameters().size() > 0)
 				return (sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getNickByFd(sender), t), ERR403));
@@ -74,12 +70,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 		}
 		else
 			sendMessage(sender, ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), t), ERR471);
-		std::cout << "i2: " << i << std::endl;
-		if (stop)
-			break;
-		i = (targets.find(",", i) != std::string::npos ? targets.find(",", i) : targets.length());
-		if (targets.find(",", i++) == std::string::npos)
-			stop = true;
+		i++;
 	}
 }
 

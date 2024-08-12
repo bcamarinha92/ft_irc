@@ -182,7 +182,7 @@ void    	sendMOTD(Server &irc, Message *message, int sender);
 void 		logConsole(std::string buffer);
 void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
 void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
-
+std::vector<std::string> split(const std::string &s, char delim);
 // Other
 std::string	cleanString(const std::string& name);
 
