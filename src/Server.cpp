@@ -214,6 +214,15 @@ void					Server::rmClient(int clientSocket, int i)
 	this->clients.erase(clientSocket);
 }
 
+void					Server::rmClient(int clientSocket)
+{
+	close(clientSocket);
+	for (size_t i = 0; i < pollfds.size(); ++i)
+        if (pollfds[i].fd == clientSocket)
+            this->pollfds.erase(this->pollfds.begin() + i);
+	this->clients.erase(clientSocket);
+}
+
 void					Server::addChannel(Channel &channel)
 {
 	this->channels[channel.getName()] = channel;

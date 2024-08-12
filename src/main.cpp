@@ -1,15 +1,31 @@
 #include "../inc/ft_irc.hpp"
 
-void	broadcast(Server &irc, Message *message, int sender)
+void broadcast(Server &irc, Message *message, int sender)
 {
-	if (message->get_command() == "PING")
+    Client &client = irc.getClientByFd(sender);
+
+    if (client.getPwdStatus() == false)
+    {
+        if (message->get_command() == "CAP")
+            cmdCap(irc, message, sender);
+        else if (message->get_command() == "PASS")
+            cmdPass(irc, message, sender);
+        else
+        {
+            std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
+            logConsole(join);
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+        return;
+    }
+    if (message->get_command() == "PING")
         cmdPing(irc, message, sender);
-	else if (message->get_command() == "PONG")
+    else if (message->get_command() == "PONG")
         cmdPong(irc, message, sender);
 	else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
-	else if (message->get_command() == "PASS")
-		cmdPass(irc, message, sender);
+    else if (message->get_command() == "USER")
+		cmdUser(irc, message, sender);
 	else if (message->get_command() == "NICK")
 		cmdNick(irc, message, sender);
 	else if (message->get_command() == "JOIN")
@@ -22,16 +38,18 @@ void	broadcast(Server &irc, Message *message, int sender)
 		cmdPrivMsg(irc, message, sender);
 	else if (message->get_command() == "PART")
 		cmdPart(irc, message, sender);
-	else if (message->get_command() == "")
-		return (sendMessage(sender, ERR_UNKNOWNCOMMAND(irc.getHostname(), message->get_buffer()), ERR421));
-
+	else if (message->get_command() == "TOPIC")
+	   cmdTopic(irc, message, sender);
+	else if (message->get_command() == "KICK")
+	   cmdKick(irc, message, sender);
+    client.setLastAction();
 }
 
 void	loopPool(Server &irc)
 {
-    char	*message = 0;
-    int		bytesRead = 0;
-    int		clientSocket = 0;
+    char *message = 0;
+    int bytesRead = 0;
+    int clientSocket = 0;
 
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
@@ -48,7 +66,7 @@ void	loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                bytesRead = get_next_line(clientSocket, &message);
+                bytesRead = get_next_line(clientSocket, &message, 0);
                 if (bytesRead <= 0)
                 {
                     //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
@@ -61,19 +79,10 @@ void	loopPool(Server &irc)
                 {
                     Message	new_message(message, clientSocket);
                     broadcast(irc, &new_message, clientSocket);
-                    irc.getClientByFd(clientSocket).setLastAction();
                     logConsole(std::string(message));
                 }
             }
         }
-        // else
-        // {
-        //     if (i > 0)
-        //     {
-        //         std::time_t t = irc.getClientByFd(irc.pollfds[i].fd).getLastAction();
-        //         std::cout << "FD: " << irc.pollfds[i].fd << " last action " << std::string(std::ctime(&t)) << std::endl;
-        //     }
-        // }
     }
 }
 

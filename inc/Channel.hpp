@@ -3,6 +3,7 @@
 
 # include "ft_irc.hpp"
 # include <ctime>
+# include <ctime>
 
 class Client;
 
@@ -10,16 +11,22 @@ class Channel
 {
 	public:
 		//Constructors
+		//Constructors
 		Channel();
 		Channel(std::string name);
 		Channel(Channel const& src);
 
 		//Destructors
+
+		//Destructors
 		~Channel();
+
+		//Overloads
 
 		//Overloads
 		Channel&				operator=(Channel const& rhs);
 
+		//Getters
 		//Getters
 		std::string				getName() const;
 		std::string				getTopic() const;

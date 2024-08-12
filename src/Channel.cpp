@@ -131,6 +131,7 @@ void				Channel::setName(std::string name)
 	this->_name=name;
 }
 
+
 void				Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;
@@ -209,6 +210,7 @@ bool				Channel::checkChannelMode(char mode)
 {
 	return (this->_modes[mode]);
 }
+
 
 void				Channel::addInvite(int fd)
 {

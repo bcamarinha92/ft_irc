@@ -6,7 +6,7 @@
 
 Client::Client() {}
 
-Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0)
+Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
 {
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
@@ -17,6 +17,8 @@ Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0)
     setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;
+	this->_username = "";
+	this->_realname = "";
 }
 
 Client::Client(const Client& src)
@@ -24,6 +26,7 @@ Client::Client(const Client& src)
 	this->_clientSocket = src._clientSocket;
 	this->_nickname = src._nickname;
 	this->_username = src._username;
+	this->_realname = src._realname;
 	this->_clientAddr = src._clientAddr;
 	this->_clientAddrLen = src._clientAddrLen;
 	this->_client_ip = src._client_ip;
@@ -32,6 +35,7 @@ Client::Client(const Client& src)
 	this->channels = src.channels;
 	this->_hostname = src._hostname;
 	this->_pingCount = src._pingCount;
+	this->_pwdStatus = src._pwdStatus;
 }
 
 /*
@@ -51,6 +55,7 @@ Client&				Client::operator=(Client const& rhs)
 		this->_clientSocket = rhs._clientSocket;
 		this->_nickname = rhs._nickname;
 		this->_username = rhs._username;
+		this->_realname = rhs._realname;
 		this->_clientAddr = rhs._clientAddr;
 		this->_clientAddrLen = rhs._clientAddrLen;
 		this->_client_ip = rhs._client_ip;
@@ -59,6 +64,7 @@ Client&				Client::operator=(Client const& rhs)
 		this->_hostname = rhs._hostname;
 		this->_lastAction = rhs._lastAction;
 		this->_pingCount = rhs._pingCount;
+	    this->_pwdStatus = rhs._pwdStatus;
 	}
 	return *this;
 }
@@ -85,6 +91,11 @@ int 		Client::getPingCount() const
 	return (this->_pingCount);
 }
 
+bool 		Client::getPwdStatus() const
+{
+	return (this->_pwdStatus);
+}
+
 
 std::string	Client::getNickname() const
 {
@@ -94,6 +105,11 @@ std::string	Client::getNickname() const
 sockaddr_in	Client::getclientAddr() const
 {
     return(this->_clientAddr);
+}
+
+std::string Client::getRealname() const
+{
+	return(this->_realname);
 }
 
 socklen_t   Client::getclientAddrLen() const
@@ -126,9 +142,19 @@ void 		Client::setNickname(const std::string& nickname)
     _nickname = nickname;
 }
 
+void 		Client::setPwdStatus()
+{
+    _pwdStatus = true;
+}
+
 void 		Client::setUsername(const std::string& username)
 {
     _username = username;
+}
+
+void 		Client::setRealname(const std::string& realname)
+{
+    _realname = realname;
 }
 
 void 		Client::incPingCount()

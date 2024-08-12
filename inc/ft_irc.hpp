@@ -18,12 +18,16 @@
 # include <fcntl.h>
 # include <cstdlib>
 # include <netdb.h>
+# include <netdb.h>
 # include <exception>
 # include <csignal>
 # include <sstream>
 # include <cstdio>
+# include <cstdio>
 # include <utility>
 # include <algorithm>
+# include <ctime>
+# include <climits>
 # include <ctime>
 # include <climits>
 # include "./gnl/get_next_line_bonus.h"
@@ -33,6 +37,22 @@
 # include "Channel.hpp"
 
 // Error messages
+// # define ERR1 "Error: joining channel"
+# define ERR2 "Error: obtaining the channel's modes list"
+# define ERR3 "Error: obtaining the channel info"
+# define ERR4 "Error: activation of channel mode"
+# define ERR5 "Error: deactivation of channel mode"
+# define ERR6 "Error: parting channel"
+# define ERR7 "Error: sending message of no operator permissions (482)"
+# define ERR8 "Error: sending channel's clients list and roles (353)"
+# define ERR9 "Error: sending welcoming message (001)"
+# define ERR10 "Error: sending private message"
+# define ERR11 "Error: activation of channel operator mode"
+# define ERR12 "Error: deactivation of channel operator mode"
+# define ERR13 "Error: sending message informing channel is full"
+# define ERR14 "Error: activation of channel's user limit"
+# define ERR15 "Error: deactivation of channel's user limit"
+
 # define ERRAM	"Error: activation of channel mode"
 # define ERRC	"Error: obtaining the channel info"
 # define ERRDM	"Error: deactivation of channel mode"
@@ -147,7 +167,12 @@ class Message;
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \
 	(":" + hostname + " 482 " + nick + " " + chn + " :You're not channel operator")
 
+	// 462: Error message when already registered
+# define ERR_ALREADYREGISTERED(hostname, nick) \
+		(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
+
 static bool running;
+static char	*pos[MAX_FD];
 
 // Get Strings from Buffer
 std::string 				getNickFromBuffer(const std::string& input);
@@ -167,6 +192,10 @@ void		cmdCap(Server &irc, Message *message, int sender);
 void		cmdPart(Server &irc, Message *message, int sender);
 void		cmdPing(Server &irc, Message *message, int sender);
 void 		cmdPong(Server &irc, Message *message, int sender);
+void		cmdUser(Server &irc, Message *message, int sender);
+void        cmdTopic(Server &irc, Message *message, int sender);
+void        cmdKick(Server &irc, Message *message, int sender);
+void        nameReply(Server &irc, std::string chn, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);
@@ -175,12 +204,13 @@ void 		setNonBlocking(int socket);
 void    	evaluatePing(Server &irc);
 std::string	toUpper(const std::string& str);
 int			aux(std::string targets);
-
+std::string parseRealname(const std::string& input);
 // Send
 void    	sendSequenceRPL(Server &irc, Message *message, int sender);
 void    	sendMOTD(Server &irc, Message *message, int sender);
 void 		logConsole(std::string buffer);
 void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
+void    	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
 void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
 std::vector<std::string> split(const std::string &s, char delim);
 // Other

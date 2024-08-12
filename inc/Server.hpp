@@ -9,13 +9,18 @@ class Channel;
 
 typedef std::pair<int, int>	modesPair;
 
+typedef std::pair<int, int>	modesPair;
+
 class Server
 {
 
 	public:
 		//Constructors
+		//Constructors
 		Server(int port, std::string password);
 		Server(Server const& src);
+
+		//Destructors
 
 		//Destructors
 		~Server();
@@ -44,6 +49,7 @@ class Server
 		//Methods
 		void							addClient(Client &user);
 		void							rmClient(int clientSocket, int i);
+		void							rmClient(int clientSocket);
 		void							addChannel(Channel &channel);
 		void							rmChannel(std::string channelName);
 		void							activateChannelMode(std::string const& chn, char mode, int sender, bool join, std::string param);
@@ -66,7 +72,6 @@ class Server
 		std::string						_hostIP;
 		std::string						_hostname;
 		std::time_t						_creationTime;
-
 };
 
 std::ostream				&operator<<(std::ostream &o, Server const &i);

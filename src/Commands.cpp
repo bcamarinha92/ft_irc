@@ -3,25 +3,54 @@
 
 void    cmdCap(Server &irc, Message *message, int sender)
 {
-    std::string	str;
+    std::string join;
     (void)irc;
-    if (message->get_buffer().find("CAP REQ")!= std::string::npos)
-        str = ":bde-sous CAP ACK :multi-prefix\r\n";
-    else if (message->get_buffer().find("CAP LS")!= std::string::npos)
-        str = ":bde-sous CAP * LS :multi-prefix\r\n";
-    else
-    {
-        sendSequenceRPL(irc, message, sender);
-        sendMOTD(irc, message, sender);
-        return ;
-    }
-    send(sender, str.c_str(), str.length(), MSG_DONTWAIT);
+
+	if (message->get_buffer().find("CAP LS")!= std::string::npos)
+	{
+        join = ":bde-sous CAP * LS :\r\n";
+    	send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+	}
 }
 
-void    cmdNick(Server &irc, Message *message, int sender)
+void cmdNick(Server &irc, Message *message, int sender)
 {
-    irc.setNickByFd(sender, getNickFromBuffer(message->get_buffer()));
-    std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
+	if (message->get_parameters().size() == 1)
+	{
+		std::string nick = message->get_parameters()[0];
+
+		if (irc.getNickByFd(sender) == "")
+		{
+			for (unsigned long i = 0; i < irc.pollfds.size(); i++)
+			{
+				if (irc.pollfds[i].fd == sender)
+					continue;
+				if (irc.getNickByFd(irc.pollfds[i].fd) == nick)
+				{
+					std::string join = ":" + irc.getHostname() +" 433 " + irc.getNickByFd(sender) + " :Nickname is already in use\n";
+					logConsole(join);
+					send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+					return;
+				}
+			}
+			irc.setNickByFd(sender, nick);
+			std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
+			sendSequenceRPL(irc, message, sender);
+		}
+		else
+		{
+			std::string join = ":" + irc.getHostname() + " 433 " + irc.getNickByFd(sender) + " :Nickname is already set\n";
+			logConsole(join);
+			send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+			return;
+		}
+	}
+	else
+	{
+		std::string join = ":" + irc.getHostname() + " 431 * :No nickname given\n";
+		logConsole(join);
+		send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+	}
 }
 
 void    cmdJoin(Server &irc, Message *message, int sender)
@@ -49,6 +78,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 				irc.channels[t].switchLaunch();
 			irc.activateChannelMode(t, 'n', sender, true, "");
     	    irc.activateChannelMode(t, 't', sender, true, "");
+            nameReply(irc,t,sender);
     	}
 		else if (!irc.channels[t].checkChannelMode('l') ||
 			irc.channels[t].members.size() < irc.channels[t].getChannelUserLimit())
@@ -64,6 +94,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 				   JOIN(irc.getNickByFd(sender), t), ERRJ);
 				irc.channels[t].addClient(irc.getClientByFd(sender));
 				irc.clients[sender].addChannel(channel);
+				nameReply(irc,t,sender);
 			}
 			else
 				sendMessage(sender, ERR_BADCHANNELKEY(irc.getNickByFd(sender), t), ERR475);
@@ -72,42 +103,6 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 			sendMessage(sender, ERR_CHANNELISFULL(irc.getHostname(), irc.getNickByFd(sender), t), ERR471);
 		i++;
 	}
-}
-
-void    cmdWho(Server &irc, Message *message, int sender)
-{
-	std::string	chn = message->get_destination();
-	std::cout << chn << std::endl;
-	if (irc.channels.find(chn) != irc.channels.end())
-    {
-		std::string								msg;
-		std::string								clients = "";
-		std::map<int, Client>					clientsMap = irc.channels[chn].members;
-		for (std::map<int, Client>::iterator	it = clientsMap.begin(); it != clientsMap.end(); ++it)
-    	{
-			if (it != clientsMap.begin())
-				clients += " ";
-        	if (irc.channels[chn].checkOperatorRole((it->first)))
-        		clients += "@" + (it->second).getNickname();
-        	else
-            	clients += (it->second).getNickname();
-    	}
-		sendMessage(sender, RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR353);
-	}
-}
-
-void    cmdPass(Server &irc, Message *message, int sender)
-{
-    if (message->get_parameters().size() == 1)
-    {
-        if (message->get_parameters()[0] != irc.getPassword())
-        {
-			sendMessage(sender, ERR_PASSWDMISMATCH(irc.getHostname()), ERR464);
-            close(sender);
-        }
-    }
-    else
-		sendMessage(sender, ERR_NEEDMOREPARAMS(irc.getHostname(), message->get_command()), ERR461);
 }
 
 void    cmdPrivMsg(Server &irc, Message *message, int sender)
@@ -239,5 +234,226 @@ void	cmdPong(Server &irc, Message *message, int sender)
 	{
 		user.setLastAction();
 		user.resetPingCount();
+	}
+}
+
+void    nameReply(Server &irc, std::string chn, int sender)
+{
+	//std::string	chn = message->get_destination();
+	if (irc.channels.find(chn) != irc.channels.end())
+    {
+		std::string						msg;
+		std::string						clients = "";
+		std::map<int, Client>			clientsMap = irc.channels[chn].members;
+		for (std::map<int, Client>::iterator it = clientsMap.begin(); it != clientsMap.end(); ++it)
+    	{
+			if (it != clientsMap.begin())
+				clients += " ";
+        	if (irc.channels[chn].checkOperatorRole((it->first)))
+        		clients += "@" + (it->second).getNickname();
+        	else
+            	clients += (it->second).getNickname();
+    	}
+		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
+			  RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR8, false);
+	}
+}
+
+void    cmdWho(Server &irc, Message *message, int sender)
+{
+    std::string chn = message->get_destination();
+    std::string join;
+
+    if (chn.find("#") == std::string::npos)
+    {
+        int clientFd = irc.getFdFromNick(chn);
+
+        if (clientFd == -1)
+        {
+            std::string join = ":" + irc.getHostname() + " 401 " + irc.getNickByFd(sender) + " " + chn + " :No such nick/channel\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            return ;
+        }
+        Client  &client = irc.getClientByFd(clientFd);
+        join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
+            message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
+            " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    }
+    else
+    {
+        Channel &channel = irc.channels[chn];
+
+        if (channel.getName() == "")
+        {
+            std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + chn + " :No such channel\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            return ;
+        }
+        std::vector<int> clients = channel.getChannelClientsFds();
+        for (std::vector<int>::iterator it = clients.begin(); it != clients.end(); ++it)
+        {
+            Client  &client = irc.getClientByFd(*it);
+            join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
+                message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
+                " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+    }
+    join = ":" + irc.getHostname() + " 315 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :End of /WHO list.\r\n";
+    send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+}
+
+void    cmdPass(Server &irc, Message *message, int sender)
+{
+    char   **trash = NULL;
+    std::cout << *message << std::endl;
+    if (message->get_parameters().size())
+    {
+        if (message->get_parameters()[0] != irc.getPassword())
+        {
+            std::string join = ":" + irc.getHostname() + " 464 : Password Mismatch\r\n";
+            logConsole(join);
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            get_next_line(sender, trash , 1);
+            irc.rmClient(sender);
+        }
+        else
+        {
+            Client& client = irc.getClientByFd(sender);
+            client.setPwdStatus();
+        }
+    }
+    else
+    {
+        std::string join = ":" + irc.getHostname() + " 461 :Not enough parameters\n";
+        logConsole(join);
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    }
+}
+
+void   cmdTopic(Server &irc, Message *message, int sender)
+{
+    Channel &channel = irc.channels[message->get_destination()];
+    std::string buffer = message->get_buffer();
+    std::vector<int> fds = channel.getChannelClientsFds();
+
+    if (channel.getName().empty())
+    {
+        std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :No such channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), sender) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 442 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (buffer.find(":") != std::string::npos)
+    {
+        std::string topic = buffer.substr(buffer.find(":") + 1);
+        if (channel.checkChannelMode('t') && channel.checkOperatorRole(sender))
+        {
+            channel.setTopic(topic);
+            std::string join = ":" + irc.getHostname() + " 332 " + irc.getNickByFd(sender) + " " + channel.getName() + " :" + channel.getTopic() + "\n";
+            sendMessage(sender, channel.getChannelClientsFds(), join, "a",true);
+        }
+        else
+        {
+            if (!channel.checkOperatorRole(sender))
+            {
+                std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not channel operator\n";
+                send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            }
+            else if (!channel.checkChannelMode('t'))
+            {
+                std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :Channel is not set as topic\n";
+                send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+            }
+        }
+    }
+    else
+    {
+        if (channel.getTopic().size() > 0)
+        {
+            std::string join = ":" + irc.getHostname() + " 332 " + irc.getNickByFd(sender) + " " + channel.getName() + " :" + channel.getTopic() + "\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+        else
+        {
+            std::string join = ":" + irc.getHostname() + " 331 " + irc.getNickByFd(sender) + " " + channel.getName() + " :No topic is set\n";
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+    }
+}
+
+void   cmdKick(Server &irc, Message *message, int sender)
+{
+    Channel &channel = irc.channels[message->get_destination()];
+    std::string buffer = message->get_buffer();
+    std::vector<int> fds = channel.getChannelClientsFds();
+    std::string reason = "";
+    int target;
+
+    if (message->get_parameters().size() < 2)
+    {
+        std::string join = ":" + irc.getHostname() + " 461 " + irc.getNickByFd(sender) + " KICK :Not enough parameters\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    target = irc.getFdFromNick(message->get_parameters()[1]);
+    if (channel.getName().empty())
+    {
+        std::string join = ":" + irc.getHostname() + " 403 " + irc.getNickByFd(sender) + " " + message->get_destination() + " :No such channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), sender) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 441 " + irc.getNickByFd(sender) + " " + message->get_parameters()[1] + " " + channel.getName() + " :You're not on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (std::find(fds.begin(), fds.end(), target) == fds.end())
+    {
+        std::string join = ":" + irc.getHostname() + " 442 " + irc.getNickByFd(sender) + " " + channel.getName() + " :They aren't on that channel\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        return;
+    }
+    if (buffer.find(":") != std::string::npos)
+        reason = buffer.substr(buffer.find(":") + 1);
+    if (channel.checkOperatorRole(sender))
+    {
+        std::string join = ":" + irc.getHostname() + " KICK " + channel.getName() + " " + message->get_parameters()[1] + " :" + reason + "\n";
+        sendMessage(sender, channel.getChannelClientsFds(), join, "a",true);
+        channel.rmClient(target);
+    }
+    else
+    {
+        std::string join = ":" + irc.getHostname() + " 482 " + irc.getNickByFd(sender) + " " + channel.getName() + " :You're not channel operator\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+    }
+}
+
+void    cmdUser(Server &irc, Message *message, int sender)
+{
+	//Depois de ter parsing ok deve ser efetuado o registo do username e realname aqui. no final se tudo correr bem, sao enviados os RPL e MOTD
+	//The minimum length of <username> is 1, ie. it MUST NOT be empty. If it is empty,
+	//the server SHOULD reject the command with ERR_NEEDMOREPARAMS (even if an empty parameter is provided);
+	//otherwise it MUST use a default value instead.
+	Client &user = irc.getClientByFd(sender);
+	std::string a = user.getUsername();
+	if (a != "")
+	{
+		std::string join = ERR_ALREADYREGISTERED(irc.getHostname(),irc.getNickByFd(sender));
+		send(sender, join.c_str(),join.size(),MSG_DONTWAIT);
+	}
+	else
+	{
+		a = message->get_parameters()[0];
+		user.setRealname(parseRealname(message->get_buffer()));
+		user.setUsername(message->get_parameters()[0]);
+		sendSequenceRPL(irc, message, sender);
 	}
 }
