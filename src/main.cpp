@@ -98,8 +98,6 @@ int	main(int argc, char *argv[])
     {
         Server irc(atoi(argv[1]), argv[2]);
         int pollCount;
-        time_t t = irc.getCreationDate();
-        std::cout << std::ctime(&t) << std::endl;
         signal(SIGINT, sigHandler);
         running = true;
         while (running)

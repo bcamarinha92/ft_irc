@@ -25,7 +25,6 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
 
     if (nick == "" || user == "" || hostClient == "" || hostServer == "" || realName == "")
         return ;
-    std::cout << "ahahahah" << std::endl;
     (void)message;
     join = ":" + hostServer + " 001 " + nick + " :Welcome to the Paulo Brificado's IRC " + nick + "!\n";
     logConsole(join);

@@ -1,4 +1,4 @@
-#include "../inc/Server.hpp"
+#include "../inc/ft_irc.hpp"
 
 std::string	getNickFromBuffer(const std::string &input)
 {

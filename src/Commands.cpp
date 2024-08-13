@@ -34,7 +34,6 @@ void cmdNick(Server &irc, Message *message, int sender)
 				}
 			}
 			irc.setNickByFd(sender, nick);
-			std::cout << "Registered user " << irc.getNickByFd(sender) << std::endl;
 			sendSequenceRPL(irc, message, sender);
 		}
 		else
@@ -110,22 +109,18 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
 {
 	std::vector<std::string>    destinos = split(message->get_destination(), ',');
 	size_t						i = 0;
-	std::cout << *message << std::endl;
 
 	while (i < destinos.size())
     {
-        std::cout << "destino" << i << " " << destinos[i] << std::endl;
         if (message->get_parameters().size() == 0)
             return sendMessage(sender, ERR_NOTEXTTOSEND(irc.getNickByFd(sender)), ERR412);
         if (destinos[i][0] == '#')
         {
-
             if (irc.channels.find(destinos[i]) != irc.channels.end())
             {
                 Channel &channel = irc.channels[destinos[i]];
                 if (channel.members.find(sender) != channel.members.end())
                 {
-
                     std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
                     sendPrivMsg(sender, channel.getChannelClientsFds(), join,ERRPM);
                 }
@@ -182,7 +177,6 @@ void	cmdMode(Server &irc, Message *message, int sender)
 		time_t  t = irc.channels[chn].getCreatedAtTime();
         std::stringstream ss;
         ss << t;
-        std::cout << std::string(ctime(&t)) << std::endl;
         sendMessage(sender, RPL_CHANNELMODEIS(irc.getHostname(), irc.getNickByFd(sender), \
 											  chn, irc.channels[chn].getChannelModes()), ERRM);
         sendMessage(sender, RPL_CREATIONTIME(irc.getHostname(), irc.getNickByFd(sender), chn, ss.str()), ERRC);
@@ -308,7 +302,6 @@ void    cmdWho(Server &irc, Message *message, int sender)
 void    cmdPass(Server &irc, Message *message, int sender)
 {
     char   **trash = NULL;
-    std::cout << *message << std::endl;
     if (message->get_parameters().size())
     {
         if (message->get_parameters()[0] != irc.getPassword())
