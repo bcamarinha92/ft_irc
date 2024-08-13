@@ -58,6 +58,7 @@ void    cmdJoin(Server &irc, Message *message, int sender)
     std::string	targets = message->get_destination();
     std::vector<std::string>    destinos = split(targets, ',');
 	unsigned long      i = 0;
+
 	while (i < destinos.size())
 	{
 		std::string	t = destinos[i];
@@ -107,45 +108,45 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 
 void    cmdPrivMsg(Server &irc, Message *message, int sender)
 {
-	std::string					targets = message->get_destination();
-	std::string					ftargets = "";
-	std::vector<std::string>	vtargets;
+	std::vector<std::string>    destinos = split(message->get_destination(), ',');
 	size_t						i = 0;
+	std::cout << *message << std::endl;
 
-	while (true)
-	{
-		std::string	t = targets.substr(i, (targets.find(",", i) != std::string::npos ? targets.find(",", i) : targets.length()));
-		if (irc.getFdFromNick(t) > 0)
-		{
-			ftargets += t;
-			vtargets.push_back(t);
-		}
-		else
-			sendMessage(sender, ERR_NOSUCHNICK(irc.getHostname(), t), ERR401);
-		i += (targets.find(",", i) != std::string::npos ? targets.find(",", i) : targets.length());
-		if (targets.find(",", i++) == std::string::npos)
-			break;
-	}
-	if (message->get_parameters().size() > 0)
-	{
-		std::string				msg = message->get_parameters()[0];
-		std::string::size_type	nbytes = message->get_parameters()[0].size();
-		if (nbytes > 512)
-			sendMessage(sender, ERR_INPUTTOOLONG(irc.getHostname()), ERR417);
-		else
-		{
-			for (i = 0; i < vtargets.size(); i++)
-    		{
-        		if (irc.getFdFromNick(vtargets[i]) == sender)
-            		continue;
-				sendMessage(irc.getFdFromNick(vtargets[i]), \
-				PRIVMSG(irc.getNickByFd(sender), ftargets, msg), ERRPM);
-    		}
-		}
-	}
-	else
-		sendMessage(sender, ERR_NOTEXTTOSEND(irc.getHostname()), ERR412);
+	while (i < destinos.size())
+    {
+        std::cout << "destino" << i << " " << destinos[i] << std::endl;
+        if (message->get_parameters().size() == 0)
+            return sendMessage(sender, ERR_NOTEXTTOSEND(irc.getNickByFd(sender)), ERR412);
+        if (destinos[i][0] == '#')
+        {
+
+            if (irc.channels.find(destinos[i]) != irc.channels.end())
+            {
+                Channel &channel = irc.channels[destinos[i]];
+                if (channel.members.find(sender) != channel.members.end())
+                {
+
+                    std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
+                    sendPrivMsg(sender, channel.getChannelClientsFds(), join,ERRPM);
+                }
+                else
+                    return sendMessage(sender, ERR_NOTONCHANNEL(irc.getHostname(), destinos[i]), ERR442);
+            }
+        }
+        else
+        {
+            if (irc.clients.find(irc.getFdFromNick(destinos[i])) != irc.clients.end())
+            {
+                std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
+                sendMessage(irc.getFdFromNick(destinos[i]), join, ERRPM);
+            }
+            else
+                sendMessage(sender, ERR_NOSUCHNICK(irc.getNickByFd(sender), destinos[i]), ERR401);
+        }
+        i++;
+    }
 }
+
 
 void	cmdModeIterator(Server &irc, Message *message, int sender, std::string mode)
 {

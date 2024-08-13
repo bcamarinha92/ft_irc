@@ -81,3 +81,15 @@ void	sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const 
 			send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT);
 	}
 }
+
+void	sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg)
+{
+	std::string	wholeMsg = msg + "\r\n";
+
+	for(size_t i = 0; i < fds.size(); ++i)
+	{
+		if (fds[i] != fd)
+		    if(send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
+				std::cerr << emsg << std::endl;
+	}
+}

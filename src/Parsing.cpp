@@ -205,7 +205,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	i++;
 	while (buffer[i])
 	{
-		if (buffer[i] == ':' && cmd == "PART")
+		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG"))
 			i++;
 		size_t start = i;
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')

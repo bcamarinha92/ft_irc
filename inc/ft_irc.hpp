@@ -71,6 +71,7 @@
 # define ERR353 "Error: sending channel's clients list and roles (353)"
 # define ERR401 "Error: sending message of no such nick/channel (401)"
 # define ERR403 "Error: sending message of no such channel (403)"
+# define ERR404 "Error: Cannot send to channel (404)"
 # define ERR405 "Error: sending message of too many channels (405)"
 # define ERR412 "Error: sending message of no text to send (412)"
 # define ERR417	"Error: sending message of input too long (417)"
@@ -149,7 +150,11 @@ class Message;
 // 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
 # define ERR_NOTONCHANNEL(hostname, chn) (hostname + " " + chn + " :You're not on that channel")
 
-// 461: Returned when a client command cannot be parsed because not enough parameters were supplied
+// 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
+# define ERR_CANNOTSENDTOCHAN(hostname, chn) (hostname + " " + chn + " :Cannot send to channel")
+
+
+// 404
 # define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters")
 
 // 464: Returned to indicate that the connection could not be registered as the password was either incorrect or not supplied
@@ -212,6 +217,7 @@ void 		logConsole(std::string buffer);
 void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
 void    	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
 void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
+void        sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
 std::vector<std::string> split(const std::string &s, char delim);
 // Other
 std::string	cleanString(const std::string& name);
