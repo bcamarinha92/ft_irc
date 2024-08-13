@@ -51,7 +51,12 @@ std::string	getChannelFromBuffer(const std::string& input)
 	if (start == std::string::npos)
         return "";
 	end = start;
-	if (input.find("#", start) != std::string::npos)
+	if (cmd == "PRIVMSG")
+	{
+		start++;
+		end = start + input.substr(start).find_first_of((": \r\n"));
+	}
+	else if (input.find("#", start) != std::string::npos)
 	{
 		start = input.find("#", start);
 		end = input.find(" ", start);
@@ -59,7 +64,11 @@ std::string	getChannelFromBuffer(const std::string& input)
 		{
 			end = input.find("\r", start);
 			if (end == std::string::npos)
-				return "";
+			{
+				end = input.find("\n", start);
+				if (end == std::string::npos)
+					return "";
+			}
 		}
 	}
 	else if (start == end)
@@ -115,7 +124,7 @@ std::string	get_buffer_command(const std::string buffer)
 		i++;
 	if (start == i)
 		return "";
-	return cleanString((buffer.substr(start, i)));
+	return toUpper(cleanString((buffer.substr(start, i))));
 }
 
 size_t	clearBufferStr(const std::string &buffer)
@@ -149,43 +158,6 @@ size_t	clearBufferStr(const std::string &buffer)
 	return i;
 }
 
-// std::vector<std::string> get_buffer_parameters(const std::string &buffer)
-// {
-// 	std::string					nbuffer = buffer;
-// 	std::vector<std::string>	param;
-// 	size_t						i;
-// 	std::string					cmd = toUpper(get_buffer_command(buffer));
-
-// 	i = clearBufferStr(buffer);
-// 	if (i < 0)
-// 		return param;
-// 	while (i < buffer.size())
-// 	{
-// 		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG"))
-// 		{
-// 			i++;
-// 			if (cmd == "PRIVMSG")
-// 			{
-// 				size_t start = i;
-// 				while (buffer[i] && buffer[i] != '\n' && buffer[i] != '\r')
-// 					i++;
-// 				if (start != i)
-// 					param.push_back(cleanString(buffer.substr(start, i - start)));
-// 			}
-// 		}
-// 		size_t start = i;
-// 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
-// 			i++;
-// 		if (start != i)
-// 			param.push_back(cleanString(buffer.substr(start, i - start)));
-// 		if ((buffer[i] == ':' && cmd != "PART") || buffer[i] == '\n' || buffer[i] == '\r')
-// 			break;
-// 		else
-// 			i++;
-// 	}
-// 	return param;
-// }
-//
 std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 {
 	std::vector<std::string>	param;
@@ -206,7 +178,14 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	while (buffer[i])
 	{
 		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG"))
+		{
 			i++;
+			size_t start = i;
+			while (buffer[i] && buffer[i] != '\n' && buffer[i] != '\r')
+				i++;
+			if (start != i)
+				param.push_back(cleanString(buffer.substr(start, i - start)));
+		}
 		size_t start = i;
 		while (buffer[i] && buffer[i] != ' ' && buffer[i] != ':' && buffer[i] != '\n' && buffer[i] != '\r')
 			i++;

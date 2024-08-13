@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <iostream>
 
 void    cmdCap(Server &irc, Message *message, int sender)
 {
@@ -8,7 +7,7 @@ void    cmdCap(Server &irc, Message *message, int sender)
 
 	if (message->get_buffer().find("CAP LS")!= std::string::npos)
 	{
-        join = ":bde-sous CAP * LS :\r\n";
+        join = ":" + irc.getNickByFd(sender) + " CAP * LS :\r\n";
     	send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 	}
 }
@@ -84,8 +83,8 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 			irc.channels[t].members.size() < irc.channels[t].getChannelUserLimit())
 		{
 			std::string	param = "";
-			if (irc.channels[t].checkChannelMode('k') && message->get_parameters().size() > 0)
-				param = message->get_parameters()[0];
+			if (irc.channels[t].checkChannelMode('k') && message->get_parameters().size() > 1)
+				param = message->get_parameters()[1];
 			if (!irc.channels[t].checkChannelMode('k') || irc.channels[t].getChannelKey() == param)
 			{
 				if (irc.clients[sender].channels.size() == 10)
@@ -116,17 +115,19 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
             return sendMessage(sender, ERR_NOTEXTTOSEND(irc.getNickByFd(sender)), ERR412);
         if (destinos[i][0] == '#')
         {
-            if (irc.channels.find(destinos[i]) != irc.channels.end())
+			if (irc.channels.find(destinos[i]) != irc.channels.end())
             {
-                Channel &channel = irc.channels[destinos[i]];
-                if (channel.members.find(sender) != channel.members.end())
-                {
-                    std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
-                    sendPrivMsg(sender, channel.getChannelClientsFds(), join,ERRPM);
-                }
-                else
-                    return sendMessage(sender, ERR_NOTONCHANNEL(irc.getHostname(), destinos[i]), ERR442);
-            }
+				Channel &channel = irc.channels[destinos[i]];
+				if (channel.members.find(sender) != channel.members.end())
+				{
+					std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
+					sendPrivMsg(sender, channel.getChannelClientsFds(), join, ERRPM);
+				}
+				else
+                    sendMessage(sender, ERR_NOTONCHANNEL(irc.getHostname(), destinos[i]), ERR442);
+			}
+			else
+				sendMessage(sender, ERR_NOSUCHNICK(irc.getNickByFd(sender), destinos[i]), ERR401);
         }
         else
         {
@@ -188,13 +189,15 @@ void	cmdMode(Server &irc, Message *message, int sender)
 void	cmdPart(Server &irc, Message *message, int sender)
 {
 	std::string chn = message->get_destination();
+	std::string	reason = "Leaving";
 	if (irc.channels.find(chn) == irc.channels.end())
 		return sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getHostname(), chn), ERR403);
 	if (message->get_parameters().size() == 0)
 		return sendMessage(sender, ERR_NEEDMOREPARAMS(irc.getHostname(), message->get_command()), ERR461);
 	if (irc.channels[chn].members.find(sender) == irc.channels[chn].members.end())
 		return sendMessage(sender, ERR_NOTONCHANNEL(irc.getHostname(), chn), ERR442);
-	std::string	reason = message->get_parameters()[0];
+	if (message->get_parameters().size() > 1)
+		reason = message->get_parameters()[1];
 	std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 		+ "@" + irc.getHostname() + " PART " + chn + " " + reason;
 	sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), msg, ERRP);
@@ -236,7 +239,6 @@ void	cmdPong(Server &irc, Message *message, int sender)
 
 void    nameReply(Server &irc, std::string chn, int sender)
 {
-	//std::string	chn = message->get_destination();
 	if (irc.channels.find(chn) != irc.channels.end())
     {
 		std::string						msg;

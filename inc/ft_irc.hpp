@@ -153,7 +153,6 @@ class Message;
 // 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
 # define ERR_CANNOTSENDTOCHAN(hostname, chn) (hostname + " " + chn + " :Cannot send to channel")
 
-
 // 404
 # define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters")
 
@@ -210,15 +209,17 @@ void    	evaluatePing(Server &irc);
 std::string	toUpper(const std::string& str);
 int			aux(std::string targets);
 std::string parseRealname(const std::string& input);
+
 // Send
-void    	sendSequenceRPL(Server &irc, Message *message, int sender);
-void    	sendMOTD(Server &irc, Message *message, int sender);
-void 		logConsole(std::string buffer);
-void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
-void    	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
-void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
-void        sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
-std::vector<std::string> split(const std::string &s, char delim);
+void    					sendSequenceRPL(Server &irc, Message *message, int sender);
+void 					   	sendMOTD(Server &irc, Message *message, int sender);
+void	 					logConsole(std::string buffer);
+void						sendMessage(int fd, const std::string& msg, const std::string& emsg);
+void				    	sendMessage(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool all);
+void						sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
+void        				sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
+std::vector<std::string>	split(const std::string &s, char delim);
+
 // Other
 std::string	cleanString(const std::string& name);
 
