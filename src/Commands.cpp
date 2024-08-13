@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <iostream>
 
 void    cmdCap(Server &irc, Message *message, int sender)
 {
@@ -153,8 +154,9 @@ void	cmdModeIterator(Server &irc, Message *message, int sender, std::string mode
 		if ((irc.modesParam[m].first == 1 && mode[0] == '+')
 			|| (irc.modesParam[m].second == 1 && mode[0] == '-'))
 			j++;
-		if (message->get_parameters().size() > j)
-			param = message->get_parameters()[j];
+		if (message->get_parameters().size() > j + 1)
+			param = message->get_parameters()[j + 1];
+		std::cout << "param " <<param << std::endl;
 		if (!mode.compare(0, 1, "+", 0, 1))
 			irc.activateChannelMode(chn, m, sender, false, param);
 		else
@@ -167,11 +169,12 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	std::string	mode;
 	std::string chn = message->get_destination();
 
-	if (message->get_parameters().size() > 0)
-		mode = message->get_parameters()[0];
+	std::cout << *message << std::endl;
+	if (message->get_parameters().size() > 1)
+		mode = message->get_parameters()[1];
 	if (mode.size() > 1 && (!mode.compare(0, 1, "+", 0, 1) || !mode.compare(0, 1, "-", 0, 1)))
 		cmdModeIterator(irc, message, sender, mode);
-	else if (message->get_parameters().size() == 0 && !irc.channels[chn].getLaunch())
+	else if (message->get_parameters().size() == 1 && !irc.channels[chn].getLaunch())
 	{
 		time_t  t = irc.channels[chn].getCreatedAtTime();
         std::stringstream ss;
