@@ -153,7 +153,7 @@ std::string				Server::getHostname() const
 	return (this->_hostname);
 }
 
-Client&			Server::getClientByFd(int socket)
+Client&					Server::getClientByFd(int socket)
 {
 	std::map<int, Client>::iterator it = clients.find(socket);
     if (it != clients.end())

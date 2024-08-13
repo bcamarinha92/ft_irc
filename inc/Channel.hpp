@@ -57,6 +57,7 @@ class Channel
 		bool					checkChannelMode(char mode);
 		void					addInvite(int fd);
 		void					rmInvite(int fd);
+		bool					checkChannelUserInvite(int fd);
 
 		//Attributes
 		std::map<int, Client>	members;

@@ -234,6 +234,16 @@ void				Channel::rmInvite(int fd)
 		this->_invites.erase(this->_invites.begin() + i);
 }
 
+bool				Channel::checkChannelUserInvite(int fd)
+{
+	for (std::vector<int>::const_iterator it = this->_invites.begin(); it != this->_invites.end(); ++it)
+	{
+		if (*it == fd)
+			return true;
+	}
+	return false;
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

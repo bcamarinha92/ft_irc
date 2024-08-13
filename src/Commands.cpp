@@ -26,7 +26,7 @@ void cmdNick(Server &irc, Message *message, int sender)
 					continue;
 				if (irc.getNickByFd(irc.pollfds[i].fd) == nick)
 				{
-					std::string join = ":" + irc.getHostname() +" 433 " + irc.getNickByFd(sender) + " :Nickname is already in use\n";
+					std::string join = ":" + irc.getHostname() + " 433 " + irc.getNickByFd(sender) + " :Nickname is already in use\n";
 					logConsole(join);
 					send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 					return;
@@ -157,7 +157,6 @@ void	cmdModeIterator(Server &irc, Message *message, int sender, std::string mode
 			j++;
 		if (message->get_parameters().size() > j + 1)
 			param = message->get_parameters()[j + 1];
-		std::cout << "param " <<param << std::endl;
 		if (!mode.compare(0, 1, "+", 0, 1))
 			irc.activateChannelMode(chn, m, sender, false, param);
 		else
@@ -170,7 +169,6 @@ void	cmdMode(Server &irc, Message *message, int sender)
 	std::string	mode;
 	std::string chn = message->get_destination();
 
-	std::cout << *message << std::endl;
 	if (message->get_parameters().size() > 1)
 		mode = message->get_parameters()[1];
 	if (mode.size() > 1 && (!mode.compare(0, 1, "+", 0, 1) || !mode.compare(0, 1, "-", 0, 1)))

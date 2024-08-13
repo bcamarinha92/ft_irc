@@ -18,13 +18,13 @@ void broadcast(Server &irc, Message *message, int sender)
         }
         return;
     }
-    if (message->get_command() == "PING")
-        cmdPing(irc, message, sender);
-    else if (message->get_command() == "PONG")
-        cmdPong(irc, message, sender);
+	if (message->get_command() == "PING")
+		cmdPing(irc, message, sender);
+	else if (message->get_command() == "PONG")
+		cmdPong(irc, message, sender);
 	else if (message->get_command() == "CAP")
         cmdCap(irc, message, sender);
-    else if (message->get_command() == "USER")
+	else if (message->get_command() == "USER")
 		cmdUser(irc, message, sender);
 	else if (message->get_command() == "NICK")
 		cmdNick(irc, message, sender);
@@ -42,6 +42,8 @@ void broadcast(Server &irc, Message *message, int sender)
 	   cmdTopic(irc, message, sender);
 	else if (message->get_command() == "KICK")
 	   cmdKick(irc, message, sender);
+	else if (message->get_command() == "INVITE")
+		cmdInvite(irc, message, sender);
     client.setLastAction();
 }
 

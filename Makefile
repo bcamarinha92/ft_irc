@@ -16,7 +16,8 @@ FLAGS = -Wall -Wextra -Werror -std=c++98 -g #-fsanitize=address
 FILES = ./src/main.cpp ./src/Client.cpp ./src/Server.cpp ./src/Channel.cpp \
 		./src/gnl/get_next_line_utils_bonus.cpp ./src/gnl/get_next_line_bonus.cpp \
 		./src/Parsing.cpp ./src/Commands.cpp ./src/Message.cpp ./src/Utilities.cpp \
-		./src/Send.cpp
+		./src/Send.cpp ./src/Invite.cpp
+
 OBJS = $(FILES:.cpp=.o)
 NAME = ircserv
 SRC_FOLDER = ./src/

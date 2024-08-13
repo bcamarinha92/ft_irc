@@ -29,17 +29,18 @@ std::string	getChannelFromBuffer(const std::string& input)
 {
 	std::string::size_type	start = 0, end = 0;
 	std::string				cmd = cleanString(get_buffer_command(input));
-	std::string				comandos[6] =
+	std::string				comandos[7] =
 	{
 		"PRIVMSG",
 		"JOIN",
 		"INVITE",
 		"WHO",
 		"MODE",
-		"PART"
+		"PART",
+		"INVITE"
 	};
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 7; i++)
 	{
 		if (toUpper(cmd) == comandos[i])
 		{

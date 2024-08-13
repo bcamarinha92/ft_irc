@@ -68,6 +68,7 @@
 # define ERRACK "Error: activation of channel's key"
 # define ERRDCK "Error: deactivation of channel's key"
 //# define ERR001 "Error: sending welcoming message (001)"
+# define ERR341 "Error: sending inviting message (341)"
 # define ERR353 "Error: sending channel's clients list and roles (353)"
 # define ERR401 "Error: sending message of no such nick/channel (401)"
 # define ERR403 "Error: sending message of no such channel (403)"
@@ -77,6 +78,7 @@
 # define ERR417	"Error: sending message of input too long (417)"
 # define ERR421 "Error: sending message of unknown command (421)"
 # define ERR442	"Error: sending message of not on channel (442)"
+# define ERR443 "Error: sending message of user already on channel (443)"
 # define ERR461	"Error: sending message of more parameters needed (461)"
 # define ERR464 "Error: sending message of incorrect password (464)"
 # define ERR471 "Error: sending message informing channel is full (471)"
@@ -125,6 +127,10 @@ class Message;
 # define RPL_CREATIONTIME(hostname, nick, chn, time) \
 	(":" + hostname + " 329 " + nick + " " + chn + " :" + time)
 
+// 341: Sent as a reply to the INVITE command to indicate that the attempt was successful and
+// the client with the nickname <nick> has been invited to <channel>.
+# define RPL_INVITING(hostname, nick, chn) (hostname + " " + nick + " " + chn)
+
 // 353: Reply to the NAMES command; lists the clients joined to a channel and their status
 # define RPL_NAMREPLY(hostname, nick, chn, clients) \
 	(":" + hostname + " 353 " + nick + " = " + chn + " :" + clients)
@@ -134,6 +140,9 @@ class Message;
 
 // 403: Indicates that no channel can be found for the supplied channel name
 # define ERR_NOSUCHCHANNEL(hostname, chn) (hostname + " " + chn + " :No such channel")
+
+// 404: Indicates that the PRIVMSG / NOTICE could not be delivered to <channel>
+# define ERR_CANNOTSENDTOCHAN(hostname, chn) (hostname + " " + chn + " :Cannot send to channel")
 
 // 405: Indicates that the JOIN command failed because the client has joined their maximum number of channels (10)
 # define ERR_TOOMANYCHANNELS(hostname, chn) (hostname + " " + chn + " :You have joined too many channels")
@@ -150,11 +159,16 @@ class Message;
 // 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
 # define ERR_NOTONCHANNEL(hostname, chn) (hostname + " " + chn + " :You're not on that channel")
 
-// 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
-# define ERR_CANNOTSENDTOCHAN(hostname, chn) (hostname + " " + chn + " :Cannot send to channel")
+// 443: Returned when a client tries to invite <nick> to a channel they’re already joined to.
+# define ERR_USERONCHANNEL(hostname, nick, chn) \
+		(hostname + " " + nick + " " + chn + " :is already on channel")
 
-// 404
+// 461: Returned when a client command cannot be parsed because not enough parameters were supplied
 # define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters")
+
+// 462: Error message when already registered
+# define ERR_ALREADYREGISTERED(hostname, nick) \
+		(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
 
 // 464: Returned to indicate that the connection could not be registered as the password was either incorrect or not supplied
 # define ERR_PASSWDMISMATCH(hostname) (hostname + " :Password incorrect")
@@ -170,10 +184,6 @@ class Message;
 // 482: Error message of trying to change a channel mode without the operator role
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \
 	(":" + hostname + " 482 " + nick + " " + chn + " :You're not channel operator")
-
-	// 462: Error message when already registered
-# define ERR_ALREADYREGISTERED(hostname, nick) \
-		(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
 
 static bool running;
 static char	*pos[MAX_FD];
@@ -200,6 +210,7 @@ void		cmdUser(Server &irc, Message *message, int sender);
 void        cmdTopic(Server &irc, Message *message, int sender);
 void        cmdKick(Server &irc, Message *message, int sender);
 void        nameReply(Server &irc, std::string chn, int sender);
+void		cmdInvite(Server &irc, Message *message, int sender);
 
 // Utilities
 void 		closeFDs(Server &irc);
