@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <string>
 
 void    cmdCap(Server &irc, Message *message, int sender)
 {
@@ -251,6 +250,8 @@ void    nameReply(Server &irc, std::string chn, int sender)
     	}
 		sendMessage(sender, irc.channels[chn].getChannelClientsFds(), \
 			  RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR8, false);
+        std::string join = ":" + irc.getHostname() + " 366 " + irc.getNickByFd(sender) + " " + chn + " :End of /Names list.\r\n";
+        send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
 	}
 }
 
@@ -272,7 +273,7 @@ void    cmdWho(Server &irc, Message *message, int sender)
         Client  &client = irc.getClientByFd(clientFd);
         join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
             message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
-            " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+            " " + irc.getHostname() + " " + client.getNickname() + " H@ :0 " + client.getRealname() + "";
         send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
     }
     else
@@ -291,7 +292,7 @@ void    cmdWho(Server &irc, Message *message, int sender)
             Client  &client = irc.getClientByFd(*it);
             join = ":" + irc.getHostname() + " 352 " + client.getNickname() + " " + \
                 message->get_destination() + " " + client.getUsername() + " " + client.getHostname()+ \
-                " " + irc.getHostname() + " " + client.getNickname() + " H*@s :0 " + client.getRealname() + "\r\n";
+                " " + irc.getHostname() + " " + client.getNickname() + " H@ :0 " + client.getRealname() + "";
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
     }
