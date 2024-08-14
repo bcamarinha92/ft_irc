@@ -199,7 +199,7 @@ void	cmdPart(Server &irc, Message *message, int sender)
 	std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 		+ "@" + irc.getHostname() + " PART " + chn + " " + reason;
 	sendMessageAll(sender, irc.channels[chn].getChannelClientsFds(), msg, ERRP);
-	irc.channels[chn].rmClient(sender);
+	irc.channels[chn].rmClient(sender, irc);
 	if (irc.channels[chn].checkOperatorRole(sender))
 		irc.channels[chn].rmOperator(sender);
 	irc.clients[sender].rmChannel(chn);
@@ -424,7 +424,7 @@ void   cmdKick(Server &irc, Message *message, int sender)
     {
         std::string join = ":" + irc.getHostname() + " KICK " + channel.getName() + " " + message->get_parameters()[1] + " :" + reason + "\n";
         sendMessage(sender, channel.getChannelClientsFds(), join, "a",true);
-        channel.rmClient(target);
+        channel.rmClient(target, irc);
     }
     else
     {

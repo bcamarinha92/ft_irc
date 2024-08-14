@@ -6,6 +6,7 @@
 # include <ctime>
 
 class Client;
+class Server;
 
 class Channel
 {
@@ -48,7 +49,7 @@ class Channel
 		//Methods
 		void					prepareModes();
 		void					addClient(const Client& client);
-		void					rmClient(int clientSocket);
+		void					rmClient(int clientSocket, Server &irc);
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);
 		bool					activateMode(char mode, int sender, bool join);

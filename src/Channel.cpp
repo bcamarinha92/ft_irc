@@ -166,7 +166,7 @@ void				Channel::addClient(const Client& client)
 	this->members[client.getSocket()] = client;
 }
 
-void				Channel::rmClient(int clientSocket)
+void				Channel::rmClient(int clientSocket, Server& irc)
 {
 	this->members.erase(clientSocket);
 }
