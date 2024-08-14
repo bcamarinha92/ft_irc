@@ -6,7 +6,11 @@ void broadcast(Server &irc, Message *message, int sender)
 
     if (client.getPwdStatus() == false)
     {
-        if (message->get_command() == "CAP")
+        if (message->get_command() == "PING")
+            cmdPing(irc, message, sender);
+		else if (message->get_command() == "PONG")
+			cmdPong(irc, message, sender);
+		else if (message->get_command() == "CAP")
             cmdCap(irc, message, sender);
         else if (message->get_command() == "PASS")
             cmdPass(irc, message, sender);
@@ -104,7 +108,7 @@ int	main(int argc, char *argv[])
         running = true;
         while (running)
         {
-            pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), -1);
+            pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), 1000);
             if (pollCount < 0 && running)
                 throw std::invalid_argument("poll");
             loopPool(irc);

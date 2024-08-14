@@ -220,14 +220,13 @@ void	cmdPong(Server &irc, Message *message, int sender)
 {
     std::string	join;
     std::string	token;
-	Client		user;
 	size_t		pos;
 
-	user = irc.getClientByFd(sender);
+    Client&	user = irc.getClientByFd(sender);
     join += message->get_buffer();
     pos = join.find("PONG ");
 	if (pos != std::string::npos)
-		token = join.substr(pos + 5); // Extract substring from pos + 5 to the end
+		token = join.substr(pos + 5, join.find_last_not_of("\r\n") - pos - 4);
 	if (token == irc.getHostname())
 	{
 		user.setLastAction();

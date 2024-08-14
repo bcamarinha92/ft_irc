@@ -33,11 +33,11 @@ void    evaluatePing(Server &irc)
     for (size_t i = 1; i < irc.pollfds.size(); ++i)
     {
         Client& user = irc.getClientByFd(irc.pollfds[i].fd);
-        if (currentTime - user.getLastAction() > 30)
+        if (currentTime - user.getLastAction() > (30 * (user.getPingCount() + 1)))
         {
             user.incPingCount();
             std::cout << "Ping Count " << user.getPingCount() << std::endl;
-            if (user.getPingCount() == 3)
+            if (user.getPingCount() == 4)
             {
                 irc.rmClient(irc.pollfds[i].fd, i);
                 //inserir aqui logica para remover o cliente dos canais em que estava
