@@ -108,7 +108,7 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
 {
 	std::vector<std::string>    destinos = split(message->get_destination(), ',');
 	size_t						i = 0;
-
+	std::cout << *message << std::endl;
 	while (i < destinos.size())
     {
         if (message->get_parameters().size() == 0)
