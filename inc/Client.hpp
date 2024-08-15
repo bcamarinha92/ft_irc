@@ -22,15 +22,25 @@ class Client
 
 		//Getters
 		int 							getSocket() const;
+		int 							getPingCount() const;
 		std::string 					getNickname() const;
+		std::string 					getRealname() const;
 		std::string 					getUsername() const;
 		sockaddr_in						getclientAddr() const;
 		socklen_t						getclientAddrLen() const;
+		std::time_t						getLastAction() const;
+		std::string 					getHostname() const;
+		bool                            getPwdStatus() const;
 
 		//Setters
 		void 							setSocket(int socket);
 		void 							setNickname(const std::string& nickname);
 		void 							setUsername(const std::string& username);
+		void 							setRealname(const std::string& realname);
+		void            				setLastAction();
+		void            				setPwdStatus();
+		void            				incPingCount();
+		void            				resetPingCount();
 
 		//Methods
 		void							addChannel(const Channel& channel);
@@ -44,10 +54,15 @@ class Client
 		//Attributes
 		std::string						_nickname;
     	std::string 					_username;
+		std::string 					_realname;
 		sockaddr_in						_clientAddr;
 		socklen_t	 					_clientAddrLen;
 		int				 				_clientSocket;
 		char 							*_client_ip;
+		hostent*						_hostname;
+		std::time_t						_lastAction;
+		id_t							_pingCount;
+		bool                            _pwdStatus;
 };
 
 std::ostream&			operator<<(std::ostream& o, Client const& i);

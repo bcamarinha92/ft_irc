@@ -2,9 +2,9 @@
 # define CHANNEL_HPP
 
 # include "ft_irc.hpp"
-# include <ctime>
 
 class Client;
+class Server;
 
 class Channel
 {
@@ -29,17 +29,19 @@ class Channel
 		std::vector<int>		getChannelClientsFds();
 		std::vector<int>		getChannelInvites() const;
 		size_t					getChannelUserLimit() const;
+		std::string				getChannelKey() const;
 
 		//Setters
 		void					setName(std::string name);
 		void					setTopic(std::string topic);
 		void					switchLaunch();
 		void					setChannelUserLimit(size_t limit);
+		void					setChannelKey(std::string key);
 
 		//Methods
 		void					prepareModes();
-		void					addClient(const Client& client);
-		void					rmClient(int clientSocket);
+		void					addClient(const Client& client, Server &irc);;
+		void					rmClient(int clientSocket, Server &irc);
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);
 		bool					activateMode(char mode, int sender, bool join);
@@ -48,6 +50,7 @@ class Channel
 		bool					checkChannelMode(char mode);
 		void					addInvite(int fd);
 		void					rmInvite(int fd);
+		bool					checkChannelUserInvite(int fd);
 
 		//Attributes
 		std::map<int, Client>	members;
@@ -60,7 +63,8 @@ class Channel
 		std::map<char, bool>	_modes;
 		std::time_t				_createdAt;
 		bool					_launch;
-		size_t					_ulimit;
+		ssize_t					_ulimit;
+		std::string				_key;
 		std::vector<int>		_invites;
 };
 

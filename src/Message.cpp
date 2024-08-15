@@ -14,7 +14,7 @@ Message::Message(const Message& src)
 Message::Message(char *buffer, int sender): _sender(sender)
 {
 	this->_buffer = buffer;
-	this->_command = get_buffer_command(buffer);
+	this->_command = toUpper(get_buffer_command(buffer));
 	this->_parameters = get_buffer_parameters(buffer);
 	this->_destination = getChannelFromBuffer(std::string(buffer));
 }
@@ -32,7 +32,14 @@ Message::~Message() {}
 Message&				Message::operator=(Message const& rhs)
 {
 	if (this != &rhs)
+	{
 		this->_buffer = rhs.get_buffer();
+		this->_sender = rhs.get_sender();
+		this->_target = rhs.get_target();
+		this->_command = rhs.get_command();
+		this->_parameters = rhs.get_parameters();
+		this->_destination = rhs.get_destination();
+	}
 	return *this;
 }
 
@@ -47,6 +54,9 @@ std::ostream&			operator<<(std::ostream& o, Message const& i)
 
 	for(int i = 0; i < length; i++)
 		std::cout << param[i] << ',' << std::endl;
+
+	o << "Sender: " << i.get_sender() << std::endl;
+	o << "Destination: " << i.get_destination() << std::endl;
 	return o;
 }
 
@@ -59,7 +69,7 @@ std::string					Message::get_buffer() const
 	return (_buffer);
 }
 
-int							Message::get_sender()
+int							Message::get_sender() const
 {
 	return(_sender);
 }
@@ -79,6 +89,10 @@ std::vector<std::string>	Message::get_parameters() const
 	return (_parameters);
 }
 
+std::string					Message::get_target() const
+{
+	return (_target);
+}
 void						Message::set_buffer(std::string buffer)
 {
 	this->_buffer = buffer;
@@ -87,6 +101,11 @@ void						Message::set_buffer(std::string buffer)
 void						Message::set_command(std::string command)
 {
 	this->_command = command;
+}
+
+void						Message::set_target(std::string target)
+{
+	this->_target = target;
 }
 
 /*

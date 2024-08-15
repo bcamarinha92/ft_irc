@@ -21,12 +21,14 @@ class Message
 		std::string 				get_buffer() const;
 		std::string 				get_command() const;
 		std::vector<std::string>	get_parameters() const;
-		int 						get_sender();
+		int 						get_sender() const;
 		std::string 				get_destination() const;
+		std::string					get_target() const;
 
 		//Setters
 		void						set_buffer(std::string buffer);
 		void 						set_command(std::string command);
+		void						set_target(std::string target);
 
 	private:
 		//Attributes
@@ -35,6 +37,7 @@ class Message
 		std::vector<std::string>	_parameters;
 		int							_sender;
 		std::string					_destination;
+		std::string					_target;
 
 };
 

@@ -4,12 +4,12 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Channel::Channel(): _launch(true), _ulimit(-1)
+Channel::Channel(): _launch(true), _ulimit(-1), _key("")
 {
 	this->prepareModes();
 }
 
-Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true), _ulimit(-1)
+Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true), _ulimit(-1), _key("")
 {
 	this->_name = name;
 	this->prepareModes();
@@ -26,6 +26,7 @@ Channel::Channel(const Channel& src)
 	this->operators = src.operators;
 	this->_invites = src._invites;
 	this->_ulimit = src._ulimit;
+	this->_key = src._key;
 }
 
 /*
@@ -51,6 +52,7 @@ Channel&				Channel::operator=(Channel const& rhs)
 		this->operators = rhs.operators;
 		this->_invites = rhs._invites;
 		this->_ulimit = rhs._ulimit;
+		this->_key = rhs._key;
 	}
 	return *this;
 }
@@ -119,10 +121,16 @@ size_t				Channel::getChannelUserLimit() const
 	return (this->_ulimit);
 }
 
+std::string			Channel::getChannelKey() const
+{
+	return (this->_key);
+}
+
 void				Channel::setName(std::string name)
 {
 	this->_name=name;
 }
+
 
 void				Channel::setTopic(std::string topic)
 {
@@ -139,6 +147,11 @@ void				Channel::setChannelUserLimit(size_t limit)
 	this->_ulimit = limit;
 }
 
+void				Channel::setChannelKey(std::string key)
+{
+	this->_key = key;
+}
+
 void				Channel::prepareModes()
 {
 	this->_modes['i'] = false;
@@ -148,14 +161,18 @@ void				Channel::prepareModes()
 	this->_modes['t'] = false;
 }
 
-void				Channel::addClient(const Client& client)
+void				Channel::addClient(const Client& client, Server& irc)
 {
 	this->members[client.getSocket()] = client;
+	irc.clients[client.getSocket()].addChannel(*this);
 }
 
-void				Channel::rmClient(int clientSocket)
+void				Channel::rmClient(int clientSocket, Server& irc)
 {
+	if (this->checkOperatorRole(clientSocket))
+		this->operators.erase(clientSocket);
 	this->members.erase(clientSocket);
+	irc.clients[clientSocket].rmChannel(this->getName());
 }
 
 void				Channel::addOperator(const Client& client)
@@ -198,6 +215,7 @@ bool				Channel::checkChannelMode(char mode)
 	return (this->_modes[mode]);
 }
 
+
 void				Channel::addInvite(int fd)
 {
 	this->_invites.push_back(fd);
@@ -218,6 +236,16 @@ void				Channel::rmInvite(int fd)
 	}
 	if (found)
 		this->_invites.erase(this->_invites.begin() + i);
+}
+
+bool				Channel::checkChannelUserInvite(int fd)
+{
+	for (std::vector<int>::const_iterator it = this->_invites.begin(); it != this->_invites.end(); ++it)
+	{
+		if (*it == fd)
+			return true;
+	}
+	return false;
 }
 
 /*
