@@ -246,7 +246,8 @@ void					Server::activateChannelMode(std::string const& chn, char mode, int send
 				{
 					this->channels[chn].activateMode(mode, sender, join);
 					sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
-					RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERRAOM, false);
+					RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, \
+						  this->getNickByFd(fd)), ERRAOM, false);
 					this->channels[chn].addOperator(this->getClientByFd(fd));
 				}
 			}
@@ -267,7 +268,8 @@ void					Server::activateChannelMode(std::string const& chn, char mode, int send
 					RPL_CHANNELMODEISACT(this->getNickByFd(sender), chn, mode, param), ERRALM, false);
 				}
 				else
-					sendMessage(sender, RPL_TOOHIGHLIMIT(this->getHostname(), this->getNickByFd(sender), chn), ERRLTH);
+					sendMessage(sender, RPL_TOOHIGHLIMIT(this->getHostname(), \
+										  this->getNickByFd(sender), chn), ERRLTH);
 			}
 		}
 		else if (mode == 'k')
@@ -303,7 +305,8 @@ void					Server::deactivateChannelMode(std::string const& chn, char mode, int se
 				{
 					this->channels[chn].deactivateMode(mode, sender);
 					sendMessageAll(sender, this->channels[chn].getChannelClientsFds(), \
-					RPL_CHANNELMODEISDEACT(this->getNickByFd(sender), chn, mode, this->getNickByFd(fd)), ERRDOM, false);
+					RPL_CHANNELMODEISDEACT(this->getNickByFd(sender), chn, mode, \
+							this->getNickByFd(fd)), ERRDOM, false);
 					this->channels[chn].rmOperator(fd);
 				}
 			}

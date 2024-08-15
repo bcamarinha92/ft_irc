@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <cstring>
 
 void    cmdPass(Server &irc, Message *message, int sender)
 {
@@ -22,4 +21,3 @@ void    cmdPass(Server &irc, Message *message, int sender)
     else
 		sendMessage(sender, ERR_NEEDMOREPARAMS(irc.getHostname(), message->get_command()), ERR461);
 }
-

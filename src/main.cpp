@@ -6,17 +6,17 @@ void broadcast(Server &irc, Message *message, int sender)
 
     if (client.getPwdStatus() == false)
     {
-		if (message->get_command() == "PING")
+        if (message->get_command() == "PING")
             cmdPing(irc, message, sender);
 		else if (message->get_command() == "PONG")
 			cmdPong(irc, message, sender);
 		else if (message->get_command() == "CAP")
-			cmdCap(irc, message, sender);
-		else if (message->get_command() == "PASS")
-			cmdPass(irc, message, sender);
-		else
+            cmdCap(irc, message, sender);
+        else if (message->get_command() == "PASS")
+            cmdPass(irc, message, sender);
+        else
         {
-            std::string	join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
+            std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }

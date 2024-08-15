@@ -41,12 +41,10 @@ void    evaluatePing(Server &irc)
             {
                 irc.rmClient(irc.pollfds[i].fd, i);
                 //inserir aqui logica para remover o cliente dos canais em que estava
-				std::map<std::string, Channel>::iterator	it;
-				for (it = irc.clients[irc.pollfds[i].fd].channels.begin(); it != irc.clients[irc.pollfds[i].fd].channels.end(); ++it)
-					irc.channels[it->first].rmClient(irc.pollfds[i].fd, irc);
                 std::cout << "Client disconnected due to inactivity" << std::endl;
             }
-			sendMessage(irc.pollfds[i].fd, PING(irc.getHostname()), ERRPIN);
+            std::string join = ":" + irc.getHostname() + " PING " + irc.getHostname() + "\r\n";
+            send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
         }
     }
 }
@@ -59,6 +57,19 @@ std::string	toUpper(const std::string& str)
 	return res;
 }
 
+int		aux(std::string targets)
+{
+	int	n = 1, i = 0;
+
+	while (targets.find(",", i) != std::string::npos)
+	{
+		n++;
+		i += targets.find(",", i) + 1;
+	}
+	return n;
+}
+
+
 std::vector<std::string> split(const std::string &s, char delim)
 {
     std::vector<std::string> elems;
@@ -67,16 +78,4 @@ std::vector<std::string> split(const std::string &s, char delim)
     while (std::getline(ss, item, delim))
         elems.push_back(item);
     return elems;
-}
-
-std::string	cleanString(const std::string& name)
-{
-    std::string	cleanedStr;
-
-    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it)
-	{
-        if (std::isprint(*it))
-            cleanedStr += *it;
-    }
-    return cleanedStr;
 }

@@ -170,7 +170,7 @@ void				Channel::addClient(const Client& client, Server& irc)
 void				Channel::rmClient(int clientSocket, Server& irc)
 {
 	if (this->checkOperatorRole(clientSocket))
-		this->operators.erase(clientSocket);
+		this->rmOperator(clientSocket);
 	this->members.erase(clientSocket);
 	irc.clients[clientSocket].rmChannel(this->getName());
 }

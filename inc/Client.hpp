@@ -10,9 +10,12 @@ class Client
 
 	public:
 		//Constructors
+		//Constructors
 		Client();
 		Client(int socket);
 		Client(Client const& src);
+
+		//Destructors
 
 		//Destructors
 		~Client();

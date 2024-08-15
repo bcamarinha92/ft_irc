@@ -17,7 +17,9 @@ void    nameReply(Server &irc, std::string chn, int sender)
         	else
             	clients += (it->second).getNickname();
     	}
-		sendMessage(sender, RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), chn, clients), ERR353);
-		sendMessage(sender, RPL_ENDOFNAMES(irc.getHostname(), irc.getNickByFd(sender), chn), ERR366);
+		sendMessage(sender, RPL_NAMREPLY(irc.getHostname(), irc.getNickByFd(sender), \
+								   chn, clients), ERR353);
+		sendMessage(sender, RPL_ENDOFNAMES(irc.getHostname(), irc.getNickByFd(sender), \
+			  chn), ERR366);
 	}
 }

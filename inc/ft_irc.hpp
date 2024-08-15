@@ -1,6 +1,3 @@
-#ifndef FT_IRC_HPP
-#define FT_IRC_HPP
-
 # pragma once
 
 # include <iostream>
@@ -120,7 +117,7 @@ class Message;
 	(":" + hostname + " KICK " + chn + " " + user + " :" + reason)
 
 // PING
-# define PING(hostname) (":" + hostname + " PING " + hostname)
+# define PING(hostname, buffer) (":" + hostname + " PING " + buffer)
 
 // MODE
 	// Activate Channel Mode
@@ -321,10 +318,12 @@ std::string                 get_buffer_command(const std::string buffer);
 std::string 				parseRealname(const std::string& input);
 
 // Send
-void    	sendSequenceRPL(Server &irc, Message *message, int sender);
-void		logConsole(std::string buffer);
-void		sendMessage(int fd, const std::string& msg, const std::string& emsg);
-void		sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool pm);
+void	sendSequenceRPL(Server &irc, Message *message, int sender);
+void 	logConsole(std::string buffer);
+void	sendMessage(int fd, const std::string& msg, const std::string& emsg);
+void	sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool pm);
+void	sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg);
+void	sendM(int fd, const std::string& msg, const std::string& emsg);
 
 // Utilities
 void 						closeFDs(Server &irc);
@@ -334,5 +333,3 @@ void    					evaluatePing(Server &irc);
 std::string					toUpper(const std::string& str);
 std::vector<std::string>	split(const std::string &s, char delim);
 std::string					cleanString(const std::string& name);
-
-#endif

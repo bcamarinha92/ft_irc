@@ -16,8 +16,11 @@ class Server
 
 	public:
 		//Constructors
+		//Constructors
 		Server(int port, std::string password);
 		Server(Server const& src);
+
+		//Destructors
 
 		//Destructors
 		~Server();

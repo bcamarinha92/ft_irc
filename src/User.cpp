@@ -10,7 +10,7 @@ void    cmdUser(Server &irc, Message *message, int sender)
 	std::string	a = user.getUsername();
 
 	if (a != "")
-		sendMessage(sender, ERR_ALREADYREGISTERED(irc.getHostname(), irc.getNickByFd(sender)), ERR462);
+		sendM(sender, ERR_ALREADYREGISTERED(irc.getHostname(), irc.getNickByFd(sender)), ERR462);
 	else
 	{
 		a = message->get_parameters()[0];

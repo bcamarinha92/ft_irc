@@ -13,11 +13,23 @@ std::string	getNickFromBuffer(const std::string &input)
 	return "";
 }
 
+std::string	cleanString(const std::string& name)
+{
+    std::string	cleanedStr;
+
+    for (std::string::const_iterator it = name.begin(); it != name.end(); ++it)
+	{
+        if (std::isprint(*it))
+            cleanedStr += *it;
+    }
+    return cleanedStr;
+}
+
 std::string	getChannelFromBuffer(const std::string& input)
 {
 	std::string::size_type	start = 0, end = 0;
 	std::string				cmd = cleanString(get_buffer_command(input));
-	std::string				comandos[7] =
+	std::string				comandos[8] =
 	{
 		"PRIVMSG",
 		"JOIN",
@@ -25,10 +37,11 @@ std::string	getChannelFromBuffer(const std::string& input)
 		"WHO",
 		"MODE",
 		"PART",
-		"INVITE"
+		"INVITE",
+		"KICK"
 	};
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		if (toUpper(cmd) == comandos[i])
 		{
@@ -166,7 +179,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	i++;
 	while (buffer[i])
 	{
-		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG"))
+		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG" || cmd == "KICK"))
 		{
 			i++;
 			size_t start = i;

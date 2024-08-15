@@ -10,16 +10,22 @@ class Channel
 {
 	public:
 		//Constructors
+		//Constructors
 		Channel();
 		Channel(std::string name);
 		Channel(Channel const& src);
 
 		//Destructors
+
+		//Destructors
 		~Channel();
+
+		//Overloads
 
 		//Overloads
 		Channel&				operator=(Channel const& rhs);
 
+		//Getters
 		//Getters
 		std::string				getName() const;
 		std::string				getTopic() const;
@@ -40,7 +46,7 @@ class Channel
 
 		//Methods
 		void					prepareModes();
-		void					addClient(const Client& client, Server &irc);;
+		void					addClient(const Client& client, Server &irc);
 		void					rmClient(int clientSocket, Server &irc);
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);

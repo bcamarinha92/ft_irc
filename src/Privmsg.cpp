@@ -27,7 +27,7 @@ void    cmdPrivMsg(Server &irc, Message *message, int sender)
         {
             if (irc.clients.find(irc.getFdFromNick(destinos[i])) != irc.clients.end())
             {
-                std::string join = ":" + irc.getNickByFd(sender) + " " + message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
+                std::string join = ":" + irc.getNickByFd(sender) + " " +message->get_command() + " " + destinos[i] + " :" + message->get_parameters()[1];
                 sendMessage(irc.getFdFromNick(destinos[i]), join, ERRPM);
             }
             else

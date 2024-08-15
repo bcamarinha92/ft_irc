@@ -14,7 +14,7 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
     (void)message;
 	sendMessage(sender, RPL_WELCOME(hostServer, nick), ERR001);
 	sendMessage(sender, RPL_YOURHOST(hostServer, nick, hostClient), ERR002);
-   	sendMessage(sender, RPL_CREATED(hostServer, nick, std::string(std::ctime(&t))), ERR003);
+   	sendM(sender, RPL_CREATED(hostServer, nick, std::string(std::ctime(&t))), ERR003);
 	sendMessage(sender, RPL_MYINFO(hostServer, nick), ERR004);
 	sendMessage(sender, RPL_ISUPPORT(hostServer, nick), ERR005);
 	//Manda o MOTD vazio. Serve apenas para completar a ligacao e iniciar os PING/PONG
@@ -26,18 +26,23 @@ void logConsole(std::string message)
     std::cout << message << std::endl;
 }
 
+void	sendM(int fd, const std::string& msg, const std::string& emsg)
+{
+	if(send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
+		std::cerr << emsg << std::endl;
+}
+
 void	sendMessage(int fd, const std::string& msg, const std::string& emsg)
 {
 	std::string wholeMsg = msg + "\r\n";
 
-    if(send(fd, wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
+	if(send(fd, wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
 		std::cerr << emsg << std::endl;
 }
 
 void	sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg, bool pm)
 {
 	std::string	wholeMsg = msg + "\r\n";
-
 	if (!pm)
 		if (send(fd, wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
 			std::cerr << emsg << std::endl;
@@ -45,5 +50,17 @@ void	sendMessageAll(int fd, std::vector<int> fds, const std::string& msg, const 
 	{
 		if (fds[i] != fd)
 			send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT);
+	}
+}
+
+void	sendPrivMsg(int fd, std::vector<int> fds, const std::string& msg, const std::string& emsg)
+{
+	std::string	wholeMsg = msg + "\r\n";
+
+	for(size_t i = 0; i < fds.size(); ++i)
+	{
+		if (fds[i] != fd)
+		    if(send(fds[i], wholeMsg.c_str(), wholeMsg.size(), MSG_DONTWAIT) < 0)
+				std::cerr << emsg << std::endl;
 	}
 }
