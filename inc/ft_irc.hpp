@@ -145,7 +145,10 @@ class Message;
 
 // Channel does not have +t mode
 # define ERR_NOTMODE(hostname, nick, chn) \
-	(":" + hostname + " 482 " + nick + " " + chn + " :Channel is not set as topic")
+	(":" + hostname + " 482 " + nick + " " + chn + " :You have been invited to")
+
+// Notification of new invite
+# define RPL_RECINVITE(host)
 
 // 001: The first message sent after client registration, this message introduces the client to the network
 # define RPL_WELCOME(hostserver, nick) \
@@ -195,7 +198,8 @@ class Message;
 
 // 341: Sent as a reply to the INVITE command to indicate that the attempt was successful and
 // the client with the nickname <nick> has been invited to <channel>.
-# define RPL_INVITING(hostname, nick, chn) (hostname + " " + nick + " " + chn)
+# define RPL_INVITING(hostname, nicko, chn, nick) \
+	(":" + hostname + " 341 " + nicko + " " + nick + " " + chn)
 
 // 352: Sent as a reply to the WHO command, this numeric gives information about the client with
 // the nickname <nick>

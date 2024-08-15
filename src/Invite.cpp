@@ -4,7 +4,7 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 {
 	std::string	user = "";
 	std::string	chn = message->get_destination();
-	std::cout << "----------------- Message ----------------" << std::endl << message << std::endl;
+
 	if (message->get_parameters().size() > 1)
 		user = message->get_parameters()[0];
 	if (irc.channels.find(chn) == irc.channels.end())
@@ -21,8 +21,8 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 	{
 		std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 			+ "@" + irc.getHostname() + " INVITE " + user + " " + chn;
-		sendMessage(sender, msg.c_str(), ERR341);
-		sendMessage(sender, RPL_INVITING(irc.getHostname(), user, chn), ERR341);
+		sendMessage(irc.getFdFromNick(user), msg.c_str(), ERR341);
+		sendMessage(sender, RPL_INVITING(irc.getHostname(), irc.getNickByFd(sender), chn, user), ERR341);
 		irc.channels[chn].addInvite(irc.getFdFromNick(user));
 	}
 }
