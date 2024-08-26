@@ -2,14 +2,15 @@
 
 void    cmdJoin(Server &irc, Message *message, int sender)
 {
-    std::string	targets = message->get_destination();
+    std::string					targets = message->get_destination();
     std::vector<std::string>    destinos = split(targets, ',');
-	unsigned long      i = 0;
+	unsigned long      			i = 0;
 
 	while (i < destinos.size())
 	{
+		logConsole(destinos[i]);
 		std::string	t = destinos[i];
-		if (t == "" && message->get_parameters().size() > 0)
+		if (t[0] != '#' || (t == "" && message->get_parameters().size() > 0))
 			return (sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getNickByFd(sender), t), ERR403));
 		if (irc.clients[sender].channels.size() == CHANLIMIT)
 			return sendMessage(sender, ERR_TOOMANYCHANNELS(irc.getHostname(), t), ERR405);
