@@ -61,6 +61,7 @@ class Server
 		std::map<std::string, Channel>	channels;
 		pollfd 							serverPollfd;
 		std::map<char, modesPair>		modesParam;
+		int								botSocket;
 
 	private:
 		//Attributes

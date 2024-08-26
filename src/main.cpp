@@ -6,15 +6,15 @@ void broadcast(Server &irc, Message *message, int sender)
 
     if (client.getPwdStatus() == false)
     {
-        if (message->get_command() == "PING")
+		if (message->get_command() == "PING")
             cmdPing(irc, message, sender);
 		else if (message->get_command() == "PONG")
 			cmdPong(irc, message, sender);
 		else if (message->get_command() == "CAP")
             cmdCap(irc, message, sender);
-        else if (message->get_command() == "PASS")
+		else if (message->get_command() == "PASS")
             cmdPass(irc, message, sender);
-        else
+		else
         {
             std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
             logConsole(join);
@@ -22,6 +22,8 @@ void broadcast(Server &irc, Message *message, int sender)
         }
         return;
     }
+	if (botIdentify(message->get_buffer()))
+		botSwitch(irc, sender);
 	if (message->get_command() == "PING")
 		cmdPing(irc, message, sender);
 	else if (message->get_command() == "PONG")
@@ -48,6 +50,8 @@ void broadcast(Server &irc, Message *message, int sender)
 	   cmdKick(irc, message, sender);
 	else if (message->get_command() == "INVITE")
 		cmdInvite(irc, message, sender);
+	else if (message->get_command() == "NOTICE")
+		cmdNotice(irc, message, sender);
     client.setLastAction();
 }
 

@@ -29,7 +29,7 @@ std::string	getChannelFromBuffer(const std::string& input)
 {
 	std::string::size_type	start = 0, end = 0;
 	std::string				cmd = cleanString(get_buffer_command(input));
-	std::string				comandos[7] =
+	std::string				comandos[9] =
 	{
 		"PRIVMSG",
 		"JOIN",
@@ -37,10 +37,12 @@ std::string	getChannelFromBuffer(const std::string& input)
 		"WHO",
 		"MODE",
 		"PART",
-		"INVITE"
+		"INVITE",
+		"KICK",
+		"NOTICE"
 	};
 
-	for (int i = 0; i < 7; i++)
+	for (int i = 0; i < 9; i++)
 	{
 		if (toUpper(cmd) == comandos[i])
 		{
@@ -52,7 +54,7 @@ std::string	getChannelFromBuffer(const std::string& input)
 	if (start == std::string::npos)
         return "";
 	end = start;
-	if (cmd == "PRIVMSG")
+	if (cmd == "PRIVMSG" || cmd == "NOTICE")
 	{
 		start++;
 		end = start + input.substr(start).find_first_of((": \r\n"));
@@ -178,7 +180,7 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	i++;
 	while (buffer[i])
 	{
-		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG"))
+		if (buffer[i] == ':' && (cmd == "PART" || cmd == "PRIVMSG" || cmd == "KICK" || cmd == "NOTICE"))
 		{
 			i++;
 			size_t start = i;

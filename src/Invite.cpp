@@ -4,8 +4,8 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 {
 	std::string	user = "";
 	std::string	chn = message->get_destination();
-	std::cout << "----------------- Message ----------------" << std::endl << message << std::endl;
-	if (message->get_parameters().size() > 1)
+
+	if (message->get_parameters().size() > 0)
 		user = message->get_parameters()[0];
 	if (irc.channels.find(chn) == irc.channels.end())
 		return sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getHostname(), chn), ERR403);
@@ -17,11 +17,17 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 		return sendMessage(sender, ERR_USERONCHANNEL(irc.getHostname(), user, chn), ERR443);
 	if (!irc.channels[chn].checkOperatorRole(sender))
 		return sendMessage(sender, ERR_CHANOPRIVSNEEDED(irc.getHostname(), irc.getNickByFd(sender), chn), ERR482);
-	if (!irc.channels[chn].checkChannelUserInvite(irc.getFdFromNick(user)))
+	if (message->get_parameters().size() > 0 && !irc.channels[chn].checkChannelUserInvite(irc.getFdFromNick(user)))
 	{
 		std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 			+ "@" + irc.getHostname() + " INVITE " + user + " " + chn;
-		sendMessage(sender, msg, ERR341);
+		sendMessage(irc.getFdFromNick(user), msg.c_str(), ERR341);
+		sendMessage(sender, RPL_INVITING(irc.getHostname(), irc.getNickByFd(sender), chn, user), ERR341);
 		irc.channels[chn].addInvite(irc.getFdFromNick(user));
 	}
+	/*else
+	{
+		std::string	msg = ":" + irc.getHostname() + " 336 " + irc.getNickByFd(sender) +
+		sendMessage(sender, const std::string &msg, const std::string &emsg)
+	}*/
 }

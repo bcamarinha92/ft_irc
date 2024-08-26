@@ -161,14 +161,18 @@ void				Channel::prepareModes()
 	this->_modes['t'] = false;
 }
 
-void				Channel::addClient(const Client& client)
+void				Channel::addClient(const Client& client, Server& irc)
 {
 	this->members[client.getSocket()] = client;
+	irc.clients[client.getSocket()].addChannel(*this);
 }
 
 void				Channel::rmClient(int clientSocket, Server& irc)
 {
+	if (this->checkOperatorRole(clientSocket))
+		this->rmOperator(clientSocket);
 	this->members.erase(clientSocket);
+	irc.clients[clientSocket].rmChannel(this->getName());
 }
 
 void				Channel::addOperator(const Client& client)

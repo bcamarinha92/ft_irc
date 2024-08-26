@@ -2,8 +2,6 @@
 # define CHANNEL_HPP
 
 # include "ft_irc.hpp"
-# include <ctime>
-# include <ctime>
 
 class Client;
 class Server;
@@ -48,7 +46,7 @@ class Channel
 
 		//Methods
 		void					prepareModes();
-		void					addClient(const Client& client);
+		void					addClient(const Client& client, Server &irc);
 		void					rmClient(int clientSocket, Server &irc);
 		void					addOperator(const Client& client);
 		void					rmOperator(int clientSocket);
