@@ -12,43 +12,29 @@ void    cmdCap(Server &irc, Message *message, int sender)
 	}
 }
 
-void cmdNick(Server &irc, Message *message, int sender)
+void cmdNick(Server &irc, Message *message, int sender) //Removi a verificação de nick já setado no fd do próprio sender, pode querer alterá-lo
 {
 	if (message->get_parameters().size() == 1)
 	{
 		std::string nick = message->get_parameters()[0];
+        if (!valid_nick(nick, irc, sender))
+            return;
 
-		if (irc.getNickByFd(sender) == "")
-		{
-			for (unsigned long i = 0; i < irc.pollfds.size(); i++)
-			{
-				if (irc.pollfds[i].fd == sender)
-					continue;
-				if (irc.getNickByFd(irc.pollfds[i].fd) == nick)
-				{
-					std::string join = ":" + irc.getHostname() + " 433 " + irc.getNickByFd(sender) + " :Nickname is already in use\n";
-					logConsole(join);
-					send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-					return;
-				}
-			}
-			irc.setNickByFd(sender, nick);
-			sendSequenceRPL(irc, message, sender);
-		}
-		else
-		{
-			std::string join = ":" + irc.getHostname() + " 433 " + irc.getNickByFd(sender) + " :Nickname is already set\n";
-			logConsole(join);
-			send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-			return;
-		}
+        for (unsigned long i = 0; i < irc.pollfds.size(); i++)
+        {
+            if (irc.pollfds[i].fd == sender)
+                continue;
+            if (irc.getNickByFd(irc.pollfds[i].fd) == nick)
+            {
+                sendMessage(sender, ERR_NICKNAMEINUSE(irc.getHostname()), ERR433);
+                return;
+            }
+        }
+        irc.setNickByFd(sender, nick);
+        sendSequenceRPL(irc, message, sender);
 	}
 	else
-	{
-		std::string join = ":" + irc.getHostname() + " 431 * :No nickname given\n";
-		logConsole(join);
-		send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-	}
+        sendMessage(sender, ERR_NONICKNAMEGIVEN(irc.getHostname()), ERR431);
 }
 
 void    cmdJoin(Server &irc, Message *message, int sender)
@@ -60,9 +46,12 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 	while (i < destinos.size())
 	{
 		std::string	t = destinos[i];
+        
 		if (t == "")
 			if (message->get_parameters().size() > 0)
 				return (sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getNickByFd(sender), t), ERR403));
+        if (!valid_channel(t))
+            return (sendMessage(sender, ERR_BADCHANMASK(irc.getNickByFd(sender), t), ERR476));
     	Channel	channel(t);
 		if (irc.channels.find(t) == irc.channels.end())
 		{

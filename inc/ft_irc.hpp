@@ -77,12 +77,16 @@
 # define ERR412 "Error: sending message of no text to send (412)"
 # define ERR417	"Error: sending message of input too long (417)"
 # define ERR421 "Error: sending message of unknown command (421)"
+# define ERR431 "Error: sending message of no nickname given (431)"
+# define ERR432 "Error: sending message of Erroneus nickname (432)"
+# define ERR433 "Error: sending message of nickname is already in use (433)"
 # define ERR442	"Error: sending message of not on channel (442)"
 # define ERR443 "Error: sending message of user already on channel (443)"
 # define ERR461	"Error: sending message of more parameters needed (461)"
 # define ERR464 "Error: sending message of incorrect password (464)"
 # define ERR471 "Error: sending message informing channel is full (471)"
 # define ERR475 "Error: sending message of no channel permissions (475)"
+# define ERR476 "Error: sending message of bad channel mask (476)"
 # define ERR482 "Error: sending message of no operator permissions (482)"
 
 class Server;
@@ -93,6 +97,9 @@ class Message;
 # endif
 # ifndef MAX_FD
 #  define MAX_FD 2048
+# endif
+# ifndef MAX_LEN
+#  define MAX_LEN 32
 # endif
 
 // ----------------------------------------- SERVER MESSAGES -----------------------------------------
@@ -156,6 +163,15 @@ class Message;
 // 421: Sent to a registered client to indicate that the command they sent isn’t known by the server
 # define ERR_UNKNOWNCOMMAND(hostname, cmd) (hostname + " " + cmd + " :Unknown command")
 
+// 431: Returned when a client command cannot be parsed because no nickname was supplied
+# define ERR_NONICKNAMEGIVEN(hostname) (hostname + " :No nickname given")
+
+// 432: Returned when a client command cannot be parsed because the nickname parameter is erroneous
+# define ERR_ERRONEUSNICKNAME(hostname, nick) (hostname + " " + nick + " :Erroneus nickname")
+
+// 433: Returned when a client tries to change their nickname to one that is already in use
+# define ERR_NICKNAMEINUSE(hostname) (hostname + " :Nickname is already in use")
+
 // 442: Returned when a client tries to perform a channel-affecting command on a channel which the client isn’t a part of
 # define ERR_NOTONCHANNEL(hostname, chn) (hostname + " " + chn + " :You're not on that channel")
 
@@ -180,6 +196,9 @@ class Message;
 // 475: Returned to indicate that a JOIN command failed because the channel requires
 // a key and the key was either incorrect or not supplied
 # define ERR_BADCHANNELKEY(nick, chn) (nick + " " + chn + " :Cannot join channel (+k)")
+
+// 476: Returned to indicate that the channel mask supplied to a command is invalid
+# define ERR_BADCHANMASK(nick, chn) ( chn + " :Bad Channel Mask")
 
 // 482: Error message of trying to change a channel mode without the operator role
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \
@@ -220,6 +239,8 @@ void    	evaluatePing(Server &irc);
 std::string	toUpper(const std::string& str);
 int			aux(std::string targets);
 std::string parseRealname(const std::string& input);
+bool 		valid_nick(const std::string &nick, Server &irc, int sender);
+bool valid_channel(const std::string &channel);
 
 // Send
 void    					sendSequenceRPL(Server &irc, Message *message, int sender);
