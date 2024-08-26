@@ -202,11 +202,39 @@ std::vector<std::string> get_buffer_parameters(const std::string &buffer)
 	return param;
 }
 
-std::string parseRealname(const std::string& input)
+std::string	parseRealname(const std::string& input)
 {
     size_t colonPos = input.find(':');
 
     if (colonPos != std::string::npos)
         return input.substr(colonPos + 1);
     return "";
+}
+
+std::string	removeSpaces(const std::string& str)
+{
+	std::string	res;
+	size_t		i = 0;
+	bool		foundColon = false;
+
+	while (i < str.size() && str[i] == ' ')
+        i++;
+	for (; i < str.size(); i++)
+	{
+		if (str[i] == ':')
+		{
+			foundColon = true;
+			res += str[i];
+		}
+		else if (str[i] == ' ')
+		{
+	  		if (foundColon)
+				res += str[i];
+	  		else if (!res.empty() && res[res.size() - 1] != ' ')
+				res += ' ';
+		}
+		else
+	  		res += str[i];
+	}
+	return res;
 }

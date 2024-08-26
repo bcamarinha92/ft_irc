@@ -13,10 +13,10 @@ Message::Message(const Message& src)
 
 Message::Message(char *buffer, int sender): _sender(sender)
 {
-	this->_buffer = buffer;
-	this->_command = toUpper(get_buffer_command(buffer));
-	this->_parameters = get_buffer_parameters(buffer);
-	this->_destination = getChannelFromBuffer(std::string(buffer));
+	this->_buffer = removeSpaces(buffer);
+	this->_command = toUpper(get_buffer_command(removeSpaces(buffer)));
+	this->_parameters = get_buffer_parameters(removeSpaces(buffer));
+	this->_destination = getChannelFromBuffer(removeSpaces(buffer));
 }
 
 /*

@@ -326,6 +326,7 @@ std::string					getModeFromBuffer(const std::string& input);
 std::vector<std::string>    get_buffer_parameters(const std::string &buffer);
 std::string                 get_buffer_command(const std::string buffer);
 std::string 				parseRealname(const std::string& input);
+std::string					removeSpaces(const std::string& str);
 
 // Send
 void	sendSequenceRPL(Server &irc, Message *message, int sender);
