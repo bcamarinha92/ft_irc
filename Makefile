@@ -19,7 +19,7 @@ FILES = ./src/main.cpp ./src/Client.cpp ./src/Server.cpp ./src/Channel.cpp \
 		./src/Send.cpp ./src/Invite.cpp ./src/Join.cpp ./src/Kick.cpp ./src/Mode.cpp \
 		./src/Part.cpp ./src/Privmsg.cpp ./src/Cap.cpp ./src/PingPong.cpp \
 		./src/Topic.cpp ./src/NameReply.cpp ./src/Pass.cpp ./src/Nick.cpp \
-		./src/User.cpp ./src/Notice.cpp ./src/Bot.cpp
+		./src/User.cpp ./src/Notice.cpp
 
 
 OBJS = $(FILES:.cpp=.o)

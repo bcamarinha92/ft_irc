@@ -22,8 +22,6 @@ void broadcast(Server &irc, Message *message, int sender)
         }
         return;
     }
-	if (botIdentify(message->get_buffer()))
-		botSwitch(irc, sender);
 	if (message->get_command() == "PING")
 		cmdPing(irc, message, sender);
 	else if (message->get_command() == "PONG")

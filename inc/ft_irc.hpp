@@ -136,7 +136,7 @@ class Message;
 		(":" + nick + " MODE " + chn + " -" + mode + " " + param)
 
 // NOTICE
-# define NOTICE(nick, dest, msg) (":" + nick + " NOTICE " + dest + " :" + msg)
+# define NOTICE(nick, hostname, dest, msg) (":" + nick + "!" + nick + "@" + hostname + " NOTICE " + dest + " :" + msg)
 
 // PRIVMSG
 # define PRIVMSG(nick, dest, msg) (":" + nick + " PRIVMSG " + dest + " :" + msg)
@@ -301,10 +301,6 @@ static bool	isbot;
 
 // -------------------------------------------- FUNCTIONS --------------------------------------------
 //
-// Bot
-bool	botIdentify(std::string const& str);
-void	botSwitch(Server& irc, int sender);
-
 // Commands
 void		cmdNick(Server &irc, Message *message, int sender);
 void		cmdJoin(Server &irc, Message *message, int sender);

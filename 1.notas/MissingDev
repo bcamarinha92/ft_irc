@@ -2,4 +2,3 @@ Parse channel name for invalid chars
 Parse nickname for invalid chars
 Parse both channel and nickname for max length
 Limit send message to 512 chars. if it's more than that, split it into multiple messages
-invite mode
