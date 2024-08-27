@@ -19,7 +19,7 @@ std::string	cleanString(const std::string& name)
 
     for (std::string::const_iterator it = name.begin(); it != name.end(); ++it)
 	{
-        if (std::isprint(*it))
+        if (std::isprint(*it) || *it == 1)
             cleanedStr += *it;
     }
     return cleanedStr;
