@@ -34,6 +34,7 @@ class Client
 		std::time_t						getLastAction() const;
 		std::string 					getHostname() const;
 		bool                            getPwdStatus() const;
+		std::vector<int>                getUserChannelsFds() const;
 
 		//Setters
 		void 							setSocket(int socket);

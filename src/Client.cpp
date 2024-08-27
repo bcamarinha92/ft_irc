@@ -182,6 +182,20 @@ void		Client::rmChannel(std::string channelName)
 	this->channels.erase(channelName);
 }
 
+std::vector<int> 		Client::getUserChannelsFds() const
+{
+	std::vector<int> fds;
+	std::vector<int> temp;
+
+	for (std::map<std::string, Channel>::const_iterator it = channels.begin(); it != channels.end(); it++)
+    {
+        Channel channel = it->second;
+        temp = channel.getChannelClientsFds();
+        fds.insert(fds.end(), temp.begin(), temp.end());
+    }
+    return (fds);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */
