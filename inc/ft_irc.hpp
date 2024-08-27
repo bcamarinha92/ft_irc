@@ -141,6 +141,9 @@ class Message;
 // PRIVMSG
 # define PRIVMSG(nick, dest, msg) (":" + nick + " PRIVMSG " + dest + " :" + msg)
 
+//NICK
+# define NEWNICK(nick, hostname, msg) (":" + nick + "!" + nick + "@" + hostname + " NICK :" + msg)
+
 // /////// RPL & ERR MESSAGES ///////
 //
 // Channel limit too high
