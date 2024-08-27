@@ -1,10 +1,11 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+#include "Server.hpp"
 # include "ft_irc.hpp"
 
 class Channel;
-
+class Server;
 class Client
 {
 
@@ -34,7 +35,7 @@ class Client
 		std::time_t						getLastAction() const;
 		std::string 					getHostname() const;
 		bool                            getPwdStatus() const;
-		std::vector<int>                getUserChannelsFds() const;
+		std::vector<int>                getUserChannelsFds(Server irc) const;
 
 		//Setters
 		void 							setSocket(int socket);

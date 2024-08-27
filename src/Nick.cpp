@@ -31,7 +31,7 @@ void cmdNick(Server &irc, Message *message, int sender)
     											  irc.getNickByFd(sender)), ERR433);
     		}
             Client client = irc.getClientByFd(sender);
-            std::vector<int> dest = client.getUserChannelsFds();
+            std::vector<int> dest = client.getUserChannelsFds(irc);
             std::string msg = NEWNICK(client.getNickname(),client.getHostname(), nick);
     		irc.setNickByFd(sender, nick);
             sendMessageAll(sender, dest, msg, ERRNOT,0);
