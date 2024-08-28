@@ -62,6 +62,7 @@ class Server
 		pollfd 							serverPollfd;
 		std::map<char, modesPair>		modesParam;
 		int								botSocket;
+		int								MAX_LEN;
 
 	private:
 		//Attributes

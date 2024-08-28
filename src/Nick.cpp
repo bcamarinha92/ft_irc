@@ -6,6 +6,8 @@ void cmdNick(Server &irc, Message *message, int sender)
 	if (message->get_parameters().size() == 1)
 	{
 		std::string nick = message->get_parameters()[0];
+		if (!valid_nick(nick, irc, sender))
+			return;
 
 		if (irc.getNickByFd(sender) == "")
 		{

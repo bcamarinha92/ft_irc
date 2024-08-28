@@ -11,11 +11,23 @@ void    cmdUser(Server &irc, Message *message, int sender)
 
 	if (a != "")
 		sendM(sender, ERR_ALREADYREGISTERED(irc.getHostname(), irc.getNickByFd(sender)), ERR462);
+	else if (message->get_parameters().size() != 3)
+		sendM(sender, ERR_NEEDMOREPARAMS(irc.getHostname(), message->get_command()), ERR461);
 	else
 	{
-		a = message->get_parameters()[0];
-		user.setRealname(parseRealname(message->get_buffer()));
-		user.setUsername(message->get_parameters()[0]);
-		sendSequenceRPL(irc, message, sender);
+		std::string realname = parseRealname(message->get_buffer());
+		if (realname == "")
+			sendM(sender, ERR_NEEDMOREPARAMS(irc.getHostname(), message->get_command()), ERR461);
+		else
+		{
+			std::string username = message->get_parameters()[0];
+
+			user.setRealname(realname);
+			if(username.length() > irc.MAX_LEN)
+				username = username.substr(0, irc.MAX_LEN);
+			user.setUsername(username);
+			sendSequenceRPL(irc, message, sender);
+			
+		}
 	}
 }

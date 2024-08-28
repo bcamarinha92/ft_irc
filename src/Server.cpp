@@ -4,7 +4,7 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Server::Server(int port, std::string password): _port(port), _password(password), _creationTime(std::time(0))
+Server::Server(int port, std::string password): _port(port), _password(password), _creationTime(std::time(0)), MAX_LEN(32)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket < 0)

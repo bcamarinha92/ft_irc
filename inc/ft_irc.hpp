@@ -91,6 +91,7 @@ class Message;
 # define ERR421 "Error: sending message of unknown command (421)"
 # define ERR422 "Error: sending mestd::age of no MOTD found (422)"
 # define ERR431	"Error: sending no nickname given message (431)"
+# define ERR432 "Error: sending message of Erroneus nickname (432)"
 # define ERR433	"Error: sending nickname already set message (433)"
 # define ERR441	"Error: sending user not in channel message (441)"
 # define ERR442	"Error: sending message of not on channel (442)"
@@ -101,6 +102,7 @@ class Message;
 # define ERR471 "Error: sending message informing channel is full (471)"
 # define ERR473	"Error: sending message informing the channel is invite only (473)"
 # define ERR475 "Error: sending message of no channel permissions (475)"
+# define ERR476 "Error: sending message of bad channel mask (476)"
 # define ERR482 "Error: sending message of no operator permissions (482)"
 
 // ----------------------------------------- SERVER MESSAGES -----------------------------------------
@@ -251,6 +253,9 @@ class Message;
 // 431: Returned when a nickname parameter is expected for a command but isn’t given
 # define ERR_NONICKNAMEGIVEN(hostname) (":" + hostname + " 431 * :No nickname given")
 
+// 432: Returned when a client command cannot be parsed because the nickname parameter is erroneous
+# define ERR_ERRONEUSNICKNAME(hostname, nick) (hostname + " " + nick + " :Erroneus nickname")
+
 // 433: Returned when a NICK command cannot be successfully completed as the desired nickname is
 // already in use on the network
 # define ERR_NICKNAMEINUSE(hostname, nick) \
@@ -291,6 +296,9 @@ class Message;
 // 475: Returned to indicate that a JOIN command failed because the channel requires
 // a key and the key was either incorrect or not supplied
 # define ERR_BADCHANNELKEY(nick, chn) (nick + " " + chn + " :Cannot join channel (+k)")
+
+// 476: Returned to indicate that the channel mask supplied to a command is invalid
+# define ERR_BADCHANMASK(nick, chn) ( chn + " :Bad Channel Mask")
 
 // 482: Error message of trying to change a channel mode without the operator role
 # define ERR_CHANOPRIVSNEEDED(hostname, nick, chn) \
@@ -347,3 +355,5 @@ void    					evaluatePing(Server &irc);
 std::string					toUpper(const std::string& str);
 std::vector<std::string>	split(const std::string &s, char delim);
 std::string					cleanString(const std::string& name);
+bool 						valid_nick(const std::string &nick, Server &irc, int sender);
+bool 						valid_channel(const std::string &channel, Server &irc);
