@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <cstring>
 
 void broadcast(Server &irc, Message *message, int sender)
 {
@@ -55,10 +56,10 @@ void broadcast(Server &irc, Message *message, int sender)
 
 void	loopPool(Server &irc)
 {
-    char *message = 0;
+    //char *message = 0;
     int bytesRead = 0;
     int clientSocket = 0;
-
+    std::string message;
     for (size_t i = 0; i < irc.pollfds.size(); ++i)
     {
         if (irc.pollfds[i].revents & POLLIN)
@@ -74,12 +75,12 @@ void	loopPool(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                bytesRead = get_next_line(clientSocket, &message, 0);
-                if (bytesRead <= 0)
+                //bytesRead = get_next_line(clientSocket, &message, 0);
+                bytesRead = get_next_linepp(clientSocket, message,0);
+                if (message == "" && bytesRead != 0)
+                    continue;
+                if (bytesRead == 0)
                 {
-                    //se 0 o fd fechou, se < 0 existe erro na leitura: em qualquer das situacoes o processo passa por dar disconnect
-                    if (bytesRead < 0)
-                        perror("read");
                     irc.rmClient(clientSocket, i);
                     std::cout << "Client disconnected" << std::endl;
                 }

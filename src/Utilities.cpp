@@ -79,3 +79,54 @@ std::vector<std::string> split(const std::string &s, char delim)
         elems.push_back(item);
     return elems;
 }
+
+
+// void    parseBuffer(char *buffer, int fd)
+// {
+//     char *newline;
+
+//     newline = strchr(buffer, '\n');
+//     if (newline)
+
+// }
+
+
+std::string ft_read(int fd, ssize_t *bytesReceived) {
+    std::string result;
+    char buffer[BUFFER_SIZE + 1];
+
+    while (true) {
+        *bytesReceived = recv(fd, buffer, BUFFER_SIZE, 0);
+        if (*bytesReceived <= 0) break;
+        buffer[*bytesReceived] = '\0';
+        result += buffer;
+        if (result.find('\n') != std::string::npos) break;
+    }
+    return result;
+}
+
+int get_next_linepp(int fd, std::string& ret, int flag) {
+    static std::string pos[1024]; // assuming MAX_FD is 1024
+    ssize_t bytesReceived;
+    if (flag) {
+        pos[fd].clear();
+        return 0;
+    }
+
+    if (fd < 0 || BUFFER_SIZE <= 0) {
+        return -1;
+    }
+
+    pos[fd] += ft_read(fd, &bytesReceived);
+    if (bytesReceived == 0)
+    {
+        return 0;
+    }
+    size_t newlinePos = pos[fd].find('\n');
+    if (newlinePos != std::string::npos) {
+        ret = pos[fd].substr(0, newlinePos + 1);
+        pos[fd] = pos[fd].substr(newlinePos + 1);
+        return ret.size();
+    }
+    return 1;
+}

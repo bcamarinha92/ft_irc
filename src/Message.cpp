@@ -11,7 +11,7 @@ Message::Message(const Message& src)
 	*this = src;
 }
 
-Message::Message(char *buffer, int sender): _sender(sender)
+Message::Message(std::string buffer, int sender): _sender(sender)
 {
 	this->_buffer = removeSpaces(buffer);
 	this->_command = toUpper(get_buffer_command(removeSpaces(buffer)));

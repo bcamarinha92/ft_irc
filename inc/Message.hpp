@@ -9,7 +9,7 @@ class Message
 		//Constructors
 		Message();
 		Message(Message const& src);
-		Message(char *buffer, int sender);
+		Message(std::string buffer, int sender);
 
 		//Destructors
 		~Message();

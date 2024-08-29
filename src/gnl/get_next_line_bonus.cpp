@@ -100,6 +100,60 @@ char	*ft_read(char *s1, char *s2, int fd)
 }
 
 
+// int	get_next_line(int fd, char **ret, int flag)
+// {
+//     //static char	*pos[MAX_FD];
+// 	char		*buffer;
+// 	//char		*ret;
+// 	char		*tmp;
+
+// 	if (flag)
+// 	{
+// 		free(pos[fd]);
+// 		pos[fd] = 0;
+// 		return(0);
+// 	}
+// 	buffer = 0;
+// 	if (fd < 0 || BUFFER_SIZE <= 0)
+// 		return (-1);
+// 	pos[fd] = ft_read(pos[fd], buffer, fd);
+// 	if (!pos[fd])
+// 		return (0);
+// 	*ret = ft_check_line(pos[fd]);
+// 	tmp = ft_strdup(pos[fd]);
+// 	free(pos[fd]);
+// 	pos[fd] = ft_check_left(tmp);
+// 	if (pos[fd] || *ret[0] != '\0')
+// 		return (ft_strlen(*ret));
+// 	free(pos[fd]);
+// 	pos[fd] = 0;
+// 	if (*ret[0] != '\0')
+// 		return (ft_strlen(*ret));
+// 	free(ret);
+// 	return (0);
+// }
+char	*ft_substr(char const *s, unsigned int start, size_t len)
+{
+	char	*sub_s;
+	size_t	i;
+	size_t	len_s;
+
+	len_s = ft_strlen(s);
+	if (!s)
+		return (0);
+	sub_s = (char *) malloc((len + 1) * sizeof (char));
+	if (!sub_s)
+		return (0);
+	i = 0;
+	if (start <= len_s)
+	{
+		while (i < len_s && i < len)
+			sub_s[i++] = s[start++];
+	}
+	sub_s[i] = 0;
+	return (sub_s);
+}
+
 int	get_next_line(int fd, char **ret, int flag)
 {
     //static char	*pos[MAX_FD];
@@ -118,17 +172,15 @@ int	get_next_line(int fd, char **ret, int flag)
 		return (-1);
 	pos[fd] = ft_read(pos[fd], buffer, fd);
 	if (!pos[fd])
-		return (0);
-	*ret = ft_check_line(pos[fd]);
-	tmp = ft_strdup(pos[fd]);
-	free(pos[fd]);
-	pos[fd] = ft_check_left(tmp);
-	if (pos[fd] || *ret[0] != '\0')
-		return (ft_strlen(*ret));
-	free(pos[fd]);
-	pos[fd] = 0;
-	if (*ret[0] != '\0')
-		return (ft_strlen(*ret));
-	free(ret);
-	return (0);
+		return (-1);
+	size_t newlinePos = ft_strchr(pos[fd], '\n') - pos[fd];
+	if (newlinePos != ft_strlen(pos[fd]))
+	{
+		*ret = ft_substr(pos[fd], 0, newlinePos);
+		tmp = ft_strdup(pos[fd] + newlinePos + 1);
+		free(pos[fd]);
+		pos[fd] = tmp;
+		return (1);
+	}
+	return (-1);
 }
