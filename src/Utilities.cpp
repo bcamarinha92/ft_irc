@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <iostream>
 
 void closeFDs(Server &irc)
 {
@@ -24,29 +25,6 @@ void sigHandler(int signal)
 void setNonBlocking(int socket)
 {
     fcntl(socket, F_SETFL, O_NONBLOCK);
-}
-
-void    evaluatePing(Server &irc)
-{
-    time_t  currentTime = std::time(0);
-
-    for (size_t i = 1; i < irc.pollfds.size(); ++i)
-    {
-        Client& user = irc.getClientByFd(irc.pollfds[i].fd);
-        if (currentTime - user.getLastAction() > (30 * (user.getPingCount() + 1)))
-        {
-            user.incPingCount();
-            std::cout << "Ping Count " << user.getPingCount() << std::endl;
-            if (user.getPingCount() == 4)
-            {
-                irc.rmClient(irc.pollfds[i].fd, i);
-                //inserir aqui logica para remover o cliente dos canais em que estava
-                std::cout << "Client disconnected due to inactivity" << std::endl;
-            }
-            std::string join = ":" + irc.getHostname() + " PING " + irc.getHostname() + "\r\n";
-            send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
-        }
-    }
 }
 
 std::string	toUpper(const std::string& str)
@@ -80,29 +58,28 @@ std::vector<std::string> split(const std::string &s, char delim)
     return elems;
 }
 
-
-// void    parseBuffer(char *buffer, int fd)
-// {
-//     char *newline;
-
-//     newline = strchr(buffer, '\n');
-//     if (newline)
-
-// }
-
-
 std::string ft_read(int fd, ssize_t *bytesReceived) {
     std::string result;
     char buffer[BUFFER_SIZE + 1];
+    std::string temp;
 
-    while (true) {
-        *bytesReceived = recv(fd, buffer, BUFFER_SIZE, 0);
-        if (*bytesReceived <= 0) break;
-        buffer[*bytesReceived] = '\0';
-        result += buffer;
-        if (result.find('\n') != std::string::npos) break;
-    }
+    *bytesReceived = recv(fd, buffer, BUFFER_SIZE, 0);
+    if (*bytesReceived <= 0)
+        return "";
+    buffer[*bytesReceived] = '\0';
+    result = buffer;
     return result;
+}
+
+int checkEndLine(std::string& str, std::string& ret)
+{
+    size_t newlinePos = str.find('\n');
+    if (newlinePos != std::string::npos) {
+        ret = str.substr(0, newlinePos + 1);
+        str = str.substr(newlinePos + 1);
+        return ret.size();
+    }
+    return 0;
 }
 
 int get_next_linepp(int fd, std::string& ret, int flag) {
@@ -112,21 +89,14 @@ int get_next_linepp(int fd, std::string& ret, int flag) {
         pos[fd].clear();
         return 0;
     }
-
     if (fd < 0 || BUFFER_SIZE <= 0) {
         return -1;
     }
-
+    if (checkEndLine(pos[fd], ret))
+        return 1;
     pos[fd] += ft_read(fd, &bytesReceived);
     if (bytesReceived == 0)
-    {
         return 0;
-    }
-    size_t newlinePos = pos[fd].find('\n');
-    if (newlinePos != std::string::npos) {
-        ret = pos[fd].substr(0, newlinePos + 1);
-        pos[fd] = pos[fd].substr(newlinePos + 1);
-        return ret.size();
-    }
+    checkEndLine(pos[fd], ret);
     return 1;
 }

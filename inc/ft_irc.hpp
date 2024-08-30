@@ -27,7 +27,6 @@
 # include <climits>
 # include <ctime>
 # include <climits>
-# include "./gnl/get_next_line_bonus.h"
 # include "Client.hpp"
 # include "Message.hpp"
 # include "Server.hpp"

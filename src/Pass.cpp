@@ -2,14 +2,14 @@
 
 void    cmdPass(Server &irc, Message *message, int sender)
 {
-    char   **trash = NULL;
+    std::string trash;
 
     if (message->get_parameters().size())
     {
         if (message->get_parameters()[0] != irc.getPassword())
         {
 			sendMessage(sender, ERR_PASSWDMISMATCH(irc.getHostname()), ERR464);
-            get_next_line(sender, trash , 1);
+            get_next_linepp(sender, trash , 1);
             irc.rmClient(sender);
         }
         else

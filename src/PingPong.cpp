@@ -1,4 +1,5 @@
 #include "../inc/ft_irc.hpp"
+#include <vector>
 
 void    cmdPing(Server &irc, Message *message, int sender)
 {
@@ -24,4 +25,45 @@ void	cmdPong(Server &irc, Message *message, int sender)
 		user.setLastAction();
 		user.resetPingCount();
 	}
+}
+
+void disconnectClient(Server &irc, Client& client, int i)
+{
+    (void)i;
+
+    for (std::map<std::string, Channel>::const_iterator it = client.channels.begin(); it != client.channels.end(); it++)
+    {
+        Channel channel = irc.channels[it->first];
+        std::vector<int> dest = channel.getChannelClientsFds();
+        //std::string str = ":" + client.getNickname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n";
+        sendMessageAll(client.getSocket(), dest, ":" + client.getNickname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n", ERRNOT,0);
+        channel.rmClient(client.getSocket(),irc);
+    }
+    std::string str = ":" + irc.getHostname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n";
+    send(client.getSocket(), str.c_str(), str.size(), MSG_DONTWAIT);
+    irc.rmClient(client.getSocket(), i);
+}
+
+void    evaluatePing(Server &irc)
+{
+    time_t  currentTime = std::time(0);
+
+    for (size_t i = 1; i < irc.pollfds.size(); ++i)
+    {
+        Client& user = irc.getClientByFd(irc.pollfds[i].fd);
+        if (currentTime - user.getLastAction() > (30 * (user.getPingCount() + 1)))
+        {
+            user.incPingCount();
+            std::cout << "Ping Count " << user.getPingCount() << std::endl;
+            if (user.getPingCount() == 4)
+            {
+                //irc.rmClient(irc.pollfds[i].fd, i);
+                disconnectClient(irc, user, i);
+                //inserir aqui logica para remover o cliente dos canais em que estava
+                std::cout << "Client disconnected due to inactivity" << std::endl;
+            }
+            std::string join = ":" + irc.getHostname() + " PING " + irc.getHostname() + "\r\n";
+            send(irc.pollfds[i].fd, join.c_str(), join.size(), MSG_DONTWAIT);
+        }
+    }
 }
