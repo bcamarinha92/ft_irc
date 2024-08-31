@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <iostream>
 
 void closeFDs(Server &irc)
 {
@@ -50,18 +49,20 @@ int		aux(std::string targets)
 
 std::vector<std::string> split(const std::string &s, char delim)
 {
-    std::vector<std::string> elems;
-    std::stringstream ss(s);
-    std::string item;
+    std::vector<std::string>	elems;
+    std::stringstream			ss(s);
+    std::string					item;
+
     while (std::getline(ss, item, delim))
         elems.push_back(item);
     return elems;
 }
 
-std::string ft_read(int fd, ssize_t *bytesReceived) {
-    std::string result;
-    char buffer[BUFFER_SIZE + 1];
-    std::string temp;
+std::string ft_read(int fd, ssize_t *bytesReceived)
+{
+    std::string	result;
+    char		buffer[BUFFER_SIZE + 1];
+    std::string	temp;
 
     *bytesReceived = recv(fd, buffer, BUFFER_SIZE, 0);
     if (*bytesReceived <= 0)
@@ -73,7 +74,8 @@ std::string ft_read(int fd, ssize_t *bytesReceived) {
 
 int checkEndLine(std::string& str, std::string& ret)
 {
-    size_t newlinePos = str.find('\n');
+    size_t	newlinePos = str.find('\n');
+
     if (newlinePos != std::string::npos) {
         ret = str.substr(0, newlinePos + 1);
         str = str.substr(newlinePos + 1);

@@ -24,6 +24,16 @@ BotClient::BotClient(std::string serverIP, int port, std::string pass)
 	this->_nickname3 = "botinho";
 	this->_username = "bot";
 	this->_realname = "bot";
+	msgs.push_back("I’m like motor oil: I can handle a lot of pressure, but don’t mess with my viscosity!");
+    msgs.push_back("I love the smell of motor oil in the morning. Smells like... weekend projects!");
+    msgs.push_back("Why did the car engine start a band? Because it loved heavy metal and greasy grooves!");
+    msgs.push_back("If you can't stand the oil, get out of the garage!");
+    msgs.push_back("I like my engines like I like my coffee: full of oil and ready to go!");
+    msgs.push_back("When life gives you oil leaks, make garage puddles!");
+    msgs.push_back("I don't always change my oil, but when I do, I make sure to spill it everywhere.");
+    msgs.push_back("Oil is like duct tape for cars – if it moves and shouldn't, oil it!");
+    msgs.push_back("You know you're a gearhead when your cologne smells like motor oil.");
+    msgs.push_back("Just like oil in my engine, a little humor keeps me running smoothly!");
 }
 
 BotClient::BotClient(const BotClient& src)
