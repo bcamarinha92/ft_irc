@@ -8,7 +8,12 @@ Message::Message() {}
 
 Message::Message(const Message& src)
 {
-	*this = src;
+	this->_buffer = src.get_buffer();
+	this->_sender = src.get_sender();
+	this->_target = src.get_target();
+	this->_command = src.get_command();
+	this->_parameters = src.get_parameters();
+	this->_destination = src.get_destination();
 }
 
 Message::Message(std::string buffer, int sender): _sender(sender)
@@ -107,10 +112,5 @@ void						Message::set_target(std::string target)
 {
 	this->_target = target;
 }
-
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
 
 /* ************************************************************************** */

@@ -1,9 +1,24 @@
 #include "../../inc/BotClient.hpp"
 
-void	sendM(int fd, const std::string& msg, const std::string& emsg)
+void	cmdPass(BotClient& b)
 {
-	if(send(fd, msg.c_str(), msg.size(), MSG_DONTWAIT) < 0)
-		std::cerr << emsg << std::endl;
+	std::string passCmd = "PASS " + b.getPassword() + "\r\n";
+    if (send(b.getSocket(), passCmd.c_str(), passCmd.length(), 0) < 0)
+		std::cerr << "Error: sending PASS message" << std::endl;
+}
+
+void	cmdNick(BotClient& b)
+{
+	std::string nickCmd = "NICK " + b.getNickname() + "\r\n";
+	if (send(b.getSocket(), nickCmd.c_str(), nickCmd.length(), 0) < 0)
+		std::cerr << "Error: sending NICK message" << std::endl;
+}
+
+void	cmdUser(BotClient& b)
+{
+	std::string userCmd = "USER " + b.getUsername() + " " + b.getNickname() + \
+		" bla :" + b.getRealname() + "\r\n";
+	send(b.getSocket(), userCmd.c_str(), userCmd.length(), 0);
 }
 
 void	cmdPing(std::vector<std::string> elems, size_t i, BotClient& b)

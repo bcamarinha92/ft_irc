@@ -1,11 +1,10 @@
 #include "../inc/ft_irc.hpp"
-#include <cstring>
 
-void broadcast(Server &irc, Message *message, int sender)
+void	broadcast(Server &irc, Message *message, int sender)
 {
     Client &client = irc.getClientByFd(sender);
 
-    if (client.getPwdStatus() == false)
+	if (client.getPwdStatus() == false)
     {
 		if (message->get_command() == "PING")
             cmdPing(irc, message, sender);
@@ -20,19 +19,21 @@ void broadcast(Server &irc, Message *message, int sender)
             std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
-        }
-        return;
-    } else if (client.getAuthenticated() == false)
+		}
+		return;
+	}
+	else if (client.getAuthenticated() == false)
     {
-        if (message->get_command() == "USER")
-		cmdUser(irc, message, sender);
-        else if (message->get_command() == "NICK")
-            cmdNick(irc, message, sender);
-        else if (message->get_command() == "PING")
-            cmdPing(irc, message, sender);
+		if (message->get_command() == "USER")
+			cmdUser(irc, message, sender);
+		else if (message->get_command() == "NICK")
+			cmdNick(irc, message, sender);
+		else if (message->get_command() == "PING")
+			cmdPing(irc, message, sender);
 		else if (message->get_command() == "PONG")
 			cmdPong(irc, message, sender);
-        else {
+		else
+		{
             std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
             logConsole(join);
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
@@ -118,7 +119,6 @@ int	main(int argc, char *argv[])
         std::cerr << "Usage: " << argv[0] << " <port> <password>" << std::endl;
         return 1;
     }
-    //falta parsing aos argumentos
     try
     {
         Server irc(atoi(argv[1]), argv[2]);

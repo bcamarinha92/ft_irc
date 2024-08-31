@@ -13,6 +13,12 @@ std::vector<std::string>	split(const std::string &s, char delim)
 
 void	get_bot_command(std::string buffer, BotClient& b)
 {
+	if (buffer.find(":Nickname is already set") != std::string::npos && b.nn < 4)
+	{
+		b.nn++;
+		cmdNick(b);
+		cmdUser(b);
+	}
 	std::vector<std::string>	elems = split(buffer, ' ');
 
 	for (size_t i = 0; i < elems.size(); i++)
@@ -35,8 +41,10 @@ void	initializeRandomSeed()
 int	main(int argc, char **argv)
 {
 	if (argc != 4)
+	{
+		std::cerr << "Usage: " << argv[0] << " <IP> <port> <password>" << std::endl;
 		return 1;
-
+	}
 	try
 	{
 		char	buffer[512];
@@ -44,27 +52,18 @@ int	main(int argc, char **argv)
 		initializeRandomSeed();
 		BotClient	bot(std::string(argv[1]), atoi(argv[2]), std::string(argv[3]));
 
-		std::string passCmd = "PASS " + bot.getPassword() + "\r\n";
-    	send(bot.getSocket(), passCmd.c_str(), passCmd.length(), 0);
+		cmdPass(bot);
+		cmdNick(bot);
+		cmdUser(bot);
 
-    	// Send nick and user commands
-    	std::string nickCmd = "NICK " + bot.getNickname() + "\r\n";
-		send(bot.getSocket(), nickCmd.c_str(), nickCmd.length(), 0);
-    	std::string userCmd = "USER " + bot.getUsername() + " " + bot.getNickname() + " bla :" + bot.getRealname() + "\r\n";
-		send(bot.getSocket(), userCmd.c_str(), userCmd.length(), 0);
-
-		// Join channel
-    	//std::string joinCmd = "JOIN " + std::string(IRC_CHANNEL) + "\r\n";
-    	//send(bot.getSocket(), joinCmd.c_str(), joinCmd.length(), 0);
-
-    	// Send message
-    	//std::string msgCmd = "PRIVMSG " + std::string(IRC_CHANNEL) + " :Hey, I am your Botuxo!\r\n";
-    	//send(bot.getSocket(), msgCmd.c_str(), msgCmd.length(), 0);
-
-		// Receive and print messages
     	while (true)
 		{
-			recv(bot.getSocket(), buffer, 256, 0);
+			if(recv(bot.getSocket(), buffer, 256, 0) <= 0)
+			{
+				std::cout << "Server has stopped running. Closing bot..." << std::endl;
+            	close(bot.getSocket());
+				break;
+			}
 			std::cout << buffer << std::endl;
 			get_bot_command(buffer, bot);
 			std::memset(buffer, 0, sizeof(buffer));

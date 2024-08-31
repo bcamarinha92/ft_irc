@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -35,6 +36,7 @@ class BotClient
 
 		//Attributes
 		std::vector<std::string>	msgs;
+		int							nn;
 
 	private:
 		//Attributes
@@ -52,6 +54,9 @@ class BotClient
 
 std::vector<std::string>	split(const std::string &s, char delim);
 int 						generateRandomNumber();
+void						cmdPass(BotClient& b);
+void						cmdNick(BotClient& b);
+void						cmdUser(BotClient& b);
 void						cmdPing(std::vector<std::string> elems, size_t i, BotClient& b);
 void						cmdPrivMsg(std::vector<std::string> elems, size_t i, std::string buffer, BotClient& b);
 void						cmdInvite(std::vector<std::string> elems, size_t i, BotClient& b);

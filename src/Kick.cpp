@@ -38,5 +38,4 @@ void   cmdKick(Server &irc, Message *message, int sender)
             sendMessage(sender, ERR_CHANOPRIVSNEEDED(irc.getHostname(), irc.getNickByFd(sender), \
                                             channel.getName()), ERR482);
     }
-    
 }

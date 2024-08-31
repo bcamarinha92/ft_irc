@@ -83,118 +83,117 @@ std::ostream&			operator<<(std::ostream& o, Client const& i)
 ** --------------------------------- METHODS ----------------------------------
 */
 
-int 		Client::getSocket() const
+int 				Client::getSocket() const
 {
 	return (this->_clientSocket);
 }
 
-int 		Client::getPingCount() const
+int 				Client::getPingCount() const
 {
 	return (this->_pingCount);
 }
 
-bool 		Client::getPwdStatus() const
+bool 				Client::getPwdStatus() const
 {
 	return (this->_pwdStatus);
 }
 
-
-std::string	Client::getNickname() const
+std::string			Client::getNickname() const
 {
     return (this->_nickname);
 }
 
-sockaddr_in	Client::getclientAddr() const
+sockaddr_in			Client::getclientAddr() const
 {
     return(this->_clientAddr);
 }
 
-std::string Client::getRealname() const
+std::string 		Client::getRealname() const
 {
 	return(this->_realname);
 }
 
-socklen_t   Client::getclientAddrLen() const
+socklen_t   		Client::getclientAddrLen() const
 {
     return(this->_clientAddrLen);
 }
 
-std::string Client::getUsername() const
+std::string 		Client::getUsername() const
 {
     return (this->_username);
 }
 
-std::string Client::getHostname() const
+std::string 		Client::getHostname() const
 {
     return (this->_hostname->h_name);
 }
 
-std::time_t		Client::getLastAction() const
+std::time_t			Client::getLastAction() const
 {
     return (this->_lastAction);
 }
 
-bool		Client::getAuthenticated() const
+bool				Client::getAuthenticated() const
 {
 	return (this->_authenticated);
 }
 
-void            Client::setSocket(int socket)
+void        	    Client::setSocket(int socket)
 {
     _clientSocket = socket;
 }
 
-void 		Client::setNickname(const std::string& nickname)
+void 				Client::setNickname(const std::string& nickname)
 {
     _nickname = nickname;
 }
 
-void 		Client::setPwdStatus()
+void 				Client::setPwdStatus()
 {
     _pwdStatus = true;
 }
 
-void 		Client::setUsername(const std::string& username)
+void 				Client::setUsername(const std::string& username)
 {
     _username = username;
 }
 
-void 		Client::setRealname(const std::string& realname)
+void 				Client::setRealname(const std::string& realname)
 {
     _realname = realname;
 }
 
-void		Client::setAuthenticated()
+void				Client::setAuthenticated()
 {
 	_authenticated = true;
 }
 
-void 		Client::incPingCount()
+void 				Client::incPingCount()
 {
     _pingCount++;
 }
 
-void 		Client::resetPingCount()
+void 				Client::resetPingCount()
 {
     _pingCount = 0;
 }
 
-void            Client::setLastAction()
+void				Client::setLastAction()
 {
     _lastAction = std::time(0);
 }
 
-void		Client::addChannel(const Channel& channel)
+void				Client::addChannel(const Channel& channel)
 {
 	this->channels[channel.getName()] = channel;
 }
 
-void		Client::rmChannel(std::string channelName)
+void				Client::rmChannel(std::string channelName)
 {
 	this->channels.erase(channelName);
 }
 
-std::vector<int> 		Client::getUserChannelsFds(Server irc) const
+std::vector<int>	Client::getUserChannelsFds(Server irc) const
 {
 	std::vector<int> fds;
 	std::vector<int> temp;
@@ -207,10 +206,5 @@ std::vector<int> 		Client::getUserChannelsFds(Server irc) const
     }
     return (fds);
 }
-
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
 
 /* ************************************************************************** */

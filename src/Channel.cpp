@@ -39,7 +39,7 @@ Channel::~Channel() {}
 ** --------------------------------- OVERLOAD ---------------------------------
 */
 
-Channel&				Channel::operator=(Channel const& rhs)
+Channel&	Channel::operator=(Channel const& rhs)
 {
 	if ( this != &rhs )
 	{
@@ -247,10 +247,5 @@ bool				Channel::checkChannelUserInvite(int fd)
 	}
 	return false;
 }
-
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
 
 /* ************************************************************************** */

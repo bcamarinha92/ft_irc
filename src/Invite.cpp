@@ -17,7 +17,7 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 		return sendMessage(sender, ERR_USERONCHANNEL(irc.getHostname(), user, chn), ERR443);
 	if (!irc.channels[chn].checkOperatorRole(sender))
 		return sendMessage(sender, ERR_CHANOPRIVSNEEDED(irc.getHostname(), irc.getNickByFd(sender), chn), ERR482);
-	if (message->get_parameters().size() > 0 && !irc.channels[chn].checkChannelUserInvite(irc.getFdFromNick(user)))
+	if (message->get_parameters().size() > 0)// && !irc.channels[chn].checkChannelUserInvite(irc.getFdFromNick(user)))
 	{
 		std::string	msg = ":" + irc.getNickByFd(sender) + "!" + irc.clients[sender].getUsername() \
 			+ "@" + irc.getHostname() + " INVITE " + user + " " + chn;
@@ -25,9 +25,4 @@ void	cmdInvite(Server &irc, Message *message, int sender)
 		sendMessage(sender, RPL_INVITING(irc.getHostname(), irc.getNickByFd(sender), chn, user), ERR341);
 		irc.channels[chn].addInvite(irc.getFdFromNick(user));
 	}
-	/*else
-	{
-		std::string	msg = ":" + irc.getHostname() + " 336 " + irc.getNickByFd(sender) +
-		sendMessage(sender, const std::string &msg, const std::string &emsg)
-	}*/
 }

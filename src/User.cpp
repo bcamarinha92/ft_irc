@@ -27,7 +27,6 @@ void    cmdUser(Server &irc, Message *message, int sender)
 				username = username.substr(0, irc.max_len);
 			user.setUsername(username);
 			sendSequenceRPL(irc, message, sender);
-
 		}
 	}
 }

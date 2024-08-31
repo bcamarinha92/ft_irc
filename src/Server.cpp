@@ -336,8 +336,4 @@ void					Server::deactivateChannelMode(std::string const& chn, char mode, int se
 		sendMessage(sender, ERR_CHANOPRIVSNEEDED(this->getHostname(), this->getNickByFd(sender), chn), ERR482);
 }
 
-/*
-** --------------------------------- ACCESSOR ---------------------------------
-*/
-
 /* ************************************************************************** */
