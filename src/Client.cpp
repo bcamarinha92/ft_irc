@@ -6,7 +6,7 @@
 
 Client::Client() {}
 
-Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
+Client::Client(int socket):_authenticated(false), _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
 {
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
@@ -37,6 +37,7 @@ Client::Client(const Client& src)
 	this->_hostname = src._hostname;
 	this->_pingCount = src._pingCount;
 	this->_pwdStatus = src._pwdStatus;
+	this->_authenticated = src._authenticated;
 }
 
 /*
@@ -133,6 +134,11 @@ std::time_t		Client::getLastAction() const
     return (this->_lastAction);
 }
 
+bool		Client::getAuthenticated() const
+{
+	return (this->_authenticated);
+}
+
 void            Client::setSocket(int socket)
 {
     _clientSocket = socket;
@@ -156,6 +162,11 @@ void 		Client::setUsername(const std::string& username)
 void 		Client::setRealname(const std::string& realname)
 {
     _realname = realname;
+}
+
+void		Client::setAuthenticated()
+{
+	_authenticated = true;
 }
 
 void 		Client::incPingCount()

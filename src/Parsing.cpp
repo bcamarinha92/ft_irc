@@ -238,3 +238,39 @@ std::string	removeSpaces(const std::string& str)
 	}
 	return res;
 }
+
+bool valid_nick(const std::string &nick, Server &irc, int sender)
+{
+	if (nick.length() > irc.max_len) {
+		sendMessage(sender, ERR_ERRONEUSNICKNAME(irc.getHostname(), nick), ERR432);
+		return false;
+	}
+	if (nick[0] == '#' || nick[0] == ':') {
+		sendMessage(sender, ERR_ERRONEUSNICKNAME(irc.getHostname(), nick), ERR432);
+		return false;
+	}
+
+	for (size_t i = 0; i < nick.length(); i++)
+	{
+		if (!std::isalnum(nick[i]) && nick[i] != '[' && nick[i] != ']' && nick[i] != '\\' && nick[i] != '{' && nick[i] != '}' && nick[i] != '|' && nick[i] != '_' && nick[i] != '-')
+		{
+			sendMessage(sender, ERR_ERRONEUSNICKNAME(irc.getHostname(), nick), ERR432);
+			return false;
+		}
+	}
+	return true;
+}
+
+bool valid_channel(const std::string &channel, Server &irc)
+{
+	if (channel.length() > irc.max_len) {
+		return false;
+	}
+	for (size_t i = 0; i < channel.size(); i++)
+	{
+		if (channel[i] == ' ' || channel[i] == 0x07 || channel[i] == ',')
+			return false;
+	}
+
+	return true;
+}

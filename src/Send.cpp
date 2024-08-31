@@ -19,6 +19,8 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
 	sendMessage(sender, RPL_ISUPPORT(hostServer, nick), ERR005);
 	//Manda o MOTD vazio. Serve apenas para completar a ligacao e iniciar os PING/PONG
 	sendMessage(sender, ERR_NOMOTD(irc.getHostname(), irc.getNickByFd(sender)), ERR422);
+	Client &client = irc.getClientByFd(sender);
+	client.setAuthenticated();
 }
 
 void logConsole(std::string message)

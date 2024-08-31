@@ -14,7 +14,10 @@ void    cmdJoin(Server &irc, Message *message, int sender)
 			return (sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getNickByFd(sender), t), ERR403));
 		if (irc.clients[sender].channels.size() == CHANLIMIT)
 			return sendMessage(sender, ERR_TOOMANYCHANNELS(irc.getHostname(), t), ERR405);
-    	Channel	channel(t);
+    	
+		if (!valid_channel(t, irc))
+			return (sendMessage(sender, ERR_BADCHANMASK(irc.getNickByFd(sender), t), ERR476));
+		Channel	channel(t);
 		if (irc.channels.find(t) == irc.channels.end())
 		{
 			sendMessage(sender, JOIN(irc.getNickByFd(sender), t), ERRJ);

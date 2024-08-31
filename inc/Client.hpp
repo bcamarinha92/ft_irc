@@ -36,6 +36,7 @@ class Client
 		std::string 					getHostname() const;
 		bool                            getPwdStatus() const;
 		std::vector<int>                getUserChannelsFds(Server irc) const;
+		bool							getAuthenticated() const;
 
 		//Setters
 		void 							setSocket(int socket);
@@ -44,6 +45,7 @@ class Client
 		void 							setRealname(const std::string& realname);
 		void            				setLastAction();
 		void            				setPwdStatus();
+		void							setAuthenticated();
 		void            				incPingCount();
 		void            				resetPingCount();
 
@@ -60,6 +62,7 @@ class Client
 		std::string						_nickname;
     	std::string 					_username;
 		std::string 					_realname;
+		bool							_authenticated;
 		sockaddr_in						_clientAddr;
 		socklen_t	 					_clientAddrLen;
 		int				 				_clientSocket;

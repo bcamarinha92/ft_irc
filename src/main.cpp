@@ -22,6 +22,22 @@ void broadcast(Server &irc, Message *message, int sender)
             send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
         }
         return;
+    } else if (client.getAuthenticated() == false)
+    {
+        if (message->get_command() == "USER")
+		cmdUser(irc, message, sender);
+        else if (message->get_command() == "NICK")
+            cmdNick(irc, message, sender);
+        else if (message->get_command() == "PING")
+            cmdPing(irc, message, sender);
+		else if (message->get_command() == "PONG")
+			cmdPong(irc, message, sender);
+        else {
+            std::string join = ":" + irc.getHostname() + " 451 " + irc.getNickByFd(sender) + " :You have not registered\r\n";
+            logConsole(join);
+            send(sender, join.c_str(), join.length(), MSG_DONTWAIT);
+        }
+        return;
     }
 	if (message->get_command() == "PING")
 		cmdPing(irc, message, sender);
