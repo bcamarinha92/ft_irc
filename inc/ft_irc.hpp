@@ -346,4 +346,5 @@ void    					evaluatePing(Server &irc);
 std::string					toUpper(const std::string& str);
 std::vector<std::string>	split(const std::string &s, char delim);
 std::string					cleanString(const std::string& name);
-int get_next_linepp(int fd, std::string& ret, int flag);
+int                         get_next_linepp(int fd, std::string& ret, int flag);
+void                        disconnectClient(Server &irc, Client& client, int i, std::string reason);

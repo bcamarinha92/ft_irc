@@ -17,6 +17,7 @@ Client::Client(int socket): _lastAction(std::time(0)), _pingCount(0), _pwdStatus
     setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;
+    clientPollfd.revents = 0;
 	this->_username = "";
 	this->_realname = "";
 }

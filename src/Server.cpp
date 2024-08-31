@@ -40,6 +40,7 @@ Server::Server(int port, std::string password): _port(port), _password(password)
 	setNonBlocking(_serverSocket);
 	serverPollfd.fd = _serverSocket;
     serverPollfd.events = POLLIN;
+    serverPollfd.revents = 0;
     pollfds.push_back(serverPollfd);
 	this->modesParam['i'].first = 0;
 	this->modesParam['i'].second = 0;

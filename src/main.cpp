@@ -81,8 +81,8 @@ void	loopPool(Server &irc)
                     continue;
                 if (bytesRead == 0)
                 {
-                    irc.rmClient(clientSocket, i);
-                    std::cout << "Client disconnected" << std::endl;
+                    Client &client = irc.getClientByFd(clientSocket);
+                    disconnectClient(irc, client, i, "QUIT :Client disconnected");
                 }
                 else
                 {

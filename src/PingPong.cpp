@@ -27,19 +27,19 @@ void	cmdPong(Server &irc, Message *message, int sender)
 	}
 }
 
-void disconnectClient(Server &irc, Client& client, int i)
+void disconnectClient(Server &irc, Client& client, int i, std::string reason)
 {
-    (void)i;
+    std::map<std::string, Channel> aux = client.channels;
 
-    for (std::map<std::string, Channel>::const_iterator it = client.channels.begin(); it != client.channels.end(); it++)
+    for (std::map<std::string, Channel>::const_iterator it = aux.begin(); it != aux.end(); it++)
     {
-        Channel channel = irc.channels[it->first];
+        Channel& channel = irc.channels[it->first];
         std::vector<int> dest = channel.getChannelClientsFds();
-        //std::string str = ":" + client.getNickname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n";
-        sendMessageAll(client.getSocket(), dest, ":" + client.getNickname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n", ERRNOT,0);
+        std::string str = ":" + client.getNickname() + " " + reason + " " + client.getNickname();
+        sendMessageAll(client.getSocket(), dest, str, ERRNOT,1);
         channel.rmClient(client.getSocket(),irc);
     }
-    std::string str = ":" + irc.getHostname() + " QUIT :Ping timeout: " + client.getNickname() + "\r\n";
+    std::string str = ":" + irc.getHostname() + " " + reason + " " + client.getNickname() + "\r\n";
     send(client.getSocket(), str.c_str(), str.size(), MSG_DONTWAIT);
     irc.rmClient(client.getSocket(), i);
 }
@@ -57,9 +57,7 @@ void    evaluatePing(Server &irc)
             std::cout << "Ping Count " << user.getPingCount() << std::endl;
             if (user.getPingCount() == 4)
             {
-                //irc.rmClient(irc.pollfds[i].fd, i);
-                disconnectClient(irc, user, i);
-                //inserir aqui logica para remover o cliente dos canais em que estava
+                disconnectClient(irc, user, i, "QUIT :Ping timeout:");
                 std::cout << "Client disconnected due to inactivity" << std::endl;
             }
             std::string join = ":" + irc.getHostname() + " PING " + irc.getHostname() + "\r\n";
