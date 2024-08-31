@@ -1,5 +1,4 @@
 #include "../inc/ft_irc.hpp"
-#include <vector>
 
 void    cmdPing(Server &irc, Message *message, int sender)
 {

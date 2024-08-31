@@ -119,7 +119,7 @@ class Message;
 	(":" + hostname + " KICK " + chn + " " + user + " :" + reason)
 
 // PING
-# define PING(hostname, buffer) (":" + hostname + " PING " + buffer)
+# define PING(hostname, buffer) (":" + hostname + " " + buffer)
 
 // MODE
 	// Activate Channel Mode

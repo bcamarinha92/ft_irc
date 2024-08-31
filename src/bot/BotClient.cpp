@@ -1,5 +1,4 @@
 #include "../../inc/BotClient.hpp"
-#include <cstdio>
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
