@@ -1,25 +1,33 @@
 #include "../inc/Client.hpp"
+#include <netdb.h>
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-Client::Client() {}
+Client::Client() : _authenticated(false), _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
+{
+
+}
 
 Client::Client(int socket):_authenticated(false), _lastAction(std::time(0)), _pingCount(0), _pwdStatus(false)
 {
+    hostent *host;
     _clientAddrLen = sizeof(_clientAddr);
     _clientSocket = accept(socket, (sockaddr*)&_clientAddr, &_clientAddrLen);
     if (_clientSocket < 0)
         throw std::invalid_argument("accept");
     _client_ip = inet_ntoa(_clientAddr.sin_addr);
-	_hostname = gethostbyaddr((const void *)&_clientAddr.sin_addr, sizeof(_clientAddr.sin_addr), AF_INET);
-    setNonBlocking(_clientSocket);
+	host = gethostbyaddr((const void *)&_clientAddr.sin_addr, sizeof(_clientAddr.sin_addr), AF_INET);
+    _hostname = std::string(host->h_name);
+	setNonBlocking(_clientSocket);
     clientPollfd.fd = _clientSocket;
     clientPollfd.events = POLLIN;
     clientPollfd.revents = 0;
 	this->_username = "";
 	this->_realname = "";
+	this->_nickname = "";
+	this->channels = std::map<std::string, Channel>();
 }
 
 Client::Client(const Client& src)
@@ -44,7 +52,8 @@ Client::Client(const Client& src)
 ** -------------------------------- DESTRUCTOR --------------------------------
 */
 
-Client::~Client() {}
+Client::~Client() {
+}
 
 /*
 ** --------------------------------- OVERLOAD ---------------------------------
@@ -73,8 +82,17 @@ Client&				Client::operator=(Client const& rhs)
 
 std::ostream&			operator<<(std::ostream& o, Client const& i)
 {
-	(void)i;
-	//o << "Value = " << i.getValue();
+	o << "Client socket: " << i.getSocket() << std::endl;
+	o << "Client nickname: " << i.getNickname() << std::endl;
+	o << "Client username: " << i.getUsername() << std::endl;
+	o << "Client realname: " << i.getRealname() << std::endl;
+	o << "Client hostname: " << i.getHostname() << std::endl;
+	//o << "Client IP: " << i._client_ip << std::endl;
+	o << "Client last action: " << i.getLastAction() << std::endl;
+	o << "Client ping count: " << i.getPingCount() << std::endl;
+	o << "Client pwd status: " << i.getPwdStatus() << std::endl;
+	o << "Client authenticated: " << i.getAuthenticated() << std::endl;
+
 	return o;
 }
 
@@ -125,7 +143,7 @@ std::string 		Client::getUsername() const
 
 std::string 		Client::getHostname() const
 {
-    return (this->_hostname->h_name);
+    return (this->_hostname);
 }
 
 std::time_t			Client::getLastAction() const

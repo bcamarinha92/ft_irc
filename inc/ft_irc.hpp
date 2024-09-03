@@ -160,12 +160,12 @@ class Message;
 
 // 001: The first message sent after client registration, this message introduces the client to the network
 # define RPL_WELCOME(hostserver, nick) \
-	(":" + hostserver + " 001 " + nick + " :Welcome to the Paulo Brificado's IRC " + nick + "!")
+	(":" + hostserver + " 001 " + nick + " :Welcome to the Paulo's Garage IRC " + nick + "!")
 
 // 002: Part of the post-registration greeting, this numeric returns the name and software/version of the
 // server the client is currently connected to
 # define RPL_YOURHOST(hostserver, nick, hostclient) \
-	(":" + hostserver + " 002 " + nick + " :Your host is " + hostclient + ", running version 0.01")
+	(":" + hostserver + " 002 " + nick + " :Your host is " + hostclient + ", this server is running version 1.00 ")
 
 // 003: Part of the post-registration greeting, this numeric returns a human-readable date/time
 // that the server was started or created
@@ -175,12 +175,12 @@ class Message;
 // 004: Part of the post-registration greeting. Clients SHOULD discover available features using
 // RPL_ISUPPORT tokens rather than the mode letters listed in this reply
 # define RPL_MYINFO(hostserver, nick) \
-	(":" + hostserver + " 004 " + nick + " :" + hostserver + " 0.01 ao itkol")
+	(":" + hostserver + " 004 " + nick + " :" + hostserver + " 1.00 ao itkol")
 
 // 005: A server MUST issue at least one RPL_ISUPPORT numeric after client registration has completed.
 // It MUST be issued before further commands from the client are processed
 # define RPL_ISUPPORT(hostserver, nick) \
-	(":" + hostserver + " 005 " + nick + " :PREFIX=(o)@ :CHANTYPES=# :CHANMODES=i,t,k,o,l :CASEMAPPING=ascii :TARGMAX=PART:1,NAMES:1,KICK:1,INVITE1:,WHO:1,WHOIS:1,PRIVMSG:1 :NETWORK=PauloBrificado :are supported by this server")
+	(":" + hostserver + " 005 " + nick + " :PREFIX=(o)@ :CHANTYPES=# :CHANMODES=i,t,k,o,l :CASEMAPPING=ascii :NICKLEN=32 :USERLEN=32 :CHANNELLEN=32 :TARGMAX=PART:1,NAMES:1,KICK:1,INVITE1:,WHO:1,WHOIS:1,PRIVMSG:1 :NETWORK=PaulosGarage :are supported by this server")
 
 // 315: Sent as a reply to the WHO command, this numeric indicates the end of a WHO response for
 // the mask <mask>
@@ -274,11 +274,11 @@ class Message;
 		(hostname + " " + nick + " " + chn + " :is already on channel")
 
 // 461: Returned when a client command cannot be parsed because not enough parameters were supplied
-# define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters")
+# define ERR_NEEDMOREPARAMS(hostname, cmd) (hostname + " " + cmd + " :Not enough parameters\r\n")
 
 // 462: Error message when already registered
 # define ERR_ALREADYREGISTERED(hostname, nick) \
-		(":" + hostname + " 462 " + nick + " :You may not reregister")
+		(":" + hostname + " 462 " + nick + " :You may not reregister\r\n")
 
 // 464: Returned to indicate that the connection could not be registered as the password was either
 // incorrect or not supplied
@@ -326,6 +326,7 @@ void		cmdUser(Server &irc, Message *message, int sender);
 void        cmdTopic(Server &irc, Message *message, int sender);
 void        cmdKick(Server &irc, Message *message, int sender);
 void        nameReply(Server &irc, std::string chn, int sender);
+void        sendTopicJoin(Server &irc, std::string chn, int sender);
 void		cmdInvite(Server &irc, Message *message, int sender);
 void	    cmdNotice(Server &irc, Message *message, int sender);
 

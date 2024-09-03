@@ -1,9 +1,10 @@
 #include "../inc/ft_irc.hpp"
+#include <iostream>
 
 void	broadcast(Server &irc, Message *message, int sender)
 {
     Client &client = irc.getClientByFd(sender);
-
+    //std::cout << client << std::endl;
 	if (client.getPwdStatus() == false)
     {
 		if (message->get_command() == "PING")
@@ -71,7 +72,7 @@ void	broadcast(Server &irc, Message *message, int sender)
     client.setLastAction();
 }
 
-void	loopPool(Server &irc)
+void	loopPoll(Server &irc)
 {
     //char *message = 0;
     int bytesRead = 0;
@@ -130,7 +131,7 @@ int	main(int argc, char *argv[])
             pollCount = poll(irc.pollfds.data(), irc.pollfds.size(), 1000);
             if (pollCount < 0 && running)
                 throw std::invalid_argument("poll");
-            loopPool(irc);
+            loopPoll(irc);
             evaluatePing(irc);
         }
         closeFDs(irc);

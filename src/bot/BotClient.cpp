@@ -19,9 +19,9 @@ BotClient::BotClient(std::string serverIP, int port, std::string pass)
     if (connect(_socket, (struct sockaddr *)&_server, sizeof(_server)) < 0)
 		throw std::invalid_argument("connect");
 
-	this->_nickname1 = "bbc";
-	this->_nickname2 = "botzasso";
-	this->_nickname3 = "botinho";
+	this->_nickname1 = "SrPaulo";
+	this->_nickname2 = "MecanicoPaulo";
+	this->_nickname3 = "PauloToreto";
 	this->_username = "bot";
 	this->_realname = "bot";
 

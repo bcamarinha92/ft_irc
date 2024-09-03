@@ -40,3 +40,14 @@ void   cmdTopic(Server &irc, Message *message, int sender)
 								   channel.getName()), ERR331);
     }
 }
+
+
+void sendTopicJoin(Server &irc, std::string chn, int seder)
+{
+    Channel &channel = irc.channels[chn];
+    if (channel.getTopic().size() > 0)
+        sendMessage(seder, RPL_TOPIC(irc.getHostname(), irc.getNickByFd(seder), channel.getName(), \
+                             channel.getTopic()), ERR332);
+    else
+        sendMessage(seder, RPL_NOTOPIC(irc.getHostname(), irc.getNickByFd(seder), channel.getName()), ERR331);
+}

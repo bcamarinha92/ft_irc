@@ -1,4 +1,41 @@
 #include "../inc/ft_irc.hpp"
+#include <stack>
+#include <vector>
+
+void sendMOTD(Server &irc, int fd)
+{
+    std::vector<std::string> motd;
+
+
+    motd.push_back("Welcome to Paulo's Garage!");
+    motd.push_back("        ______");
+    motd.push_back("       //  ||\\ \\");
+    motd.push_back(" _____//___||_\\ \\___");
+    motd.push_back(" )  _          _    \\");
+    motd.push_back(" |_/O\\________/O\\___|");
+    motd.push_back("");
+    motd.push_back("\\ \\        / / | |                          | |                     ");
+    motd.push_back(" \\ \\  /\\  / /__| | ___ ___  _ __ ___   ___  | |_ ___                ");
+    motd.push_back("  \\ \\/  \\/ / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\ | __/ _ \\               ");
+    motd.push_back("   \\  /\\  /  __/ | (_| (_) | | | | | |  __/ | || (_) |              ");
+    motd.push_back(" ___\\/  \\/ \\___|_|\\___\\___/|_| |_| |_|\\___|  \\__\\___/               ");
+    motd.push_back("|  __ \\          | |     ( )      / ____|                           ");
+    motd.push_back("| |__) |_ _ _   _| | ___ |/ ___  | |  __  __ _ _ __ __ _  __ _  ___ ");
+    motd.push_back("|  ___/ _` | | | | |/ _ \\  / __| | | |_ |/ _` | '__/ _` |/ _` |/ _ \\");
+    motd.push_back("| |  | (_| | |_| | | (_) | \\__ \\ | |__| | (_| | | | (_| | (_| |  __/");
+    motd.push_back("|_|   \\__,_|\\__,_|_|\\___/  |___/  \\_____|\\__,_|_|  \\__,_|\\__, |\\___|");
+    motd.push_back("                                                          __/ |     ");
+    motd.push_back("                                                         |___/ ");
+
+    std::string motdStart = ":" + irc.getHostname() + " 375 " + irc.getNickByFd(fd) + " :MOTD -  Paulo's Garage";
+    sendMessage(fd, motdStart, "Error sending MOTD");
+    for (size_t i = 0; i < motd.size(); i++)
+    {
+        sendMessage(fd, motd[i], "Error sending MOTD");
+    }
+    motdStart = ":" + irc.getHostname() + " 376 " + irc.getNickByFd(fd) + " :End of /MOTD command.";
+    sendMessage(fd, motdStart, "Error sending MOTD");
+}
 
 void    sendSequenceRPL(Server &irc, Message *message, int sender)
 {
@@ -17,8 +54,9 @@ void    sendSequenceRPL(Server &irc, Message *message, int sender)
    	sendM(sender, RPL_CREATED(hostServer, nick, std::string(std::ctime(&t))), ERR003);
 	sendMessage(sender, RPL_MYINFO(hostServer, nick), ERR004);
 	sendMessage(sender, RPL_ISUPPORT(hostServer, nick), ERR005);
+	sendMOTD(irc, sender);
 	//Manda o MOTD vazio. Serve apenas para completar a ligacao e iniciar os PING/PONG
-	sendMessage(sender, ERR_NOMOTD(irc.getHostname(), irc.getNickByFd(sender)), ERR422);
+	//sendMessage(sender, ERR_NOMOTD(irc.getHostname(), irc.getNickByFd(sender)), ERR422);
 	Client &client = irc.getClientByFd(sender);
 	client.setAuthenticated();
 }

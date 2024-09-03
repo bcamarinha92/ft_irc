@@ -1,4 +1,5 @@
 #include "../inc/Server.hpp"
+#include <strings.h>
 
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
@@ -6,7 +7,7 @@
 
 Server::Server(int port, std::string password): max_len(32), _port(port), _password(password), _creationTime(std::time(0))
 {
-	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
+    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket < 0)
 		throw std::invalid_argument("socket");
 	std::memset(&_serverAddr, 0, sizeof(_serverAddr));
@@ -54,6 +55,10 @@ Server::Server(int port, std::string password): max_len(32), _port(port), _passw
 	this->modesParam['o'].second = 1;
 	this->modesParam['t'].first = 0;
 	this->modesParam['t'].second = 0;
+	this->clients = std::map<int, Client>();
+	this->channels = std::map<std::string, Channel>();
+
+
 }
 
 Server::Server(const Server& src)

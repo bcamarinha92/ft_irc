@@ -12,6 +12,11 @@ Channel::Channel(): _launch(true), _ulimit(-1), _key("")
 Channel::Channel(std::string name): _createdAt(std::time(0)), _launch(true), _ulimit(-1), _key("")
 {
 	this->_name = name;
+	this->_topic = "";
+	this->members = std::map<int, Client>();
+	this->operators = std::map<int, Client>();
+	this->_modes = std::map<char, bool>();
+	this->_invites = std::vector<int>();
 	this->prepareModes();
 }
 

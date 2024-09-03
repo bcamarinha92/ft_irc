@@ -3,6 +3,7 @@
 
 #include "Server.hpp"
 # include "ft_irc.hpp"
+#include <string>
 
 class Channel;
 class Server;
@@ -66,8 +67,9 @@ class Client
 		sockaddr_in						_clientAddr;
 		socklen_t	 					_clientAddrLen;
 		int				 				_clientSocket;
-		char 							*_client_ip;
-		hostent*						_hostname;
+		std::string						_client_ip;
+		//hostent*						_hostname;
+		std::string						_hostname;
 		std::time_t						_lastAction;
 		id_t							_pingCount;
 		bool                            _pwdStatus;
