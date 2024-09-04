@@ -329,6 +329,7 @@ void        nameReply(Server &irc, std::string chn, int sender);
 void        sendTopicJoin(Server &irc, std::string chn, int sender);
 void		cmdInvite(Server &irc, Message *message, int sender);
 void	    cmdNotice(Server &irc, Message *message, int sender);
+void        cmdQuit(Server &irc, Message *message, int sender);
 
 // Parser
 std::string 				getNickFromBuffer(const std::string& input);
@@ -358,4 +359,4 @@ std::string					cleanString(const std::string& name);
 bool 						valid_nick(const std::string &nick, Server &irc, int sender);
 bool 						valid_channel(const std::string &channel, Server &irc);
 int                         get_next_linepp(int fd, std::string& ret, int flag);
-void                        disconnectClient(Server &irc, Client& client, int i, std::string reason);
+void                        disconnectClient(Server &irc, Client& client, std::string reason);

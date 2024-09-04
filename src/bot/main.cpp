@@ -58,7 +58,7 @@ int	main(int argc, char **argv)
 
     	while (true)
 		{
-			if(recv(bot.getSocket(), buffer, 256, 0) <= 0)
+			if(recv(bot.getSocket(), buffer, 512, 0) <= 0)
 			{
 				std::cout << "Server has stopped running. Closing bot..." << std::endl;
             	close(bot.getSocket());

@@ -4,7 +4,7 @@
 void	broadcast(Server &irc, Message *message, int sender)
 {
     Client &client = irc.getClientByFd(sender);
-    //std::cout << client << std::endl;
+
 	if (client.getPwdStatus() == false)
     {
 		if (message->get_command() == "PING")
@@ -69,6 +69,8 @@ void	broadcast(Server &irc, Message *message, int sender)
 		cmdInvite(irc, message, sender);
 	else if (message->get_command() == "NOTICE")
 		cmdNotice(irc, message, sender);
+	else if (message->get_command() == "QUIT")
+	    cmdQuit(irc, message, sender);
     client.setLastAction();
 }
 
@@ -85,6 +87,7 @@ void	loopPoll(Server &irc)
             if (irc.pollfds[i].fd == irc.getServerSocket())
             {
                 // Nova conexão detetada;
+
                 Client user(irc.getServerSocket());
                 irc.addClient(user);
                 std::cout << "New connection from " << user.getHostname() << std::endl;
@@ -93,14 +96,13 @@ void	loopPoll(Server &irc)
             {
                 // Dados recebidos de um cliente com ligacao ja estabelecida previamente
                 clientSocket = irc.pollfds[i].fd;
-                //bytesRead = get_next_line(clientSocket, &message, 0);
                 bytesRead = get_next_linepp(clientSocket, message,0);
                 if (message == "" && bytesRead != 0)
                     continue;
                 if (bytesRead == 0)
                 {
                     Client &client = irc.getClientByFd(clientSocket);
-                    disconnectClient(irc, client, i, "QUIT :Client disconnected");
+                    disconnectClient(irc, client, "QUIT :Client disconnected");
                 }
                 else
                 {

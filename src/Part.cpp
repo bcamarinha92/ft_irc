@@ -3,7 +3,8 @@
 void	cmdPart(Server &irc, Message *message, int sender)
 {
 	std::string chn = message->get_destination();
-	std::string	reason = "Leaving";
+	//std::string	reason = "Leaving";
+	std::string	reason = parseRealname(message->get_buffer());
 
 	if (irc.channels.find(chn) == irc.channels.end())
 		return sendMessage(sender, ERR_NOSUCHCHANNEL(irc.getHostname(), chn), ERR403);
