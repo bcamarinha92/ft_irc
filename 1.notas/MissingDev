@@ -1,1 +1,0 @@
-Limit send message to 512 chars. if it's more than that, split it into multiple messages
